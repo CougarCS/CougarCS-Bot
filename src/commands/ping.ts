@@ -8,6 +8,7 @@ export const ping: Command = {
     .setDescription("Basic Discord bot command example"),
   run: async (interaction, client) => {
     await interaction.deferReply({ ephemeral: false });
+
     const { user } = interaction;
     const returnMessage = createEmbeded(
       "Pong!",
@@ -15,7 +16,7 @@ export const ping: Command = {
       user,
       client
     )
-      .setColor("Red")
+      .setColor("Green")
       .setFooter(null)
       .setTimestamp(null);
     await interaction.editReply({ embeds: [returnMessage] });
