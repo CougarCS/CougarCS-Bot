@@ -27,13 +27,6 @@ export const resetreactionroles: Command = {
     await interaction.deferReply({ ephemeral: false });
     const { user } = interaction;
 
-    // const role = interaction.guild?.roles.cache.find(
-    //   (r) => r.name === "Member"
-    // );
-    // if (!role) return;
-    // const members = role?.members;
-    // members?.forEach((member) => member.roles.remove(role));
-
     let languageBody = "React to give yourself a role!\n\n";
     for (let i = 0; i < languageIcons.length; i++) {
       languageBody += languageIcons.at(i) + " `" + languageNames.at(i) + "`\n";

@@ -37,6 +37,7 @@ export const languageNames = [
 export const frameworkIcons = [
   "<:Angular:1032659006533160993>",
   "<:React:1032458843357192192>",
+  "<:nextjs:1076993068768690187>",
   "<:Bootstrap:1032659008139567158>",
   "<:Tailwind:1032659012837195827>",
   "<:ExpressJS:1032667384491819089>",
@@ -48,6 +49,7 @@ export const frameworkIcons = [
 export const frameworkNames = [
   "Angular",
   "React",
+  "Next.js",
   "Bootstrap",
   "Tailwind",
   "Express",
