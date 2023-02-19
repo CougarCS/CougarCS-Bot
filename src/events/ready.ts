@@ -37,5 +37,5 @@ export const onReady = async (client: Client) => {
   );
 
   console.log(`🤖 ${client.user?.tag} is online ⚡`);
-  console.log("🚀 Initialization complete");
+  console.log("😺 Initialization complete");
 };
