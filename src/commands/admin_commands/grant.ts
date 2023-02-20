@@ -49,6 +49,20 @@ export const grant: Command = {
     const point_value = interaction.options.get("value", true).value as number;
     const reason_id = interaction.options.get("reason", false)?.value;
 
+    if (grantMember.user?.id === user.id) {
+      const returnMessage = createEmbeded(
+        "❌ Grant Failed!",
+        "You cannot grant CougarCoin to yourself!",
+        user,
+        client
+      )
+        .setColor("Red")
+        .setFooter(null)
+        .setTimestamp(null);
+      await interaction.editReply({ embeds: [returnMessage] });
+      return;
+    }
+
     const pointGrant = await createTransaction(
       grantMember.user?.id,
       point_value,
