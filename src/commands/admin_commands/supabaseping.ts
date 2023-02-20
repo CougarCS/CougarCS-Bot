@@ -1,4 +1,4 @@
-import { SlashCommandBuilder } from "discord.js";
+import { PermissionFlagsBits, SlashCommandBuilder } from "discord.js";
 import { Command } from "../../interfaces/Command";
 import { createEmbeded } from "../../utils/embeded";
 import { pingSB } from "../../utils/supabase";
@@ -6,7 +6,8 @@ import { pingSB } from "../../utils/supabase";
 export const supabaseping: Command = {
   data: new SlashCommandBuilder()
     .setName("supabaseping")
-    .setDescription("Ping the Supabase Backend."),
+    .setDescription("Ping the Supabase Backend.")
+    .setDefaultMemberPermissions(PermissionFlagsBits.ManageChannels),
   run: async (interaction, client) => {
     await interaction.deferReply({ ephemeral: false });
     const { user } = interaction;

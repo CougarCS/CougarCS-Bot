@@ -1,5 +1,10 @@
 import { channel } from "diagnostics_channel";
-import { ChannelType, SlashCommandBuilder, TextChannel } from "discord.js";
+import {
+  ChannelType,
+  PermissionFlagsBits,
+  SlashCommandBuilder,
+  TextChannel,
+} from "discord.js";
 import { Command } from "../../interfaces/Command";
 import { createEmbeded } from "../../utils/embeded";
 import {
@@ -22,7 +27,8 @@ export const resetreactionroles: Command = {
         .setDescription("The channel where the reaction roles should be")
         .setRequired(true)
         .addChannelTypes(ChannelType.GuildText);
-    }),
+    })
+    .setDefaultMemberPermissions(PermissionFlagsBits.ManageChannels),
   run: async (interaction, client) => {
     await interaction.deferReply({ ephemeral: false });
     const { user } = interaction;
