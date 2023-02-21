@@ -9,10 +9,11 @@ export const supabaseping: Command = {
     .setDescription("Ping the Supabase Backend.")
     .setDefaultMemberPermissions(PermissionFlagsBits.ManageChannels),
   run: async (interaction, client) => {
+    const startTime = new Date().getTime();
     await interaction.deferReply({ ephemeral: false });
     const { user } = interaction;
 
-    const ping = await pingSB();
+    let ping = await pingSB();
 
     if (ping.error) {
       const returnMessage = createEmbeded(
@@ -27,10 +28,12 @@ export const supabaseping: Command = {
       await interaction.editReply({ embeds: [returnMessage] });
       return;
     }
-
+    const endTime = new Date().getTime();
     const returnMessage = createEmbeded(
       "<:supabase:867529336197480468> Supabase Pong!",
-      `The Supabase instance responded with no errors!`,
+      `The Supabase instance responded with no errors!\nResponded in **${
+        (endTime - startTime) / 1000
+      }** seconds!`,
       user,
       client
     )

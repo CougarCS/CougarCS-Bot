@@ -68,7 +68,7 @@ export const ReactionRoleGiver = async (
   message.react(reactions.at(reactions.length - 1) || "❓").then(() => {
     const collector = message.createReactionCollector();
     collector.options.dispose = true;
-    collector.on("collect", (reaction, user) => {
+    collector.on("collect", async (reaction, user) => {
       console.log(`Collected ${reaction.emoji.name} from ${user.tag}`);
       if (!reaction.emoji.name) return;
       if (
@@ -76,6 +76,7 @@ export const ReactionRoleGiver = async (
       ) {
         message.guild.roles.create({ name: reaction.emoji.name });
       }
+      await message.guild.roles.fetch();
       const role = message.guild.roles.cache.find(
         (r) => r.name === reaction.emoji.name
       );

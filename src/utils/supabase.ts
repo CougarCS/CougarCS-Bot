@@ -69,6 +69,36 @@ export const findMemberWithSnowflake = async (
   message: string;
   contact: any;
 }> => {
+  const contactFetch = await findContactWithSnowflake(discord_snowflake);
+
+  if (contactFetch.status === "failure") {
+    return contactFetch;
+  }
+
+  const { contact_id } = contactFetch.contact;
+  const activeMember = await isMember(contact_id);
+  if (!activeMember) {
+    return {
+      status: "failure",
+      message: "This membership is inactive!",
+      contact: contactFetch.contact,
+    };
+  }
+  return {
+    status: "success",
+    message: "The membership is active!",
+    contact: contactFetch.contact,
+  };
+};
+
+// findContactWithSnowflake( discord_snowflake )
+export const findContactWithSnowflake = async (
+  discord_snowflake
+): Promise<{
+  status: "success" | "failure";
+  message: string;
+  contact: any;
+}> => {
   const contact = await supabase
     .from("contacts")
     .select("*")
@@ -77,22 +107,14 @@ export const findMemberWithSnowflake = async (
     return {
       status: "failure",
       message:
-        "Discord account is not linked! Try specifying your PSID and Email!",
+        "Discord account is not linked! Try specifying the  PSID and Email!",
       contact: contact,
     };
   }
   const { contact_id } = contact.data[0];
-  const activeMember = await isMember(contact_id);
-  if (!activeMember) {
-    return {
-      status: "failure",
-      message: "This membership is inactive!",
-      contact: contact.data[0],
-    };
-  }
   return {
     status: "success",
-    message: "The membership is active!",
+    message: "Contact found!",
     contact: contact.data[0],
   };
 };
