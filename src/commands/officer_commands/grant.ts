@@ -74,7 +74,7 @@ export const grant: Command = {
     const pointGrant = await createTransaction(
       grantMember.user?.id,
       point_value,
-      (reason_id || "mpt-general") as string
+      (reason_id || "mpt-general") as `mpt-${string}`
     );
 
     if (pointGrant.status === "failure") {

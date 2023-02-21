@@ -61,6 +61,5 @@ export const log = async (
       value: `${fullCommand}`,
     });
 
-  console.log(interaction);
   logChannel.send({ embeds: [message] });
 };

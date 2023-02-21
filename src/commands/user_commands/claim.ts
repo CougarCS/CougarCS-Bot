@@ -104,7 +104,6 @@ export const claim: Command = {
           membership.contact.contact_id as string,
           user.id
         );
-        console.log(response);
         if (response.error) {
           const returnMessage = createEmbeded(
             "❌ Claim Failed!",
@@ -134,7 +133,6 @@ export const claim: Command = {
     }
     await interaction.guild?.members.fetch();
     const otherMember = interaction.guild?.members.cache.find((gm) => {
-      console.log(`${gm.id} === ${discord_snowflake}`);
       return (gm.id as string) === (discord_snowflake as string);
     });
 

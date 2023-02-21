@@ -205,7 +205,7 @@ export const getBalance = async (
 export const createTransaction = async (
   discord_snowflake,
   point_value: number,
-  reason_id: string
+  reason_id: `mpt-${string}`
 ): Promise<{
   status: "failure" | "success";
   message: string;
@@ -220,7 +220,7 @@ export const createTransaction = async (
   const { contact_id } = membership.contact;
   const create = await supabase.from("member_point_transaction").insert({
     contact_id,
-    point_value,
+    point_value: Math.floor(point_value),
     member_point_transaction_reason_id: reason_id,
   });
   if (create.error) {
