@@ -2,6 +2,7 @@ import { PermissionFlagsBits, SlashCommandBuilder } from "discord.js";
 import { Command } from "../../interfaces/Command";
 import { createEmbeded } from "../../utils/embeded";
 import { pingSB } from "../../utils/supabase";
+import { log } from "../../utils/logs";
 
 export const supabaseping: Command = {
   data: new SlashCommandBuilder()
@@ -12,6 +13,7 @@ export const supabaseping: Command = {
     const startTime = new Date().getTime();
     await interaction.deferReply({ ephemeral: false });
     const { user } = interaction;
+    log(interaction, "/supabaseping", "#3ECF8E", client, []);
 
     let ping = await pingSB();
 

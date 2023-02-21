@@ -2,6 +2,7 @@ import { PermissionFlagsBits, SlashCommandBuilder } from "discord.js";
 import { Command } from "../../interfaces/Command";
 import { createEmbeded } from "../../utils/embeded";
 import { createTransaction, getBalance } from "../../utils/supabase";
+import { log } from "../../utils/logs";
 
 export const grant: Command = {
   data: new SlashCommandBuilder()
@@ -49,8 +50,14 @@ export const grant: Command = {
     const grantMember = interaction.options.get("member", true);
     const point_value = interaction.options.get("value", true).value as number;
     const reason_id = interaction.options.get("reason", false)?.value;
+    if (!grantMember.user) return;
+    log(interaction, "/grant", "Green", client, [
+      { name: "member", value: `${grantMember.user}` },
+      { name: "value", value: `${point_value}` },
+      { name: "reason", value: `${reason_id}` },
+    ]);
 
-    if (grantMember.user?.id === user.id) {
+    if (grantMember.user.id === user.id) {
       const returnMessage = createEmbeded(
         "❌ Grant Failed!",
         "You cannot grant CougarCoin to yourself!",

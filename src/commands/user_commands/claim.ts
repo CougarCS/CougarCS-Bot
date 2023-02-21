@@ -6,6 +6,7 @@ import {
   findMember,
   findMemberWithSnowflake,
 } from "../../utils/supabase";
+import { log } from "../../utils/logs";
 
 export const claim: Command = {
   data: new SlashCommandBuilder()
@@ -31,6 +32,12 @@ export const claim: Command = {
   run: async (interaction, client) => {
     await interaction.deferReply({ ephemeral: true });
     const { user } = interaction;
+    const psid = interaction.options.get("psid", false);
+    const email = interaction.options.get("email", false);
+    log(interaction, "/claim", "Green", client, [
+      { name: "psid", value: `${psid}` },
+      { name: "email", value: `${email}` },
+    ]);
     const member = interaction.guild?.members.cache.find(
       (gm) => user.id === gm.id
     ) as GuildMember;
@@ -57,9 +64,6 @@ export const claim: Command = {
       await interaction.editReply({ embeds: [returnMessage] });
       return;
     }
-
-    const psid = interaction.options.get("psid", false);
-    const email = interaction.options.get("email", false);
 
     let body = "";
 
@@ -144,6 +148,7 @@ export const claim: Command = {
       .setFooter(null)
       .setTimestamp(null);
     await interaction.editReply({ embeds: [returnMessage] });
+
     return;
   },
 };

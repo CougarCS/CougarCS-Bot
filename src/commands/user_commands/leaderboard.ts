@@ -2,6 +2,7 @@ import { SlashCommandBuilder } from "discord.js";
 import { Command } from "../../interfaces/Command";
 import { createEmbeded } from "../../utils/embeded";
 import { getLeaderboard } from "../../utils/supabase";
+import { log } from "../../utils/logs";
 
 export const leaderboard: Command = {
   data: new SlashCommandBuilder()
@@ -19,6 +20,12 @@ export const leaderboard: Command = {
     await interaction.deferReply({ ephemeral: false });
     const { user } = interaction;
     const number = interaction.options.get("number", false);
+    log(interaction, "/leaderboard", "Green", client, [
+      {
+        name: "number",
+        value: `${number}`,
+      },
+    ]);
 
     const board = await getLeaderboard((number?.value || 10) as number);
 

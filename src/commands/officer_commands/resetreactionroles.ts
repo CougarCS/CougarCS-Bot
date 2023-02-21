@@ -14,6 +14,7 @@ import {
   languageNames,
   ReactionRoleGiver,
 } from "../../utils/reactions";
+import { log } from "../../utils/logs";
 
 export const resetreactionroles: Command = {
   data: new SlashCommandBuilder()
@@ -32,6 +33,11 @@ export const resetreactionroles: Command = {
   run: async (interaction, client) => {
     await interaction.deferReply({ ephemeral: false });
     const { user } = interaction;
+    const targetChannel = interaction.options.get("channel", true).channel;
+    if (!targetChannel) return;
+    log(interaction, "/resetreactionroles", "Green", client, [
+      { name: "channel", value: `${targetChannel}` },
+    ]);
 
     let languageBody = "React to give yourself a role!\n\n";
     for (let i = 0; i < languageIcons.length; i++) {
@@ -62,10 +68,8 @@ export const resetreactionroles: Command = {
       .setFooter(null)
       .setTimestamp(null);
 
-    const targetChannel = interaction.options.get("channel", true).channel?.id;
-    if (!targetChannel) return;
     const channel = interaction.guild?.channels.cache.get(
-      targetChannel
+      targetChannel.id
     ) as TextChannel;
     if (!channel) return;
     await channel.bulkDelete(5);

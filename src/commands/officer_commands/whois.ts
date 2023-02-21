@@ -1,4 +1,4 @@
-import { PermissionFlagsBits, SlashCommandBuilder } from "discord.js";
+import { Guild, PermissionFlagsBits, SlashCommandBuilder } from "discord.js";
 import { Command } from "../../interfaces/Command";
 import { createEmbeded } from "../../utils/embeded";
 import {
@@ -7,6 +7,7 @@ import {
   findMemberWithSnowflake,
   getBalance,
 } from "../../utils/supabase";
+import { log } from "../../utils/logs";
 
 export const whois: Command = {
   data: new SlashCommandBuilder()
@@ -23,6 +24,9 @@ export const whois: Command = {
     await interaction.deferReply({ ephemeral: false });
     const { user } = interaction;
     const whoUser = interaction.options.get("user", true);
+    log(interaction, "/whois", "Blue", client, [
+      { name: "user", value: `${whoUser.user}` },
+    ]);
 
     if (!whoUser.user) {
       return;

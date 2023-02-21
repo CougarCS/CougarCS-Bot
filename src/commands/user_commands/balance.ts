@@ -2,6 +2,7 @@ import { SlashCommandBuilder, User } from "discord.js";
 import { Command } from "../../interfaces/Command";
 import { createEmbeded } from "../../utils/embeded";
 import { getBalance } from "../../utils/supabase";
+import { log } from "../../utils/logs";
 
 interface points {
   member_points: string;
@@ -21,6 +22,9 @@ export const balance: Command = {
     await interaction.deferReply({ ephemeral: false });
     const { user } = interaction;
     const balanceMember = interaction.options.get("member", false);
+    log(interaction, "/balance", "#FFD800", client, [
+      { name: "member", value: `${balanceMember?.user}` },
+    ]);
     const checkUserID = balanceMember ? balanceMember.user?.id : user.id;
 
     const balanceDetails = await getBalance(checkUserID);
@@ -50,7 +54,6 @@ export const balance: Command = {
       .setFooter(null)
       .setTimestamp(null);
     await interaction.editReply({ embeds: [returnMessage] });
-
     return;
   },
 };
