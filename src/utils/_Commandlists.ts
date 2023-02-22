@@ -7,7 +7,8 @@ import { claim } from "../commands/user_commands/claim";
 import { grant } from "../commands/officer_commands/grant";
 import { leaderboard } from "../commands/user_commands/leaderboard";
 import { whois } from "../commands/officer_commands/whois";
-import { pay } from "../commands/user_commands/pay";
+import { pay } from "../commands/member_commands/pay";
+import { pruneexpiredmembers } from "../commands/officer_commands/pruneexpiredmembers";
 
 export const CommandList: Command[] = [
   balance,
@@ -16,6 +17,7 @@ export const CommandList: Command[] = [
   leaderboard,
   pay,
   ping,
+  pruneexpiredmembers,
   resetreactionroles,
   supabaseping,
   whois,

@@ -31,6 +31,24 @@ export const pay: Command = {
       { name: "value", value: `${point_value.value}` },
     ]);
 
+    if (
+      !interaction.guild?.members.cache
+        .find((m) => m.id === user.id)
+        ?.roles.cache.find((r) => r.name === "Member")
+    ) {
+      const returnMessage = createEmbeded(
+        "❌ Payment Canceled!",
+        `This command is available for members only.`,
+        user,
+        client
+      )
+        .setColor("Red")
+        .setFooter(null)
+        .setTimestamp(null);
+      await interaction.editReply({ embeds: [returnMessage] });
+      return;
+    }
+
     const yourBalanceCheck = await getBalance(user.id);
     if (yourBalanceCheck.status === "failure") {
       return;
