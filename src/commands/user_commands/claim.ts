@@ -34,7 +34,7 @@ export const claim: Command = {
     const { user } = interaction;
     const psid = interaction.options.get("psid", false);
     const email = interaction.options.get("email", false);
-    log(interaction, "/claim", "Green", client, [
+    log(interaction, "/claim", "Green", [
       { name: "psid", value: `${psid}` },
       { name: "email", value: `${email}` },
     ]);

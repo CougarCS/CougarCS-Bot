@@ -26,7 +26,7 @@ export const pay: Command = {
     const { user } = interaction;
     const payMember = interaction.options.get("member", true);
     const point_value = interaction.options.get("value", true);
-    log(interaction, "/pay", "Green", client, [
+    log(interaction, "/pay", "Green", [
       { name: "member", value: `${payMember.user}` },
       { name: "value", value: `${point_value.value}` },
     ]);

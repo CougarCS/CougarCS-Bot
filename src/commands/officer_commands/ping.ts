@@ -11,7 +11,7 @@ export const ping: Command = {
   run: async (interaction, client) => {
     await interaction.deferReply({ ephemeral: false });
     const { user } = interaction;
-    log(interaction, "/ping", "Green", client, []);
+    log(interaction, "/ping", "Green", []);
     const returnMessage = createEmbeded(
       "🏓 Pong!",
       "Thank you for using the /ping command!",

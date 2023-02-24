@@ -22,7 +22,7 @@ export const balance: Command = {
     await interaction.deferReply({ ephemeral: false });
     const { user } = interaction;
     const balanceMember = interaction.options.get("member", false);
-    log(interaction, "/balance", "#FFD800", client, [
+    log(interaction, "/balance", "#FFD800", [
       { name: "member", value: `${balanceMember?.user}` },
     ]);
     const checkUserID = balanceMember ? balanceMember.user?.id : user.id;

@@ -51,7 +51,7 @@ export const grant: Command = {
     const point_value = interaction.options.get("value", true).value as number;
     const reason_id = interaction.options.get("reason", false)?.value;
     if (!grantMember.user) return;
-    log(interaction, "/grant", "Green", client, [
+    log(interaction, "/grant", "Green", [
       { name: "member", value: `${grantMember.user}` },
       { name: "value", value: `${point_value}` },
       { name: "reason", value: `${reason_id}` },

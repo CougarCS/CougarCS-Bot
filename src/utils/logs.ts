@@ -12,20 +12,23 @@ import { GuildBasedChannel } from "discord.js";
 import { Guild } from "discord.js";
 import { createEmbeded } from "./embeded";
 
-export const log = async (
-  interaction: CommandInteraction,
-  commandName: string,
-  color: ColorResolvable,
-  client: Client<boolean>,
-  params: { name: string; value: string }[]
-) => {
-  const guild = interaction.guild as Guild;
+const getOfficerRole = async (guild: Guild) => {
+  let officerRole = guild.roles.cache.find((r) => r.name === "Officer");
+  if (!officerRole) {
+    officerRole = (await guild.roles.create({
+      color: "Red",
+      name: "Officer",
+      position: 1,
+      permissions: ["ManageChannels"],
+    })) as Role;
+  }
+  return officerRole;
+};
+
+const getLogChannel = async (guild: Guild) => {
   let logChannel = guild.channels.cache.find((c) => c.name === "cougarcs-logs");
-  const officerRole = guild.roles.cache.find(
-    (r) => r.name === "Officer"
-  ) as Role;
   if (!logChannel) {
-    logChannel = (await guild.channels.create({
+    logChannel = await guild.channels.create({
       name: "cougarcs-logs",
       permissionOverwrites: [
         {
@@ -33,15 +36,47 @@ export const log = async (
           deny: "ViewChannel",
         },
         {
-          id: officerRole.id,
+          id: (await getOfficerRole(guild)).id,
           allow: "ViewChannel",
         },
       ],
       type: ChannelType.GuildText,
-    })) as GuildBasedChannel;
-    guild.channels.fetch();
+    });
   }
-  logChannel = logChannel as TextChannel;
+  return logChannel as TextChannel;
+};
+
+const getReportChannel = async (guild: Guild) => {
+  let logChannel = guild.channels.cache.find(
+    (c) => c.name === "cougarcs-reports"
+  );
+  if (!logChannel) {
+    logChannel = await guild.channels.create({
+      name: "cougarcs-reports",
+      permissionOverwrites: [
+        {
+          id: guild.id,
+          deny: "ViewChannel",
+        },
+        {
+          id: (await getOfficerRole(guild)).id,
+          allow: "ViewChannel",
+        },
+      ],
+      type: ChannelType.GuildText,
+    });
+  }
+  return logChannel as TextChannel;
+};
+
+export const log = async (
+  interaction: CommandInteraction,
+  commandName: string,
+  color: ColorResolvable,
+  params: { name: string; value: string }[]
+) => {
+  const guild = interaction.guild as Guild;
+  const logChannel = await getLogChannel(guild);
 
   let fullCommand = commandName;
   params.forEach((p) => {
@@ -52,7 +87,7 @@ export const log = async (
     `Log ${commandName}`,
     `${interaction.user} used **${commandName}** in ${interaction.channel}`,
     interaction.user,
-    client
+    interaction.client
   )
     .setColor(color)
     .setFooter(null)
@@ -62,4 +97,31 @@ export const log = async (
     });
 
   logChannel.send({ embeds: [message] });
+};
+
+export const report = async (
+  interaction: CommandInteraction,
+  type: string,
+  message: string
+) => {
+  const guild = interaction.guild as Guild;
+  const logChannel = await getReportChannel(guild);
+
+  const report = createEmbeded(
+    `📢 User Report!`,
+    `**${interaction.user} submitted the following report in ${interaction.channel}:**\n"${message}"`,
+    interaction.user,
+    interaction.client
+  )
+    .setColor("Red")
+    .setFooter(null)
+    .addFields({
+      name: "Report Type",
+      value: type,
+    });
+
+  logChannel.send({
+    embeds: [report],
+    content: `${await getOfficerRole(guild)}`,
+  });
 };

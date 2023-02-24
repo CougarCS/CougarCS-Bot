@@ -24,7 +24,7 @@ export const whois: Command = {
     await interaction.deferReply({ ephemeral: false });
     const { user } = interaction;
     const whoUser = interaction.options.get("user", true);
-    log(interaction, "/whois", "Blue", client, [
+    log(interaction, "/whois", "Blue", [
       { name: "user", value: `${whoUser.user}` },
     ]);
 

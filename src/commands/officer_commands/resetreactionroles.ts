@@ -35,7 +35,7 @@ export const resetreactionroles: Command = {
     const { user } = interaction;
     const targetChannel = interaction.options.get("channel", true).channel;
     if (!targetChannel) return;
-    log(interaction, "/resetreactionroles", "Green", client, [
+    log(interaction, "/resetreactionroles", "Green", [
       { name: "channel", value: `${targetChannel}` },
     ]);
 

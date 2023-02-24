@@ -181,23 +181,22 @@ export const getBalance = async (
       balance: 0,
     };
   }
-  const transactions = await supabase
-    .from("member_point_transaction")
-    .select("point_value")
-    .eq("contact_id", member.contact.contact_id);
-  if (transactions.error) {
+
+  const balance = await supabase.rpc("balance", {
+    contact_id: member.contact.contact_id,
+  });
+
+  if (balance.error) {
     return {
       status: "failure",
       message: "There was an error fetching the user's balance.",
       balance: 0,
     };
   }
-  let sum = 0;
-  transactions.data.forEach((p) => (sum += parseInt(p.point_value)));
   return {
     status: "success",
     message: "CougarCoin balance retrieved.",
-    balance: sum,
+    balance: balance.data,
   };
 };
 

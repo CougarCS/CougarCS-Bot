@@ -20,7 +20,7 @@ export const leaderboard: Command = {
     await interaction.deferReply({ ephemeral: false });
     const { user } = interaction;
     const number = interaction.options.get("number", false);
-    log(interaction, "/leaderboard", "Green", client, [
+    log(interaction, "/leaderboard", "Green", [
       {
         name: "number",
         value: `${number}`,

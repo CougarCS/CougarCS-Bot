@@ -20,7 +20,7 @@ export const pruneexpiredmembers: Command = {
   run: async (interaction, client) => {
     await interaction.deferReply({ ephemeral: false });
     const { user } = interaction;
-    log(interaction, "/pruneexpiredmembers", "Purple", client, []);
+    log(interaction, "/pruneexpiredmembers", "Purple", []);
 
     const gmm = interaction.guild?.members as GuildMemberManager;
 
@@ -56,7 +56,7 @@ export const pruneexpiredmembers: Command = {
       user,
       client
     )
-      .setColor("Green")
+      .setColor("Purple")
       .setFooter(null)
       .setTimestamp(null);
     await interaction.editReply({ embeds: [returnMessage] });

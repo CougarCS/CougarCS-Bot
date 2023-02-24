@@ -13,7 +13,7 @@ export const supabaseping: Command = {
     const startTime = new Date().getTime();
     await interaction.deferReply({ ephemeral: false });
     const { user } = interaction;
-    log(interaction, "/supabaseping", "#3ECF8E", client, []);
+    log(interaction, "/supabaseping", "#3ECF8E", []);
 
     let ping = await pingSB();
 
