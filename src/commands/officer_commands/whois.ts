@@ -7,7 +7,7 @@ import {
   findMemberWithSnowflake,
   getBalance,
 } from "../../utils/supabase";
-import { log } from "../../utils/logs";
+import { commandLog } from "../../utils/logs";
 
 export const whois: Command = {
   data: new SlashCommandBuilder()
@@ -24,7 +24,7 @@ export const whois: Command = {
     await interaction.deferReply({ ephemeral: false });
     const { user } = interaction;
     const whoUser = interaction.options.get("user", true);
-    log(interaction, "/whois", "Blue", [
+    commandLog(interaction, "/whois", "Blue", [
       { name: "user", value: `${whoUser.user}` },
     ]);
 
@@ -38,7 +38,6 @@ export const whois: Command = {
       const returnMessage = createEmbeded(
         "❌ Contact Not Found!",
         contactFetch.message,
-        user,
         client
       )
         .setColor("Red")
@@ -54,7 +53,7 @@ export const whois: Command = {
 
     const coin = await getBalance(whoUser.user.id);
 
-    const returnMessage = createEmbeded("👤 Contact Found!", " ", user, client)
+    const returnMessage = createEmbeded("👤 Contact Found!", " ", client)
       .setColor("Blue")
       .setFooter(null)
       .setTimestamp(null)

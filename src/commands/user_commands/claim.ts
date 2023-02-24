@@ -6,7 +6,7 @@ import {
   findMember,
   findMemberWithSnowflake,
 } from "../../utils/supabase";
-import { log } from "../../utils/logs";
+import { commandLog } from "../../utils/logs";
 
 export const claim: Command = {
   data: new SlashCommandBuilder()
@@ -34,7 +34,7 @@ export const claim: Command = {
     const { user } = interaction;
     const psid = interaction.options.get("psid", false);
     const email = interaction.options.get("email", false);
-    log(interaction, "/claim", "Green", [
+    commandLog(interaction, "/claim", "Green", [
       { name: "psid", value: `${psid}` },
       { name: "email", value: `${email}` },
     ]);
@@ -55,7 +55,6 @@ export const claim: Command = {
       const returnMessage = createEmbeded(
         "✅ Membership Confirmed!",
         `You still have the ${memberRole} role!`,
-        user,
         client
       )
         .setColor("Green")
@@ -85,7 +84,6 @@ export const claim: Command = {
       const returnMessage = createEmbeded(
         "❌ Claim Failed!",
         membership.message,
-        user,
         client
       )
         .setColor("Red")
@@ -108,7 +106,6 @@ export const claim: Command = {
           const returnMessage = createEmbeded(
             "❌ Claim Failed!",
             "Could not link Discord account to CougarCS contact.",
-            user,
             client
           )
             .setColor("Red")
@@ -122,7 +119,6 @@ export const claim: Command = {
       const returnMessage = createEmbeded(
         "✅ Membership Claimed!",
         `The ${memberRole} role has been applied!`,
-        user,
         client
       )
         .setColor("Green")
@@ -139,7 +135,6 @@ export const claim: Command = {
     const returnMessage = createEmbeded(
       "❌ Claim Failed!",
       `This membership has already been claimed by ${otherMember}`,
-      user,
       client
     )
       .setColor("Red")

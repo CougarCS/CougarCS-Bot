@@ -1,7 +1,7 @@
 import { PermissionFlagsBits, SlashCommandBuilder } from "discord.js";
 import { Command } from "../../interfaces/Command";
 import { createEmbeded } from "../../utils/embeded";
-import { log } from "../../utils/logs";
+import { commandLog } from "../../utils/logs";
 
 export const ping: Command = {
   data: new SlashCommandBuilder()
@@ -11,11 +11,10 @@ export const ping: Command = {
   run: async (interaction, client) => {
     await interaction.deferReply({ ephemeral: false });
     const { user } = interaction;
-    log(interaction, "/ping", "Green", []);
+    commandLog(interaction, "/ping", "Green", []);
     const returnMessage = createEmbeded(
       "🏓 Pong!",
       "Thank you for using the /ping command!",
-      user,
       client
     )
       .setColor("Green")

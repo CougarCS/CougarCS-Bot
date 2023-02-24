@@ -2,7 +2,7 @@ import { SlashCommandBuilder } from "discord.js";
 import { Command } from "../../interfaces/Command";
 import { createEmbeded } from "../../utils/embeded";
 import { getLeaderboard } from "../../utils/supabase";
-import { log } from "../../utils/logs";
+import { commandLog } from "../../utils/logs";
 
 export const leaderboard: Command = {
   data: new SlashCommandBuilder()
@@ -20,7 +20,7 @@ export const leaderboard: Command = {
     await interaction.deferReply({ ephemeral: false });
     const { user } = interaction;
     const number = interaction.options.get("number", false);
-    log(interaction, "/leaderboard", "Green", [
+    commandLog(interaction, "/leaderboard", "Green", [
       {
         name: "number",
         value: `${number}`,
@@ -32,7 +32,6 @@ export const leaderboard: Command = {
     const returnMessage = createEmbeded(
       "<a:CC:991512220909445150> CougarCoin Leaderboard!",
       board,
-      user,
       client
     )
       .setColor("Green")

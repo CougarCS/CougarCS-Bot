@@ -1,7 +1,7 @@
 import { PermissionFlagsBits, SlashCommandBuilder } from "discord.js";
 import { Command } from "../../interfaces/Command";
 import { createEmbeded } from "../../utils/embeded";
-import { log } from "../../utils/logs";
+import { commandLog } from "../../utils/logs";
 import { createTransaction, getBalance } from "../../utils/supabase";
 
 export const pay: Command = {
@@ -26,7 +26,7 @@ export const pay: Command = {
     const { user } = interaction;
     const payMember = interaction.options.get("member", true);
     const point_value = interaction.options.get("value", true);
-    log(interaction, "/pay", "Green", [
+    commandLog(interaction, "/pay", "Green", [
       { name: "member", value: `${payMember.user}` },
       { name: "value", value: `${point_value.value}` },
     ]);
@@ -39,7 +39,6 @@ export const pay: Command = {
       const returnMessage = createEmbeded(
         "❌ Payment Canceled!",
         `This command is available for members only.`,
-        user,
         client
       )
         .setColor("Red")
@@ -57,7 +56,6 @@ export const pay: Command = {
       const returnMessage = createEmbeded(
         "❌ Payment Canceled!",
         `Your balance is too low.`,
-        user,
         client
       )
         .setColor("Red")
@@ -90,7 +88,6 @@ export const pay: Command = {
     const returnMessage = createEmbeded(
       "<a:CC:991512220909445150> CougarCoin Paid!",
       `You paid **${point_value.value}** CougarCoin to ${payMember.user}.`,
-      user,
       client
     )
       .setColor("Green")

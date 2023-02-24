@@ -2,7 +2,7 @@ import { SlashCommandBuilder, User } from "discord.js";
 import { Command } from "../../interfaces/Command";
 import { createEmbeded } from "../../utils/embeded";
 import { getBalance } from "../../utils/supabase";
-import { log } from "../../utils/logs";
+import { commandLog } from "../../utils/logs";
 
 interface points {
   member_points: string;
@@ -22,7 +22,7 @@ export const balance: Command = {
     await interaction.deferReply({ ephemeral: false });
     const { user } = interaction;
     const balanceMember = interaction.options.get("member", false);
-    log(interaction, "/balance", "#FFD800", [
+    commandLog(interaction, "/balance", "#FFD800", [
       { name: "member", value: `${balanceMember?.user}` },
     ]);
     const checkUserID = balanceMember ? balanceMember.user?.id : user.id;
@@ -32,7 +32,6 @@ export const balance: Command = {
       const errorMessage = createEmbeded(
         "❌ Error Fetching Balance!",
         balanceDetails.message,
-        user,
         client
       )
         .setColor("Red")
@@ -47,7 +46,6 @@ export const balance: Command = {
       `${balanceMember ? `${balanceMember.user} has` : "You have"} ** ${
         balanceDetails.balance
       }** CougarCoin!`,
-      user,
       client
     )
       .setColor("#FFD800")

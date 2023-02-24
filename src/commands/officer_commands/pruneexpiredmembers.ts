@@ -7,7 +7,7 @@ import {
 } from "discord.js";
 import { Command } from "../../interfaces/Command";
 import { createEmbeded } from "../../utils/embeded";
-import { log } from "../../utils/logs";
+import { commandLog } from "../../utils/logs";
 import { findMemberWithSnowflake } from "../../utils/supabase";
 
 export const pruneexpiredmembers: Command = {
@@ -20,7 +20,7 @@ export const pruneexpiredmembers: Command = {
   run: async (interaction, client) => {
     await interaction.deferReply({ ephemeral: false });
     const { user } = interaction;
-    log(interaction, "/pruneexpiredmembers", "Purple", []);
+    commandLog(interaction, "/pruneexpiredmembers", "Purple", []);
 
     const gmm = interaction.guild?.members as GuildMemberManager;
 
@@ -53,7 +53,6 @@ export const pruneexpiredmembers: Command = {
         removedMembers.length === 1 ? "" : "s"
       }!`,
       `**Removed users:**\n${removedString}`,
-      user,
       client
     )
       .setColor("Purple")

@@ -42,7 +42,7 @@ export const report: Command = {
     const { user } = interaction;
     const type = interaction.options.get("type", true).value as string;
     const message = interaction.options.get("message", true).value as string;
-    Logger.log(interaction, "/report", "Red", [
+    Logger.commandLog(interaction, "/report", "Red", [
       { name: "type", value: type },
       { name: "message", value: message },
     ]);
@@ -50,7 +50,6 @@ export const report: Command = {
     const returnMessage = createEmbeded(
       "📢 Report Submitted!",
       "Your report has been submitted and is currently in review!",
-      user,
       client
     )
       .setColor("Green")

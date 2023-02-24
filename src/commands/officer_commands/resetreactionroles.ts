@@ -14,13 +14,13 @@ import {
   languageNames,
   ReactionRoleGiver,
 } from "../../utils/reactions";
-import { log } from "../../utils/logs";
+import { commandLog } from "../../utils/logs";
 
 export const resetreactionroles: Command = {
   data: new SlashCommandBuilder()
     .setName("resetreactionroles")
     .setDescription(
-      "Reset the reaction roles and designate the appropriate channel"
+      "Reset the programming reaction roles and designate the appropriate channel"
     )
     .addChannelOption((option) => {
       return option
@@ -35,7 +35,7 @@ export const resetreactionroles: Command = {
     const { user } = interaction;
     const targetChannel = interaction.options.get("channel", true).channel;
     if (!targetChannel) return;
-    log(interaction, "/resetreactionroles", "Green", [
+    commandLog(interaction, "/resetreactionroles", "Green", [
       { name: "channel", value: `${targetChannel}` },
     ]);
 
@@ -46,7 +46,6 @@ export const resetreactionroles: Command = {
     const languageRoles = createEmbeded(
       "Roles: Programming Languages",
       languageBody,
-      user,
       client
     )
       .setColor("Blue")
@@ -61,7 +60,6 @@ export const resetreactionroles: Command = {
     const frameworkRoles = createEmbeded(
       "Roles: Frameworks",
       frameworkBody,
-      user,
       client
     )
       .setColor("Purple")
@@ -72,7 +70,6 @@ export const resetreactionroles: Command = {
       targetChannel.id
     ) as TextChannel;
     if (!channel) return;
-    await channel.bulkDelete(5);
 
     const languageMessage = await channel.send({
       embeds: [languageRoles],
@@ -87,7 +84,6 @@ export const resetreactionroles: Command = {
     const responseMessage = createEmbeded(
       "**Success!**",
       `The reaction role messages have been reset in ${channel}`,
-      user,
       client
     )
       .setColor("Green")

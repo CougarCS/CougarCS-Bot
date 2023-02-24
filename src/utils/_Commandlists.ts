@@ -10,6 +10,7 @@ import { whois } from "../commands/officer_commands/whois";
 import { pay } from "../commands/member_commands/pay";
 import { pruneexpiredmembers } from "../commands/officer_commands/pruneexpiredmembers";
 import { report } from "../commands/user_commands/report";
+import { rolegiver } from "../commands/officer_commands/rolegiver";
 
 export const CommandList: Command[] = [
   balance,
@@ -21,6 +22,7 @@ export const CommandList: Command[] = [
   pruneexpiredmembers,
   report,
   resetreactionroles,
+  rolegiver,
   supabaseping,
   whois,
 ];

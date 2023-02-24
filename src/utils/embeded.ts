@@ -3,7 +3,6 @@ import { Client, EmbedBuilder, User } from "discord.js";
 export function createEmbeded(
   title: string,
   message: string,
-  user: User,
   client: Client
 ): EmbedBuilder {
   let iconURL: string | null | undefined;

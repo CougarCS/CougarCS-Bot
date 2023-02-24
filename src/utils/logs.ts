@@ -69,7 +69,7 @@ const getReportChannel = async (guild: Guild) => {
   return logChannel as TextChannel;
 };
 
-export const log = async (
+export const commandLog = async (
   interaction: CommandInteraction,
   commandName: string,
   color: ColorResolvable,
@@ -86,7 +86,6 @@ export const log = async (
   const message = createEmbeded(
     `Log ${commandName}`,
     `${interaction.user} used **${commandName}** in ${interaction.channel}`,
-    interaction.user,
     interaction.client
   )
     .setColor(color)
@@ -110,7 +109,6 @@ export const report = async (
   const report = createEmbeded(
     `📢 User Report!`,
     `**${interaction.user} submitted the following report in ${interaction.channel}:**\n"${message}"`,
-    interaction.user,
     interaction.client
   )
     .setColor("Red")
@@ -124,4 +122,17 @@ export const report = async (
     embeds: [report],
     content: `${await getOfficerRole(guild)}`,
   });
+};
+
+export const log = async (
+  title: string,
+  body: string,
+  color: ColorResolvable,
+  guild: Guild
+) => {
+  const message = createEmbeded(title, body, guild.client)
+    .setColor(color)
+    .setFooter(null);
+  const logChannel = await getLogChannel(guild);
+  await logChannel.send({ embeds: [message] });
 };
