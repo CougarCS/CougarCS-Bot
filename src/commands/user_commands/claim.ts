@@ -32,8 +32,8 @@ export const claim: Command = {
   run: async (interaction, client) => {
     await interaction.deferReply({ ephemeral: true });
     const { user } = interaction;
-    const psid = interaction.options.get("psid", false);
-    const email = interaction.options.get("email", false);
+    const psid = interaction.options.get("psid", false)?.value as number;
+    const email = interaction.options.get("email", false)?.value as string;
     commandLog(interaction, "/claim", "Green", [
       { name: "psid", value: `${psid}` },
       { name: "email", value: `${email}` },
@@ -71,11 +71,8 @@ export const claim: Command = {
       message: string;
       contact: any;
     };
-    if (psid && email && psid.value && email.value) {
-      membership = await findMember(
-        psid.value as number,
-        email.value as string
-      );
+    if (psid && email) {
+      membership = await findMember(psid, email);
     } else {
       membership = await findMemberWithSnowflake(user.id as string);
     }
@@ -83,7 +80,7 @@ export const claim: Command = {
     if (membership.status === "failure") {
       const returnMessage = createEmbeded(
         "❌ Claim Failed!",
-        membership.message,
+        `${membership.message}\nYou must purchase a membership from https://cougarcs.com before claiming it.`,
         client
       )
         .setColor("Red")

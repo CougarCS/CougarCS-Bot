@@ -71,7 +71,6 @@ export const ReactionRoleGiver = async (
     const collector = message.createReactionCollector();
     collector.options.dispose = true;
     collector.on("collect", async (reaction, user) => {
-      console.log(`Collected ${reaction.emoji.name} from ${user.tag}`);
       if (!reaction.emoji.name) return;
       if (
         !message.guild.roles.cache.find((r) => r.name === reaction.emoji.name)
@@ -89,7 +88,6 @@ export const ReactionRoleGiver = async (
     });
 
     collector.on("remove", (reaction, user) => {
-      console.log(`Uncollected ${reaction.emoji.name} from ${user.tag}`);
       if (!reaction.emoji.name) return;
       if (
         !message.guild.roles.cache.find((r) => r.name === reaction.emoji.name)
@@ -103,10 +101,6 @@ export const ReactionRoleGiver = async (
       message.guild.members.cache
         .find((g) => user.id === g.id)
         ?.roles.remove(role);
-    });
-
-    collector.on("end", (collected) => {
-      console.log(`Collected ${collected.size} items`);
     });
   });
 };
