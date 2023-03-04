@@ -114,7 +114,7 @@ export const find: Command = {
       return;
     }
 
-    const contacts = contactsResponse.contact as any[];
+    const contacts = contactsResponse.contacts as any[];
 
     const embedGroups: EmbedBuilder[][] = [[]];
     const returnMessage = createEmbeded(

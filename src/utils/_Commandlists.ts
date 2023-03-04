@@ -12,6 +12,7 @@ import { pruneexpiredmembers } from "../commands/officer_commands/pruneexpiredme
 import { report } from "../commands/user_commands/report";
 import { rolegiver } from "../commands/officer_commands/rolegiver";
 import { find } from "../commands/officer_commands/find";
+import { memberships } from "../commands/officer_commands/memberships";
 
 export const CommandList: Command[] = [
   balance,
@@ -19,6 +20,7 @@ export const CommandList: Command[] = [
   find,
   grant,
   leaderboard,
+  memberships,
   pay,
   ping,
   pruneexpiredmembers,

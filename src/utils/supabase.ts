@@ -107,7 +107,7 @@ export const findContacts = async (queryData: {
 }): Promise<{
   status: "success" | "failure";
   message: string;
-  contact: any;
+  contacts: any;
 }> => {
   let contactQuery = supabase.from("contacts").select("*");
   Object.keys(queryData).forEach((key) => {
@@ -120,14 +120,14 @@ export const findContacts = async (queryData: {
     return {
       status: "failure",
       message: "Error: No contacts found!",
-      contact: contactResponse.error,
+      contacts: contactResponse.error,
     };
   }
 
   return {
     status: "success",
     message: "Contacts found!",
-    contact: contactResponse.data,
+    contacts: contactResponse.data,
   };
 };
 
@@ -308,4 +308,45 @@ export const getLeaderboard = async (max: number) => {
     }
   }
   return finalstr;
+};
+
+export const getMemberships = async (queryData: {
+  uh_id?: number;
+  email?: string;
+  discord_snowflake?: string;
+}): Promise<{
+  status: "success" | "failure";
+  message: string;
+  data: any[];
+}> => {
+  const contactFetch = await findContacts(queryData);
+  if (contactFetch.status === "failure") {
+    const { status, message, contacts } = contactFetch;
+    return {
+      status,
+      message,
+      data: contacts,
+    };
+  }
+
+  const contact = contactFetch.contacts[0];
+
+  const membershipFetch = await supabase
+    .from("membership")
+    .select("*")
+    .eq("contact_id", contact.contact_id);
+
+  if (membershipFetch.error) {
+    return {
+      status: "failure",
+      message: "Error fetching memberships!",
+      data: [],
+    };
+  }
+
+  return {
+    status: "success",
+    message: "Membership history found!",
+    data: membershipFetch.data,
+  };
 };

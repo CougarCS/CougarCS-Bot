@@ -31,7 +31,7 @@ export const leaderboard: Command = {
 
     const returnMessage = createEmbeded(
       "<a:CC:991512220909445150> CougarCoin Leaderboard!",
-      board,
+      board || "The leaderboard is empty!",
       client
     )
       .setColor("Green")

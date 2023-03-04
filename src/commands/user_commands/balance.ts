@@ -49,7 +49,7 @@ export const balance: Command = {
     const returnMessage = createEmbeded(
       "<a:CC:991512220909445150> CougarCoin Balance!",
       `${balanceMember ? `${balanceMember.user} has` : "You have"} ** ${
-        balanceDetails.balance
+        balanceDetails.balance || 0
       }** CougarCoin!`,
       client
     )
