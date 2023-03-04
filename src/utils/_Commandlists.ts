@@ -11,10 +11,12 @@ import { pay } from "../commands/member_commands/pay";
 import { pruneexpiredmembers } from "../commands/officer_commands/pruneexpiredmembers";
 import { report } from "../commands/user_commands/report";
 import { rolegiver } from "../commands/officer_commands/rolegiver";
+import { find } from "../commands/officer_commands/find";
 
 export const CommandList: Command[] = [
   balance,
   claim,
+  find,
   grant,
   leaderboard,
   pay,

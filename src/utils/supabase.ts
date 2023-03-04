@@ -91,6 +91,46 @@ export const findMemberWithSnowflake = async (
   };
 };
 
+type contactParam =
+  | "uh_id"
+  | "email"
+  | "discord_snowflake"
+  | "first_name"
+  | "last_name";
+
+export const findContacts = async (queryData: {
+  uh_id?: number;
+  email?: string;
+  discord_snowflake?: string;
+  first_name?: string;
+  last_name?: string;
+}): Promise<{
+  status: "success" | "failure";
+  message: string;
+  contact: any;
+}> => {
+  let contactQuery = supabase.from("contacts").select("*");
+  Object.keys(queryData).forEach((key) => {
+    if (!queryData[key as contactParam]) return;
+    contactQuery = contactQuery.eq(key, queryData[key as contactParam]);
+  });
+  const contactResponse = await contactQuery;
+
+  if (contactResponse.error || contactResponse.data.length === 0) {
+    return {
+      status: "failure",
+      message: "Error: No contacts found!",
+      contact: contactResponse.error,
+    };
+  }
+
+  return {
+    status: "success",
+    message: "Contacts found!",
+    contact: contactResponse.data,
+  };
+};
+
 // findContactWithSnowflake( discord_snowflake )
 export const findContactWithSnowflake = async (
   discord_snowflake: string
