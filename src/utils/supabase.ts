@@ -63,7 +63,7 @@ export const findMember = async (
 
 // findMember(discord_snowflake)
 export const findMemberWithSnowflake = async (
-  discord_snowflake
+  discord_snowflake: string
 ): Promise<{
   status: "success" | "failure";
   message: string;
@@ -93,7 +93,7 @@ export const findMemberWithSnowflake = async (
 
 // findContactWithSnowflake( discord_snowflake )
 export const findContactWithSnowflake = async (
-  discord_snowflake
+  discord_snowflake: string
 ): Promise<{
   status: "success" | "failure";
   message: string;
@@ -121,7 +121,7 @@ export const findContactWithSnowflake = async (
 
 // findMemberWithContactID( contact_id )
 export const findMemberWithContactID = async (
-  contact_id
+  contact_id: string
 ): Promise<{
   status: "success" | "failure";
   message: string;
@@ -167,7 +167,7 @@ export const addSnowflake = async (
 
 //  getBalance( discord_snowflake )
 export const getBalance = async (
-  discord_snowflake
+  discord_snowflake: string
 ): Promise<{
   status: "failure" | "success";
   message: string;
@@ -202,7 +202,7 @@ export const getBalance = async (
 
 //  createTransaction( discord_snowflake, point_value, reason_id )
 export const createTransaction = async (
-  discord_snowflake,
+  discord_snowflake: string,
   point_value: number,
   reason_id: `mpt-${string}`
 ): Promise<{
@@ -242,7 +242,7 @@ export const getLeaderboard = async (max: number) => {
   if (transactions.error) {
     return "sorry";
   }
-  const totals: { contact_id; sum }[] = [];
+  const totals: { contact_id: string; sum: number }[] = [];
   transactions.data.forEach((transaction) => {
     if (!totals.find((t) => t.contact_id === transaction.contact_id)) {
       totals.push({ contact_id: transaction.contact_id, sum: 0 });

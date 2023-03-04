@@ -31,6 +31,8 @@ export const pay: Command = {
       { name: "value", value: `${point_value.value}` },
     ]);
 
+    if (!payMember.user) return;
+
     if (
       !interaction.guild?.members.cache
         .find((m) => m.id === user.id)
