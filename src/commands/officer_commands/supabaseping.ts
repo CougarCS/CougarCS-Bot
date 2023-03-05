@@ -11,35 +11,32 @@ export const supabaseping: Command = {
     .setDefaultMemberPermissions(PermissionFlagsBits.ManageChannels),
   run: async (interaction, client) => {
     const startTime = new Date().getTime();
+
     await interaction.deferReply({ ephemeral: false });
     const { user } = interaction;
+
     commandLog(interaction, "/supabaseping", "#3ECF8E", []);
 
-    let ping = await pingSB();
+    const ping = await pingSB();
 
     if (ping.error) {
-      const returnMessage = createEmbeded(
+      const errorMessage = createEmbeded(
         "❌ Supabase Failed!",
-        `${JSON.stringify(ping, null, 1)}`,
+        `${JSON.stringify(ping.message, null, 1)}`,
         client
-      )
-        .setColor("Red")
-        .setFooter(null)
-        .setTimestamp(null);
-      await interaction.editReply({ embeds: [returnMessage] });
+      ).setColor("Red");
+      await interaction.editReply({ embeds: [errorMessage] });
       return;
     }
+
     const endTime = new Date().getTime();
+    const repsonseTime = (endTime - startTime) / 1000;
+
     const returnMessage = createEmbeded(
       "<:supabase:867529336197480468> Supabase Pong!",
-      `The Supabase instance responded with no errors!\nResponded in **${
-        (endTime - startTime) / 1000
-      }** seconds!`,
+      `The Supabase instance responded with no errors!\nResponded in **${repsonseTime}** seconds!`,
       client
-    )
-      .setColor("#3ECF8E")
-      .setFooter(null)
-      .setTimestamp(null);
+    ).setColor("#3ECF8E");
 
     await interaction.editReply({ embeds: [returnMessage] });
     return;

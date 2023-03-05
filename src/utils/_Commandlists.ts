@@ -1,6 +1,5 @@
 import { Command } from "../interfaces/Command";
 import { ping } from "../commands/officer_commands/ping";
-import { resetreactionroles } from "../commands/officer_commands/resetreactionroles";
 import { balance } from "../commands/user_commands/balance";
 import { supabaseping } from "../commands/officer_commands/supabaseping";
 import { claim } from "../commands/user_commands/claim";
@@ -25,7 +24,6 @@ export const CommandList: Command[] = [
   ping,
   pruneexpiredmembers,
   report,
-  resetreactionroles,
   rolegiver,
   supabaseping,
   whois,

@@ -6,11 +6,11 @@ import * as Logger from "../../utils/logs";
 export const report: Command = {
   data: new SlashCommandBuilder()
     .setName("report")
-    .setDescription("Send an official report to the CougarCS Officer Team")
+    .setDescription("Send an official report to the CougarCS Officer Team!")
     .addStringOption((option) =>
       option
         .setName("type")
-        .setDescription("What is the type of command you are filing?")
+        .setDescription("What is the type of report you are filing?")
         .setChoices(
           {
             name: "Member Issue",
@@ -34,14 +34,16 @@ export const report: Command = {
     .addStringOption((option) =>
       option
         .setName("message")
-        .setDescription("Please describe your report in full detail")
+        .setDescription("Please describe your report in full detail!")
         .setRequired(true)
     ),
   run: async (interaction, client) => {
     await interaction.deferReply({ ephemeral: false });
     const { user } = interaction;
+
     const type = interaction.options.get("type", true).value as string;
     const message = interaction.options.get("message", true).value as string;
+
     Logger.commandLog(interaction, "/report", "Red", [
       { name: "type", value: type },
       { name: "message", value: message },

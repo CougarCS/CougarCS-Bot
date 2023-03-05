@@ -1,8 +1,8 @@
 import { PermissionFlagsBits, SlashCommandBuilder } from "discord.js";
 import { Command } from "../../interfaces/Command";
-import { createEmbeded } from "../../utils/embeded";
+import { createEmbeded, sendBulkEmbeds } from "../../utils/embeded";
 import { commandLog } from "../../utils/logs";
-import { findContacts, getBalance, isMember } from "../../utils/supabase";
+import { getBalance, getContacts, isMember } from "../../utils/supabase";
 import { EmbedBuilder } from "@discordjs/builders";
 
 export const find: Command = {
@@ -54,23 +54,33 @@ export const find: Command = {
     await interaction.deferReply({ ephemeral: false });
     const { user } = interaction;
 
-    const psid = interaction.options.get("psid", false);
-    const email = interaction.options.get("email", false);
-    const first_name = interaction.options.get("firstname", false);
-    const last_name = interaction.options.get("lastname", false);
-    const discord_snowflake = interaction.options.get("discord", false);
-    const fullprofile = interaction.options.get("seefullcontact", false);
+    const psid = interaction.options.get("psid", false)?.value as
+      | number
+      | undefined;
+    const email = interaction.options.get("email", false)?.value as
+      | string
+      | undefined;
+    const first_name = interaction.options.get("firstname", false)?.value as
+      | string
+      | undefined;
+    const last_name = interaction.options.get("lastname", false)?.value as
+      | string
+      | undefined;
+    const discord_snowflake = interaction.options.get("discord", false)?.user
+      ?.id as string | undefined;
+    const fullprofile = interaction.options.get("seefullcontact", false)
+      ?.value as boolean | undefined;
 
     commandLog(interaction, "/find", "Green", [
-      { name: "psid", value: `${psid && psid.value}` },
-      { name: "email", value: `${email && email.value}` },
-      { name: "firstname", value: `${first_name && first_name.value}` },
-      { name: "lastname", value: `${last_name && last_name.value}` },
+      { name: "psid", value: `${psid}` },
+      { name: "email", value: `${email}` },
+      { name: "firstname", value: `${first_name}` },
+      { name: "lastname", value: `${last_name}` },
       {
         name: "discord",
-        value: `${discord_snowflake && discord_snowflake.user}`,
+        value: `${discord_snowflake}`,
       },
-      { name: "seefullcontact", value: `${fullprofile && fullprofile.value}` },
+      { name: "seefullcontact", value: `${fullprofile}` },
     ]);
 
     if (
@@ -95,133 +105,130 @@ export const find: Command = {
       return;
     }
 
-    const contactsResponse = await findContacts({
-      uh_id: psid ? (psid.value as number) : undefined,
-      email: email ? (email.value as string) : undefined,
-      first_name: first_name ? (first_name.value as string) : undefined,
-      last_name: last_name ? (last_name.value as string) : undefined,
-      discord_snowflake: discord_snowflake
-        ? (discord_snowflake.user?.id as string)
-        : undefined,
+    const contactsResponse = await getContacts({
+      uh_id: psid,
+      email,
+      first_name,
+      last_name,
+      discord_snowflake,
     });
 
-    if (contactsResponse.status === "failure") {
-      const returnMessage = createEmbeded(`🔎 Found 0 results!`, " ", client)
-        .setColor("Red")
-        .setFooter(null)
-        .setTimestamp(null);
+    if (contactsResponse.error) {
+      const returnMessage = createEmbeded(
+        `🔎 Found 0 results!`,
+        " ",
+        client
+      ).setColor("Red");
       await interaction.editReply({ embeds: [returnMessage] });
       return;
     }
 
-    const contacts = contactsResponse.contacts as any[];
+    const contacts = contactsResponse.data;
+    const contactCount = contacts.length;
+    const suffix = contactCount === 1 ? "" : "s";
+    const embeds = [];
 
-    const embedGroups: EmbedBuilder[][] = [[]];
     const returnMessage = createEmbeded(
-      `🔎 Found ${contacts.length} result${contacts.length === 1 ? "" : "s"}:`,
+      `🔎 Found ${contactCount} result${suffix}:`,
       " ",
       client
-    )
-      .setColor("Yellow")
-      .setFooter(null)
-      .setTimestamp(null);
-    embedGroups[0].push(returnMessage);
+    ).setColor("Yellow");
+    embeds.push(returnMessage);
 
     for (let i = 0; i < contacts.length; i++) {
       const contact = contacts[i];
+      const { contact_id } = contact;
+      const memberResponse = await isMember({ contact_id });
+      const activeMember = !memberResponse.error && memberResponse.data[0];
 
-      const membership = await isMember(contact.contact_id);
-
-      const embed = createEmbeded(
-        `${contact.first_name} ${contact.last_name} (${contact.uh_id})`,
-        `Member: ${membership ? "✅" : "❌"}`,
-        client
-      )
-        .setColor("Green")
-        .setFooter(null)
-        .setTimestamp(null);
-
-      if (fullprofile && fullprofile.value) {
-        embed
-          .setDescription(" ")
-          .addFields(
-            {
-              name: "Discord",
-              value: contact.discord_snowflake
-                ? `<@${contact.discord_snowflake}>`
-                : "null",
-              inline: true,
-            },
-            {
-              name: "Member",
-              value: membership ? "✅" : "❌",
-              inline: true,
-            },
-            {
-              name: "CougarCoin",
-              value: "0",
-              inline: true,
-            }
-          )
-          .addFields(
-            {
-              name: "First Name",
-              value: contact.first_name,
-              inline: true,
-            },
-            {
-              name: "Last Name",
-              value: contact.last_name,
-              inline: true,
-            },
-            {
-              name: "PSID",
-              value: `${contact.uh_id}`,
-              inline: true,
-            }
-          )
-          .addFields(
-            {
-              name: "Email",
-              value: contact.email,
-              inline: true,
-            },
-            {
-              name: "Phone Number",
-              value: `${contact.phone_number}`,
-              inline: true,
-            },
-            {
-              name: "Shirt Size",
-              value: contact.shirt_size_id,
-              inline: true,
-            }
-          )
-          .addFields(
-            {
-              name: "Contact ID",
-              value: contact.contact_id,
-              inline: true,
-            },
-            {
-              name: "Date Added",
-              value: new Date(contact.timestamp).toUTCString(),
-              inline: true,
-            }
-          );
+      if (!fullprofile) {
+        const embed = createEmbeded(
+          `${contact.first_name} ${contact.last_name} (${contact.uh_id})`,
+          `Member: ${activeMember ? "✅" : "❌"}`,
+          client
+        ).setColor("Green");
+        embeds.push(embed);
+        continue;
       }
 
-      embedGroups[embedGroups.length - 1].push(embed);
-      if (embedGroups[embedGroups.length - 1].length === 10)
-        embedGroups.push([]);
+      const discord = contact.discord_snowflake
+        ? `<@${contact.discord_snowflake}>`
+        : "null";
+      const balanceResponse = await getBalance({ contact_id });
+      let balance = 0;
+
+      if (!balanceResponse.error) {
+        balance = balanceResponse.data[0];
+      }
+
+      const embed = createEmbeded(" ", " ", client)
+        .addFields(
+          {
+            name: "Discord",
+            value: discord,
+            inline: true,
+          },
+          {
+            name: "Member",
+            value: activeMember ? "✅" : "❌",
+            inline: true,
+          },
+          {
+            name: "CougarCoin",
+            value: `${balance}`,
+            inline: true,
+          }
+        )
+        .addFields(
+          {
+            name: "First Name",
+            value: contact.first_name,
+            inline: true,
+          },
+          {
+            name: "Last Name",
+            value: contact.last_name,
+            inline: true,
+          },
+          {
+            name: "PSID",
+            value: `${contact.uh_id}`,
+            inline: true,
+          }
+        )
+        .addFields(
+          {
+            name: "Email",
+            value: contact.email,
+            inline: true,
+          },
+          {
+            name: "Phone Number",
+            value: `${contact.phone_number}`,
+            inline: true,
+          },
+          {
+            name: "Shirt Size",
+            value: contact.shirt_size_id,
+            inline: true,
+          }
+        )
+        .addFields(
+          {
+            name: "Contact ID",
+            value: contact_id,
+            inline: true,
+          },
+          {
+            name: "Date Added",
+            value: new Date(contact.timestamp).toUTCString(),
+            inline: true,
+          }
+        );
+      embeds.push(embed);
     }
 
-    await interaction.editReply({ embeds: embedGroups[0] });
-
-    for (let i = 1; i < embedGroups.length; i++) {
-      await interaction.followUp({ embeds: embedGroups[i] });
-    }
-
+    await sendBulkEmbeds(interaction, embeds);
     return;
   },
 };

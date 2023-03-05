@@ -37,74 +37,64 @@ export const memberships: Command = {
     await interaction.deferReply({ ephemeral: false });
     const { user } = interaction;
 
-    const psid = interaction.options.get("psid", false);
-    const email = interaction.options.get("email", false);
-    const discord_snowflake = interaction.options.get("discord", false);
+    const psidOption = interaction.options.get("psid", false);
+    const emailOption = interaction.options.get("email", false);
+    const discordOption = interaction.options.get("discord", false);
+
+    const uh_id = (psidOption && (psidOption.value as number)) || undefined;
+    const email = (emailOption && (emailOption.value as string)) || undefined;
+    const discord_snowflake =
+      (discordOption && (discordOption.user?.id as string)) || undefined;
 
     commandLog(interaction, "/memberships", "Green", [
-      { name: "psid", value: `${psid && psid.value}` },
-      { name: "email", value: `${email && email.value}` },
+      { name: "psid", value: `${uh_id}` },
+      { name: "email", value: `${email}` },
       {
         name: "discord",
-        value: `${discord_snowflake && discord_snowflake.user}`,
+        value: `<@${discord_snowflake}>`,
       },
     ]);
 
-    if (!(psid || email || discord_snowflake)) {
-      const returnMessage = createEmbeded(
-        "❌ Search canceled!",
+    if (!(uh_id || email || discord_snowflake)) {
+      const errorMessage = createEmbeded(
+        "❌ Search Canceled!",
         "No search parameters specified.",
         client
-      )
-        .setColor("Red")
-        .setFooter(null)
-        .setTimestamp(null);
-      await interaction.editReply({ embeds: [returnMessage] });
+      ).setColor("Red");
+      await interaction.editReply({ embeds: [errorMessage] });
       return;
     }
 
-    const memberships = await getMemberships({
-      uh_id: psid ? (psid.value as number) : undefined,
-      email: email ? (email.value as string) : undefined,
-      discord_snowflake: discord_snowflake
-        ? (discord_snowflake.user?.id as string)
-        : undefined,
+    const membershipResponse = await getMemberships({
+      uh_id,
+      email,
+      discord_snowflake,
     });
 
-    if (memberships.status === "failure") {
-      const returnMessage = createEmbeded(
-        "Failure!",
-        memberships.message,
+    if (membershipResponse.error) {
+      const errorMessage = createEmbeded(
+        "❌ Search Canceled!",
+        membershipResponse.message,
         client
-      )
-        .setColor("Red")
-        .setFooter(null)
-        .setTimestamp(null);
-      await interaction.editReply({ embeds: [returnMessage] });
+      ).setColor("Red");
+      await interaction.editReply({ embeds: [errorMessage] });
       return;
     }
 
-    const membershipArray = memberships.data.sort(
-      (a, b) =>
-        new Date(b.start_date).getTime() - new Date(a.start_date).getTime()
-    );
-
+    const memberships = membershipResponse.data;
     const membershipEmbeds: EmbedBuilder[] = [];
+    const membershipCount = memberships.length;
+    const suffix = membershipCount === 1 ? "" : "s";
 
-    const infoEmbed = createEmbeded(
-      `🔎 Found ${memberships.data.length} result${
-        memberships.data.length === 1 ? "" : "s"
-      }:`,
+    const infoMessage = createEmbeded(
+      `🔎 Found ${membershipCount} result${suffix}:`,
       " ",
       client
-    )
-      .setColor("Yellow")
-      .setFooter(null)
-      .setTimestamp(null);
+    ).setColor("Yellow");
 
-    membershipEmbeds.push(infoEmbed);
+    membershipEmbeds.push(infoMessage);
 
-    membershipArray.forEach((m) => {
+    memberships.forEach((m) => {
       const startSeason =
         new Date(m.start_date).getMonth() < 6 ? "Spring" : "Fall";
       const startYear = new Date(m.start_date).getFullYear();
@@ -117,18 +107,12 @@ export const memberships: Command = {
       membershipEmbeds.push(
         createEmbeded(
           `${startSeason} ${startYear}: ${term} Long`,
-          m.membership_code_id === "mc-ps"
-            ? "Paid via Stripe"
-            : m.membership_code_id === "mc-io"
-            ? "Involvement as Officer"
-            : "Other Payment/Involvement",
+          m.membership_code_id,
           client
-        )
-          .setColor("Green")
-          .setFooter(null)
-          .setTimestamp(null)
+        ).setColor("Green")
       );
     });
+
     await sendBulkEmbeds(interaction, membershipEmbeds);
     return;
   },

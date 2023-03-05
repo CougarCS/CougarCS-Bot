@@ -1,12 +1,12 @@
-import { Guild, PermissionFlagsBits, SlashCommandBuilder } from "discord.js";
+import {
+  Guild,
+  PermissionFlagsBits,
+  SlashCommandBuilder,
+  User,
+} from "discord.js";
 import { Command } from "../../interfaces/Command";
 import { createEmbeded } from "../../utils/embeded";
-import {
-  findContactWithSnowflake,
-  findMemberWithContactID,
-  findMemberWithSnowflake,
-  getBalance,
-} from "../../utils/supabase";
+import { getBalance, getContact, isMember } from "../../utils/supabase";
 import { commandLog } from "../../utils/logs";
 
 export const whois: Command = {
@@ -23,100 +23,124 @@ export const whois: Command = {
   run: async (interaction, client) => {
     await interaction.deferReply({ ephemeral: false });
     const { user } = interaction;
-    const whoUser = interaction.options.get("user", true);
+    const guild = interaction.guild as Guild;
+
+    const whoUserOption = interaction.options.get("user", true);
+    const whoUser = whoUserOption.user as User;
+
     commandLog(interaction, "/whois", "Blue", [
-      { name: "user", value: `${whoUser.user}` },
+      { name: "user", value: `${whoUser}` },
     ]);
 
-    if (!whoUser.user) {
-      return;
-    }
+    const discord_snowflake = whoUser.id;
+    const contactResponse = await getContact({ discord_snowflake });
 
-    const contactFetch = await findContactWithSnowflake(whoUser.user.id);
-
-    if (contactFetch.status === "failure") {
-      const returnMessage = createEmbeded(
-        "❌ Contact Not Found!",
-        contactFetch.message,
+    if (contactResponse.error) {
+      const errorMessage = createEmbeded(
+        "❌ WhoIs Failed!",
+        contactResponse.message,
         client
-      )
-        .setColor("Red")
-        .setFooter(null)
-        .setTimestamp(null);
-      await interaction.editReply({ embeds: [returnMessage] });
+      ).setColor("Red");
+      await interaction.editReply({ embeds: [errorMessage] });
       return;
     }
 
-    const membership = await findMemberWithContactID(
-      contactFetch.contact.contact_id
-    );
+    const {
+      contact_id,
+      uh_id,
+      email,
+      first_name,
+      last_name,
+      phone_number,
+      shirt_size_id,
+      timestamp,
+    } = contactResponse.data[0];
+    const memberResponse = await isMember({ contact_id });
 
-    const coin = await getBalance(whoUser.user.id);
+    if (memberResponse.error) {
+      const errorMessage = createEmbeded(
+        "❌ WhoIs Failed!",
+        memberResponse.message,
+        client
+      ).setColor("Red");
+      await interaction.editReply({ embeds: [errorMessage] });
+      return;
+    }
+
+    const activeMember = memberResponse.data[0];
+    const balanceResponse = await getBalance({ contact_id });
+
+    if (balanceResponse.error) {
+      const errorMessage = createEmbeded(
+        "❌ WhoIs Failed!",
+        balanceResponse.message,
+        client
+      ).setColor("Red");
+      await interaction.editReply({ embeds: [errorMessage] });
+      return;
+    }
+
+    const balance = balanceResponse.data[0];
 
     const returnMessage = createEmbeded("👤 Contact Found!", " ", client)
       .setColor("Blue")
-      .setFooter(null)
-      .setTimestamp(null)
       .addFields(
-        { name: "Discord", value: `<@${whoUser.user.id}>`, inline: true },
+        { name: "Discord", value: `<@${discord_snowflake}>`, inline: true },
         {
-          name: "Status",
-          value: membership.status === "success" ? "Member" : "Non-member",
+          name: "Member",
+          value: activeMember ? "✅" : "❌",
           inline: true,
         },
         {
           name: "CougarCoin",
-          value:
-            membership.status === "success"
-              ? `${(await getBalance(whoUser.user.id)).balance || 0}`
-              : "0",
+          value: `**${balance}**`,
           inline: true,
         }
       )
-      .setThumbnail(whoUser.user.displayAvatarURL())
+      .setThumbnail(whoUser.displayAvatarURL())
       .addFields(
         {
           name: "First Name",
-          value: contactFetch.contact.first_name,
+          value: first_name,
           inline: true,
         },
         {
           name: "Last Name",
-          value: contactFetch.contact.last_name,
+          value: last_name,
           inline: true,
         },
         {
           name: "PSID",
-          value: `${contactFetch.contact.uh_id}`,
+          value: `${uh_id}`,
           inline: true,
         }
       )
       .addFields(
         {
           name: "Email",
-          value: contactFetch.contact.email,
+          value: email,
           inline: true,
         },
         {
           name: "Phone Number",
-          value: `${contactFetch.contact.phone_number}`,
+          value: `${phone_number}`,
           inline: true,
         },
         {
           name: "Shirt Size",
-          value: `${contactFetch.contact.shirt_size_id}`,
+          value: `${shirt_size_id}`,
           inline: true,
         }
       )
       .addFields(
         {
           name: "Contact ID",
-          value: contactFetch.contact.contact_id,
+          value: contact_id,
           inline: true,
         },
         {
           name: "Date Added",
-          value: new Date(contactFetch.contact.timestamp).toUTCString(),
+          value: new Date(timestamp).toUTCString(),
           inline: true,
         }
       );

@@ -1,7 +1,7 @@
-import { PermissionFlagsBits, SlashCommandBuilder } from "discord.js";
+import { PermissionFlagsBits, SlashCommandBuilder, User } from "discord.js";
 import { Command } from "../../interfaces/Command";
 import { createEmbeded } from "../../utils/embeded";
-import { createTransaction, getBalance } from "../../utils/supabase";
+import { getBalance, insertTransaction } from "../../utils/supabase";
 import { commandLog } from "../../utils/logs";
 
 export const grant: Command = {
@@ -47,58 +47,58 @@ export const grant: Command = {
     await interaction.deferReply({ ephemeral: false });
     const { user } = interaction;
 
-    const grantMember = interaction.options.get("member", true);
+    const grantMember = interaction.options.get("member", true).user as User;
     const point_value = interaction.options.get("value", true).value as number;
-    const reason_id = interaction.options.get("reason", false)?.value;
-    if (!grantMember.user) return;
+    const reason_id = interaction.options.get("reason", false)?.value as
+      | string
+      | undefined;
+
     commandLog(interaction, "/grant", "Green", [
-      { name: "member", value: `${grantMember.user}` },
+      { name: "member", value: `${grantMember}` },
       { name: "value", value: `${point_value}` },
       { name: "reason", value: `${reason_id}` },
     ]);
 
-    if (grantMember.user.id === user.id) {
+    const discord_snowflake = grantMember.id;
+
+    if (discord_snowflake === user.id) {
       const returnMessage = createEmbeded(
         "❌ Grant Failed!",
         "You cannot grant CougarCoin to yourself!",
         client
-      )
-        .setColor("Red")
-        .setFooter(null)
-        .setTimestamp(null);
+      ).setColor("Red");
       await interaction.editReply({ embeds: [returnMessage] });
       return;
     }
 
-    const pointGrant = await createTransaction(
-      grantMember.user?.id,
+    const transactionResponse = await insertTransaction(
+      { discord_snowflake },
       point_value,
-      (reason_id || "mpt-general") as `mpt-${string}`
+      reason_id || "mpt-general"
     );
 
-    if (pointGrant.status === "failure") {
-      const returnMessage = createEmbeded(
+    if (transactionResponse.error) {
+      const errorMessage = createEmbeded(
         "❌ Grant Failed!",
-        pointGrant.message,
+        transactionResponse.message,
         client
-      )
-        .setColor("Red")
-        .setFooter(null)
-        .setTimestamp(null);
-      await interaction.editReply({ embeds: [returnMessage] });
+      ).setColor("Red");
+      await interaction.editReply({ embeds: [errorMessage] });
       return;
     }
 
-    const { balance } = await getBalance(grantMember.user?.id);
+    const balanceResponse = await getBalance({ discord_snowflake });
+    let balance = 0;
+
+    if (!balanceResponse.error) {
+      balance = balanceResponse.data[0];
+    }
 
     const returnMessage = createEmbeded(
       "<a:CC:991512220909445150> CougarCoin Granted!",
-      `${grantMember.user} has received **${point_value}** CougarCoin!\n\nNew balance: **${balance}**`,
+      `${grantMember} has received **${point_value}** CougarCoin!\n\nNew balance: **${balance}**`,
       client
-    )
-      .setColor("Green")
-      .setFooter(null)
-      .setTimestamp(null);
+    ).setColor("Green");
     await interaction.editReply({ embeds: [returnMessage] });
     return;
   },

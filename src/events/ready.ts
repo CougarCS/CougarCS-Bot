@@ -14,7 +14,6 @@ export const onReady = async (client: Client) => {
   const commandData = CommandList.map((command) => command.data.toJSON());
 
   console.log("🔨 Started loading (/) commands.");
-  // client.application?.commands.set([]);
   await rest.put(
     Routes.applicationGuildCommands(
       client.user?.id || "missing id",
@@ -39,6 +38,7 @@ export const onReady = async (client: Client) => {
 
   console.log(`🤖 ${client.user?.tag} is online ⚡`);
   console.log("😺 Initialization complete");
+
   client.guilds.cache.forEach((g) => {
     log(
       "🔁 Bot Restarted",

@@ -7,11 +7,11 @@ import { commandLog } from "../../utils/logs";
 export const leaderboard: Command = {
   data: new SlashCommandBuilder()
     .setName("leaderboard")
-    .setDescription("See the CougarCoin leaderboard")
+    .setDescription("See the CougarCoin leaderboard!")
     .addNumberOption((option) =>
       option
         .setName("number")
-        .setDescription("Number of leaderboard spaces you want to see")
+        .setDescription("Number of leaderboard spaces you want to see!")
         .setMaxValue(50)
         .setMinValue(1)
         .setRequired(false)
@@ -27,16 +27,30 @@ export const leaderboard: Command = {
       },
     ]);
 
-    const board = await getLeaderboard((number?.value || 10) as number);
+    const leaderboardResponse = await getLeaderboard(
+      (number?.value || 10) as number
+    );
+
+    if (leaderboardResponse.error) {
+      const errorMessage = createEmbeded(
+        "❌ Leaderboard Canceled!",
+        leaderboardResponse.message,
+        client
+      ).setColor("Red");
+      await interaction.editReply({ embeds: [errorMessage] });
+      return;
+    }
+
+    let leaderboardString = "";
+    leaderboardResponse.data.forEach(
+      (s) => (leaderboardString = `${leaderboardString}${s}\n`)
+    );
 
     const returnMessage = createEmbeded(
       "<a:CC:991512220909445150> CougarCoin Leaderboard!",
-      board || "The leaderboard is empty!",
+      leaderboardString || "The leaderboard is empty!",
       client
-    )
-      .setColor("Green")
-      .setFooter(null)
-      .setTimestamp(null);
+    ).setColor("Green");
     await interaction.editReply({ embeds: [returnMessage] });
     return;
   },

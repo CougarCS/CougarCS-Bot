@@ -17,14 +17,11 @@ export function createEmbeded(
   }
 
   return new EmbedBuilder()
-    .setColor("#ffeded")
+    .setColor("Green")
     .setTitle(title)
     .setDescription(message)
-    .setTimestamp()
-    .setFooter({
-      text: `${client.user?.tag}`,
-      iconURL: iconURL as string,
-    });
+    .setTimestamp(null)
+    .setFooter(null);
 }
 
 export const sendBulkEmbeds = async (
@@ -32,12 +29,16 @@ export const sendBulkEmbeds = async (
   embedArray: EmbedBuilder[]
 ) => {
   const embedChunks: EmbedBuilder[][] = [];
+
   for (let i = 0; i < embedArray.length; i++) {
     if (i % 10 === 0) embedChunks.push([]);
     const currentArray = embedChunks[embedChunks.length - 1];
     currentArray.push(embedArray[i]);
   }
-  interaction.editReply({ embeds: embedChunks[0] });
-  for (let i = 1; i < embedChunks.length; i++)
-    interaction.followUp({ embeds: embedChunks[i] });
+
+  await interaction.editReply({ embeds: embedChunks[0] });
+
+  for (let i = 1; i < embedChunks.length; i++) {
+    await interaction.followUp({ embeds: embedChunks[i] });
+  }
 };

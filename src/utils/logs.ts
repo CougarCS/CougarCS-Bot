@@ -89,7 +89,7 @@ export const commandLog = async (
     interaction.client
   )
     .setColor(color)
-    .setFooter(null)
+    .setTimestamp()
     .addFields({
       name: "Full Command",
       value: `${fullCommand}`,
@@ -112,7 +112,7 @@ export const report = async (
     interaction.client
   )
     .setColor("Red")
-    .setFooter(null)
+    .setTimestamp()
     .addFields({
       name: "Report Type",
       value: type,
@@ -132,7 +132,7 @@ export const log = async (
 ) => {
   const message = createEmbeded(title, body, guild.client)
     .setColor(color)
-    .setFooter(null);
+    .setTimestamp();
   const logChannel = await getLogChannel(guild);
   await logChannel.send({ embeds: [message] });
 };
