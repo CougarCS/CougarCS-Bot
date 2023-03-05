@@ -17,13 +17,13 @@ export const pay: Command = {
     .addUserOption((option) =>
       option
         .setName("member")
-        .setDescription("Member who you would like to pay")
+        .setDescription("Member who you would like to pay!")
         .setRequired(true)
     )
     .addNumberOption((option) =>
       option
         .setName("value")
-        .setDescription("How much CougarCoin you want to pay")
+        .setDescription("How much CougarCoin you want to pay!")
         .setRequired(true)
         .setMinValue(1)
     ),

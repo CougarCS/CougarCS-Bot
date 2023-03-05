@@ -16,10 +16,7 @@ export const ping: Command = {
       "🏓 Pong!",
       "Thank you for using the /ping command!",
       client
-    )
-      .setColor("Green")
-      .setFooter(null)
-      .setTimestamp(null);
+    ).setColor("Green");
     await interaction.editReply({ embeds: [returnMessage] });
     return;
   },

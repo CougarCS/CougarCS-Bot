@@ -15,7 +15,7 @@ export const rolegiver: Command = {
     .addStringOption((option) =>
       option
         .setName("roletype")
-        .setDescription("What is the type of roles that you are adding")
+        .setDescription("What is the type of roles that you are adding!")
         .setRequired(true)
     )
     .addStringOption((option) =>

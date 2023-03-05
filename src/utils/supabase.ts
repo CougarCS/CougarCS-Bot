@@ -27,6 +27,8 @@ export type ContactQuery = {
   discord_snowflake?: string;
   first_name?: string;
   last_name?: string;
+  phone_number?: number;
+  shirt_size_id?: string;
 };
 
 export type SupabaseResponse = {
@@ -337,5 +339,129 @@ export const insertTransaction = async (
     data: [],
     error: false,
     message: "Successfully inserted transaction!",
+  };
+};
+
+export const insertMembership = async (
+  queryData: UniqueContactQuery,
+  length: string,
+  reason_id: string
+): Promise<SupabaseResponse> => {
+  const contactIdResponse = await getContactId(queryData);
+
+  if (contactIdResponse.error) {
+    return contactIdResponse;
+  }
+
+  const contact_id = contactIdResponse.data[0];
+
+  const today = new Date();
+  const start_year = today.getFullYear();
+  const start_date = today.toISOString();
+  const spring_start = today.getMonth() < 6;
+  const semester = length === "semester";
+  const end_year = spring_start && semester ? start_year : start_year + 1;
+  const end_month = spring_start !== semester ? "1" : "7";
+  const end_date = `${end_year}-${end_month}-1 06:00:00`;
+
+  const insertResponse = await supabase.from("membership").insert({
+    contact_id,
+    start_date,
+    end_date,
+    membership_code_id: reason_id,
+  });
+
+  if (insertResponse.error) {
+    return {
+      data: [],
+      error: true,
+      message: "There was an error inserting the membership!",
+    };
+  }
+
+  return {
+    data: [],
+    error: false,
+    message: "Successfully inserted transaction!",
+  };
+};
+
+export const cancelMembership = async (
+  queryData: UniqueContactQuery
+): Promise<SupabaseResponse> => {
+  const contactIdResponse = await getContactId(queryData);
+
+  if (contactIdResponse.error) {
+    return contactIdResponse;
+  }
+
+  const contact_id = contactIdResponse.data[0];
+
+  const membershipResponse = await supabase
+    .from("membership")
+    .update({ end_date: new Date().toISOString() })
+    .eq("contact_id", contact_id)
+    .order("end_date", { ascending: false });
+
+  if (membershipResponse.error) {
+    return {
+      data: [],
+      error: true,
+      message: "There was an error updating the membership!",
+    };
+  }
+
+  return {
+    data: [],
+    error: false,
+    message: "Successfully updated the membership",
+  };
+};
+
+export const insertContact = async (
+  newData: ContactQuery
+): Promise<SupabaseResponse> => {
+  const contactResponse = await supabase
+    .from("contacts")
+    .insert(newData)
+    .select("*");
+
+  if (contactResponse.error) {
+    return {
+      data: [],
+      error: true,
+      message: "There was an error inserting the contact!",
+    };
+  }
+
+  return {
+    data: contactResponse.data,
+    error: false,
+    message: "Successfully inserted contact data!",
+  };
+};
+
+export const updateContact = async (
+  newData: ContactQuery,
+  contact_id: string
+): Promise<SupabaseResponse> => {
+  const contactResponse = await supabase
+    .from("contacts")
+    .update(newData)
+    .eq("contact_id", contact_id)
+    .select("*");
+
+  if (contactResponse.error) {
+    return {
+      data: [],
+      error: true,
+      message: "There was an error updating the contact!",
+    };
+  }
+
+  return {
+    data: contactResponse.data,
+    error: false,
+    message: "Successfully updated contact data!",
   };
 };

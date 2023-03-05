@@ -13,7 +13,7 @@ export const find: Command = {
     .addNumberOption((option) =>
       option
         .setName("psid")
-        .setDescription("UH issued PSID number. (7 digit id)")
+        .setDescription("UH issued PSID number (7 digit id)!")
         .setRequired(false)
         .setMaxValue(9999999)
         .setMinValue(1000000)
@@ -21,32 +21,32 @@ export const find: Command = {
     .addStringOption((option) =>
       option
         .setName("email")
-        .setDescription("The email used to purchase a CougarCS membership.")
+        .setDescription("The email used to purchase a CougarCS membership!")
         .setRequired(false)
     )
     .addStringOption((option) =>
       option
         .setName("firstname")
-        .setDescription("The contact's first name.")
+        .setDescription("The contact's first name!")
         .setRequired(false)
     )
     .addStringOption((option) =>
       option
         .setName("lastname")
-        .setDescription("The contact's last name.")
+        .setDescription("The contact's last name!")
         .setRequired(false)
     )
     .addUserOption((option) =>
       option
         .setName("discord")
-        .setDescription("Discord user you wish to look for.")
+        .setDescription("Discord user you wish to look for!")
         .setRequired(false)
     )
     .addBooleanOption((option) =>
       option
         .setName("seefullcontact")
         .setDescription(
-          "Indicate if you would like the entire contact's details."
+          "Indicate if you would like the entire contact's details!"
         )
         .setRequired(false)
     ),

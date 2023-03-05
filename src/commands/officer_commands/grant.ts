@@ -7,25 +7,25 @@ import { commandLog } from "../../utils/logs";
 export const grant: Command = {
   data: new SlashCommandBuilder()
     .setName("grant")
-    .setDescription("Grant CougarCoin to a member")
+    .setDescription("Grant CougarCoin to a member!")
     .addUserOption((option) =>
       option
         .setName("member")
-        .setDescription("Member you wish to grant CougarCoin to")
+        .setDescription("Member you wish to grant CougarCoin to!")
         .setRequired(true)
     )
     .addNumberOption((option) =>
       option
         .setName("value")
         .setDescription(
-          "How much CougarCoin the user should receive (can be negative)"
+          "How much CougarCoin the user should receive (can be negative)!"
         )
         .setRequired(true)
     )
     .addStringOption((option) =>
       option
         .setName("reason")
-        .setDescription("Why this member is receiving this grant")
+        .setDescription("Why this member is receiving this grant!")
         .setChoices(
           {
             name: "General Grant",

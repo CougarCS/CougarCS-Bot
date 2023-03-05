@@ -12,12 +12,17 @@ import { report } from "../commands/user_commands/report";
 import { rolegiver } from "../commands/officer_commands/rolegiver";
 import { find } from "../commands/officer_commands/find";
 import { memberships } from "../commands/officer_commands/memberships";
+import { grantmembership } from "../commands/admin_commands/grantmembership";
+import { updatecontact } from "../commands/admin_commands/updatecontact";
+import { cancelmembership } from "../commands/admin_commands/cancelmembership";
 
 export const CommandList: Command[] = [
   balance,
+  cancelmembership,
   claim,
   find,
   grant,
+  grantmembership,
   leaderboard,
   memberships,
   pay,
@@ -26,5 +31,6 @@ export const CommandList: Command[] = [
   report,
   rolegiver,
   supabaseping,
+  updatecontact,
   whois,
 ];
