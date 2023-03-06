@@ -53,10 +53,7 @@ export const report: Command = {
       "📢 Report Submitted!",
       "Your report has been submitted and is currently in review!",
       client
-    )
-      .setColor("Green")
-      .setFooter(null)
-      .setTimestamp(null);
+    ).setColor("Green");
     await interaction.editReply({ embeds: [returnMessage] });
     Logger.report(interaction, type, message);
     return;

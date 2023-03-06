@@ -107,7 +107,7 @@ export const memberships: Command = {
       membershipEmbeds.push(
         createEmbeded(
           `${startSeason} ${startYear}: ${term} Long`,
-          m.membership_code_id,
+          `${m.membership_code_id}`,
           client
         ).setColor("Green")
       );

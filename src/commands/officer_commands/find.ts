@@ -182,12 +182,12 @@ export const find: Command = {
         .addFields(
           {
             name: "First Name",
-            value: contact.first_name,
+            value: `${contact.first_name}`,
             inline: true,
           },
           {
             name: "Last Name",
-            value: contact.last_name,
+            value: `${contact.last_name}`,
             inline: true,
           },
           {
@@ -199,7 +199,7 @@ export const find: Command = {
         .addFields(
           {
             name: "Email",
-            value: contact.email,
+            value: `${contact.email}`,
             inline: true,
           },
           {
@@ -209,19 +209,19 @@ export const find: Command = {
           },
           {
             name: "Shirt Size",
-            value: contact.shirt_size_id,
+            value: `${contact.shirt_size_id}`,
             inline: true,
           }
         )
         .addFields(
           {
             name: "Contact ID",
-            value: contact_id,
+            value: `${contact_id}`,
             inline: true,
           },
           {
             name: "Date Added",
-            value: new Date(contact.timestamp).toUTCString(),
+            value: `${new Date(contact.timestamp).toUTCString()}`,
             inline: true,
           }
         );

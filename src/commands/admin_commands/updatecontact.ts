@@ -193,12 +193,12 @@ export const updatecontact: Command = {
           },
           {
             name: "First Name",
-            value: initContact.first_name,
+            value: `${initContact.first_name}`,
             inline: true,
           },
           {
             name: "Last Name",
-            value: initContact.last_name,
+            value: `${initContact.last_name}`,
             inline: true,
           },
           {
@@ -210,7 +210,7 @@ export const updatecontact: Command = {
         .addFields(
           {
             name: "Email",
-            value: initContact.email,
+            value: `${initContact.email}`,
             inline: true,
           },
           {
@@ -238,12 +238,12 @@ export const updatecontact: Command = {
         },
         {
           name: "First Name",
-          value: newContact.first_name,
+          value: `${newContact.first_name}`,
           inline: true,
         },
         {
           name: "Last Name",
-          value: newContact.last_name,
+          value: `${newContact.last_name}`,
           inline: true,
         },
         {
@@ -255,7 +255,7 @@ export const updatecontact: Command = {
       .addFields(
         {
           name: "Email",
-          value: newContact.email,
+          value: `${newContact.email}`,
           inline: true,
         },
         {

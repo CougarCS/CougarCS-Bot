@@ -101,12 +101,12 @@ export const whois: Command = {
       .addFields(
         {
           name: "First Name",
-          value: first_name,
+          value: `${first_name}`,
           inline: true,
         },
         {
           name: "Last Name",
-          value: last_name,
+          value: `${last_name}`,
           inline: true,
         },
         {
@@ -118,7 +118,7 @@ export const whois: Command = {
       .addFields(
         {
           name: "Email",
-          value: email,
+          value: `${email}`,
           inline: true,
         },
         {
@@ -135,12 +135,12 @@ export const whois: Command = {
       .addFields(
         {
           name: "Contact ID",
-          value: contact_id,
+          value: `${contact_id}`,
           inline: true,
         },
         {
           name: "Date Added",
-          value: new Date(timestamp).toUTCString(),
+          value: `${new Date(timestamp).toUTCString()}`,
           inline: true,
         }
       );
