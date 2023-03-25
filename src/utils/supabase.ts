@@ -635,7 +635,7 @@ export const getEvent = async (event_id: string): Promise<SupabaseResponse> => {
     .select("*")
     .eq("event_id", event_id);
 
-  if (eventResponse.error || eventResponse.data.length === 0) {
+  if (eventResponse.error) {
     return {
       data: [],
       error: true,
@@ -643,9 +643,46 @@ export const getEvent = async (event_id: string): Promise<SupabaseResponse> => {
     };
   }
 
+  if (eventResponse.data.length === 0) {
+    return {
+      data: [],
+      error: true,
+      message: "No event could be found!",
+    };
+  }
+
   return {
     data: eventResponse.data,
     error: false,
     message: "Successfully fetched this event!",
+  };
+};
+
+export const getMembershipReason = async (membership_code_id: string) => {
+  const membershipReasonResponse = await supabase
+    .from("membership_code")
+    .select("message")
+    .eq("membership_code_id", membership_code_id);
+
+  if (membershipReasonResponse.error) {
+    return {
+      data: [],
+      error: true,
+      message: "There was an error fetching the membership reason!",
+    };
+  }
+
+  if (membershipReasonResponse.data.length === 0) {
+    return {
+      data: [],
+      error: true,
+      message: "No membership reasons could be found!",
+    };
+  }
+
+  return {
+    data: membershipReasonResponse.data,
+    error: false,
+    message: "Successfully fetched the membership reason!",
   };
 };

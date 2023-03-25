@@ -7,9 +7,12 @@ import {
 import { Command } from "../../interfaces/Command";
 import { createEmbeded, sendBulkEmbeds } from "../../utils/embeded";
 import { commandLog } from "../../utils/logs";
-import { getMemberships } from "../../utils/supabase";
+import { getMembershipReason, getMemberships } from "../../utils/supabase";
 
-const formatMembership = (membership: any, client: Client): EmbedBuilder => {
+const formatMembership = async (
+  membership: any,
+  client: Client
+): Promise<EmbedBuilder> => {
   const startMonth = new Date(membership.start_date).getMonth();
   const startSeason = startMonth < 6 ? "Spring" : "Fall";
   const startYear = new Date(membership.start_date).getFullYear();
@@ -17,9 +20,19 @@ const formatMembership = (membership: any, client: Client): EmbedBuilder => {
   const endSeason = endMonth < 6 ? "Spring" : "Fall";
   const term = startSeason === endSeason ? "Year" : "Semester";
 
+  const membershipReasonResponse = await getMembershipReason(
+    membership.membership_code_id
+  );
+
+  let reason = "General Membership";
+
+  if (!membershipReasonResponse.error) {
+    reason = membershipReasonResponse.data[0].message;
+  }
+
   return createEmbeded(
     `${startSeason} ${startYear}: ${term} Long`,
-    `${membership.membership_code_id}`,
+    `${reason}`,
     client
   ).setColor("Green");
 };
@@ -110,9 +123,10 @@ export const memberships: Command = {
 
     membershipEmbeds.push(infoMessage);
 
-    memberships.forEach((m) =>
-      membershipEmbeds.push(formatMembership(m, client))
-    );
+    for (let i = 0; i < memberships.length; i++) {
+      const membership = memberships[i];
+      membershipEmbeds.push(await formatMembership(membership, client));
+    }
 
     await sendBulkEmbeds(interaction, membershipEmbeds);
     return;
