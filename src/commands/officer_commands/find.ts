@@ -4,6 +4,8 @@ import { createEmbeded, sendBulkEmbeds } from "../../utils/embeded";
 import { commandLog } from "../../utils/logs";
 import { getBalance, getContacts, isMember } from "../../utils/supabase";
 import { EmbedBuilder } from "@discordjs/builders";
+import { fullContactFields } from "../../utils/embedFields";
+import { ContactQuery } from "src/utils/types";
 
 export const find: Command = {
   data: new SlashCommandBuilder()
@@ -17,12 +19,6 @@ export const find: Command = {
         .setRequired(false)
         .setMaxValue(9999999)
         .setMinValue(1000000)
-    )
-    .addStringOption((option) =>
-      option
-        .setName("email")
-        .setDescription("The email used to purchase a CougarCS membership!")
-        .setRequired(false)
     )
     .addStringOption((option) =>
       option
@@ -40,6 +36,12 @@ export const find: Command = {
       option
         .setName("discord")
         .setDescription("Discord user you wish to look for!")
+        .setRequired(false)
+    )
+    .addStringOption((option) =>
+      option
+        .setName("email")
+        .setDescription("The email used to purchase a CougarCS membership!")
         .setRequired(false)
     )
     .addBooleanOption((option) =>
@@ -83,35 +85,34 @@ export const find: Command = {
       { name: "seefullcontact", value: `${fullprofile}` },
     ]);
 
-    if (
-      !(
-        psid ||
-        email ||
-        first_name ||
-        last_name ||
-        discord_snowflake ||
-        fullprofile
-      )
-    ) {
+    const noParams = !(
+      psid ||
+      email ||
+      first_name ||
+      last_name ||
+      discord_snowflake ||
+      fullprofile
+    );
+
+    if (noParams) {
       const returnMessage = createEmbeded(
         "❌ Search canceled!",
-        "No search parameters specified.",
+        "No search parameters specified!",
         client
-      )
-        .setColor("Red")
-        .setFooter(null)
-        .setTimestamp(null);
+      ).setColor("Red");
       await interaction.editReply({ embeds: [returnMessage] });
       return;
     }
 
-    const contactsResponse = await getContacts({
+    const query: ContactQuery = {
       uh_id: psid,
       email,
       first_name,
       last_name,
       discord_snowflake,
-    });
+    };
+
+    const contactsResponse = await getContacts(query);
 
     if (contactsResponse.error) {
       const returnMessage = createEmbeded(
@@ -161,70 +162,9 @@ export const find: Command = {
         balance = balanceResponse.data[0];
       }
 
-      const embed = createEmbeded(" ", " ", client)
-        .addFields(
-          {
-            name: "Discord",
-            value: discord,
-            inline: true,
-          },
-          {
-            name: "Member",
-            value: activeMember ? "✅" : "❌",
-            inline: true,
-          },
-          {
-            name: "CougarCoin",
-            value: `${balance}`,
-            inline: true,
-          }
-        )
-        .addFields(
-          {
-            name: "First Name",
-            value: `${contact.first_name}`,
-            inline: true,
-          },
-          {
-            name: "Last Name",
-            value: `${contact.last_name}`,
-            inline: true,
-          },
-          {
-            name: "PSID",
-            value: `${contact.uh_id}`,
-            inline: true,
-          }
-        )
-        .addFields(
-          {
-            name: "Email",
-            value: `${contact.email}`,
-            inline: true,
-          },
-          {
-            name: "Phone Number",
-            value: `${contact.phone_number}`,
-            inline: true,
-          },
-          {
-            name: "Shirt Size",
-            value: `${contact.shirt_size_id}`,
-            inline: true,
-          }
-        )
-        .addFields(
-          {
-            name: "Contact ID",
-            value: `${contact_id}`,
-            inline: true,
-          },
-          {
-            name: "Date Added",
-            value: `${new Date(contact.timestamp).toUTCString()}`,
-            inline: true,
-          }
-        );
+      const embed = createEmbeded(" ", " ", client).addFields(
+        ...fullContactFields(contact, balance, activeMember)
+      );
       embeds.push(embed);
     }
 

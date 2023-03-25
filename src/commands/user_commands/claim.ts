@@ -2,12 +2,8 @@ import { Guild, GuildMember, Role, SlashCommandBuilder } from "discord.js";
 import { Command } from "../../interfaces/Command";
 import { createEmbeded } from "../../utils/embeded";
 import { commandLog } from "../../utils/logs";
-import {
-  SupabaseResponse,
-  getContact,
-  isMember,
-  updateDiscordSnowflake,
-} from "../../utils/supabase";
+import { getContact, isMember, updateContact } from "../../utils/supabase";
+import { SupabaseResponse } from "src/utils/types";
 
 export const claim: Command = {
   data: new SlashCommandBuilder()
@@ -43,6 +39,17 @@ export const claim: Command = {
       { name: "email", value: `${email}` },
     ]);
 
+    const errorMessage = createEmbeded(
+      "❌ Claim Failed!",
+      "There was an error performing this command!",
+      client
+    ).setColor("Red");
+
+    const reminderMsg =
+      "You must purchase a membership from https://cougarcs.com before claiming it!";
+    const reportMsg =
+      "If you think this is an error, please use /report to notify an officer!";
+
     const member = guild.members.cache.find(
       (gm) => user.id === gm.id
     ) as GuildMember;
@@ -58,7 +65,9 @@ export const claim: Command = {
       })) as Role;
     }
 
-    if (member.roles.cache.find((r) => r === memberRole)) {
+    const haveMemberRole = !!member.roles.cache.find((r) => r === memberRole);
+
+    if (haveMemberRole) {
       const returnMessage = createEmbeded(
         "✅ Membership Confirmed!",
         `You still have the ${memberRole} role!`,
@@ -78,11 +87,7 @@ export const claim: Command = {
     }
 
     if (contactResponse.error) {
-      const errorMessage = createEmbeded(
-        "❌ Claim Failed!",
-        `${contactResponse.message}\nYou must purchase a membership from https://cougarcs.com before claiming it!`,
-        client
-      ).setColor("Red");
+      errorMessage.setDescription(`${contactResponse.message}\n${reminderMsg}`);
       await interaction.editReply({ embeds: [errorMessage] });
       return;
     }
@@ -92,11 +97,7 @@ export const claim: Command = {
     const memberResponse = await isMember({ contact_id });
 
     if (memberResponse.error) {
-      const errorMessage = createEmbeded(
-        "❌ Claim Failed!",
-        `${memberResponse.message}\nYou must purchase a membership from https://cougarcs.com before claiming it!`,
-        client
-      ).setColor("Red");
+      errorMessage.setDescription(`${memberResponse.message}\n${reminderMsg}`);
       await interaction.editReply({ embeds: [errorMessage] });
       return;
     }
@@ -104,11 +105,9 @@ export const claim: Command = {
     const activeMember = memberResponse.data[0];
 
     if (!activeMember) {
-      const errorMessage = createEmbeded(
-        "❌ Claim Failed!",
-        `You do not have an active membership!\nYou must purchase a membership from https://cougarcs.com before claiming it!`,
-        client
-      ).setColor("Red");
+      errorMessage.setDescription(
+        `You do not have an active membership!\n${reminderMsg}`
+      );
       await interaction.editReply({ embeds: [errorMessage] });
       return;
     }
@@ -116,31 +115,25 @@ export const claim: Command = {
     let updateResponse = { error: false };
 
     if (!contact.discord_snowflake) {
-      updateResponse = await updateDiscordSnowflake(
-        { contact_id },
-        discord_snowflake
-      );
+      updateResponse = await updateContact({ contact_id }, discord_snowflake);
     }
 
     if (updateResponse.error) {
-      const errorMessage = createEmbeded(
-        "❌ Claim Failed!",
-        `Discord account could not be linked to contact!\nIf you think this is an error, please use /report to notify an officer!`,
-        client
-      ).setColor("Red");
+      errorMessage.setDescription(
+        `Discord account could not be linked!\n${reportMsg}`
+      );
       await interaction.editReply({ embeds: [errorMessage] });
       return;
     }
 
-    if (
+    const claimedByOtherUser =
       discord_snowflake !== contact.discord_snowflake &&
-      contact.discord_snowflake
-    ) {
-      const errorMessage = createEmbeded(
-        "❌ Claim Failed!",
-        `This membership has already been claimed by <@${contact.discord_snowflake}>\nIf you think this is an error, please use /report to notify an officer!`,
-        client
-      ).setColor("Red");
+      contact.discord_snowflake;
+
+    if (claimedByOtherUser) {
+      errorMessage.setDescription(
+        `This membership has already been claimed by <@${contact.discord_snowflake}>\n${reportMsg}`
+      );
       await interaction.editReply({ embeds: [errorMessage] });
       return;
     }

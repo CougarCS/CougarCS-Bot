@@ -4,10 +4,6 @@ import { createEmbeded } from "../../utils/embeded";
 import { getBalance } from "../../utils/supabase";
 import { commandLog } from "../../utils/logs";
 
-interface points {
-  member_points: string;
-}
-
 export const balance: Command = {
   data: new SlashCommandBuilder()
     .setName("balance")

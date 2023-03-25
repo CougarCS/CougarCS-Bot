@@ -7,27 +7,39 @@ import {
 import { Command } from "../../interfaces/Command";
 import { createEmbeded, sendBulkEmbeds } from "../../utils/embeded";
 import { commandLog } from "../../utils/logs";
-import { getMemberships } from "../../utils/supabase";
+import { getEvent, getEventAttendance } from "../../utils/supabase";
 
-const formatMembership = (membership: any, client: Client): EmbedBuilder => {
-  const startMonth = new Date(membership.start_date).getMonth();
-  const startSeason = startMonth < 6 ? "Spring" : "Fall";
-  const startYear = new Date(membership.start_date).getFullYear();
-  const endMonth = new Date(membership.end_date).getMonth();
-  const endSeason = endMonth < 6 ? "Spring" : "Fall";
-  const term = startSeason === endSeason ? "Year" : "Semester";
-
-  return createEmbeded(
-    `${startSeason} ${startYear}: ${term} Long`,
-    `${membership.membership_code_id}`,
+const attendanceEmbeds = async (
+  attendanceArray: any[],
+  client: Client
+): Promise<EmbedBuilder[]> => {
+  const attendanceEmbeds: EmbedBuilder[] = [];
+  const attendanceCount = attendanceArray.length;
+  const suffix = attendanceCount === 1 ? "" : "s";
+  const infoMessage = createEmbeded(
+    `🔎 Found ${attendanceCount} result${suffix}:`,
+    " ",
     client
-  ).setColor("Green");
+  ).setColor("Yellow");
+  attendanceEmbeds.push(infoMessage);
+
+  for (let i = 0; i < attendanceCount; i++) {
+    const attendance = attendanceArray[i];
+    const { event_id } = attendance;
+    const eventResponse = await getEvent(event_id);
+    const identifier = eventResponse.data[0]?.title || event_id;
+    const embed = createEmbeded(`${identifier} ✅`, " ", client).setColor(
+      "Green"
+    );
+    attendanceEmbeds.push(embed);
+  }
+  return attendanceEmbeds;
 };
 
-export const memberships: Command = {
+export const attendance: Command = {
   data: new SlashCommandBuilder()
-    .setName("memberships")
-    .setDescription("See a user's membership history!")
+    .setName("attendance")
+    .setDescription("Check a user's event attendance data!")
     .setDefaultMemberPermissions(PermissionFlagsBits.ManageChannels)
     .addUserOption((option) =>
       option
@@ -62,13 +74,10 @@ export const memberships: Command = {
     const discord_snowflake =
       (discordOption && (discordOption.user?.id as string)) || undefined;
 
-    commandLog(interaction, "/memberships", "Green", [
+    commandLog(interaction, "/attendance", "Green", [
       { name: "psid", value: `${uh_id}` },
       { name: "email", value: `${email}` },
-      {
-        name: "discord",
-        value: `<@${discord_snowflake}>`,
-      },
+      { name: "discord", value: `<@${discord_snowflake}>` },
     ]);
 
     const errorMessage = createEmbeded(
@@ -85,36 +94,22 @@ export const memberships: Command = {
       return;
     }
 
-    const membershipResponse = await getMemberships({
+    const attendanceResponse = await getEventAttendance({
       uh_id,
       email,
       discord_snowflake,
     });
 
-    if (membershipResponse.error) {
-      errorMessage.setDescription(membershipResponse.message);
+    if (attendanceResponse.error) {
+      errorMessage.setDescription(attendanceResponse.message);
       await interaction.editReply({ embeds: [errorMessage] });
       return;
     }
 
-    const memberships = membershipResponse.data;
-    const membershipEmbeds: EmbedBuilder[] = [];
-    const membershipCount = memberships.length;
-    const suffix = membershipCount === 1 ? "" : "s";
+    const attendanceArray = attendanceResponse.data;
+    const embeds = await attendanceEmbeds(attendanceArray, client);
 
-    const infoMessage = createEmbeded(
-      `🔎 Found ${membershipCount} result${suffix}:`,
-      " ",
-      client
-    ).setColor("Yellow");
-
-    membershipEmbeds.push(infoMessage);
-
-    memberships.forEach((m) =>
-      membershipEmbeds.push(formatMembership(m, client))
-    );
-
-    await sendBulkEmbeds(interaction, membershipEmbeds);
+    await sendBulkEmbeds(interaction, embeds);
     return;
   },
 };

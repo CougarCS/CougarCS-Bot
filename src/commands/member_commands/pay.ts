@@ -9,6 +9,7 @@ import { Command } from "../../interfaces/Command";
 import { createEmbeded } from "../../utils/embeded";
 import { commandLog } from "../../utils/logs";
 import { getBalance, insertTransaction, isMember } from "../../utils/supabase";
+import { TransactionInsert } from "../../utils/types";
 
 export const pay: Command = {
   data: new SlashCommandBuilder()
@@ -42,6 +43,12 @@ export const pay: Command = {
       { name: "value", value: `${point_value}` },
     ]);
 
+    const errorMessage = createEmbeded(
+      "❌ Payment Canceled!",
+      "There was an error performing this command!",
+      client
+    ).setColor("Red");
+
     await guild.members.fetch();
     const payMember = guild.members.cache.find(
       (m) => m.id === payUser
@@ -56,12 +63,13 @@ export const pay: Command = {
       (r) => r.name === "Member"
     );
 
-    if (!memberRole || !member.roles.cache.find((r) => r === memberRole)) {
-      const errorMessage = createEmbeded(
-        "❌ Payment Canceled!",
-        `This command is available for members only!`,
-        client
-      ).setColor("Red");
+    const hasMemberRole =
+      memberRole && member.roles.cache.find((r) => r === memberRole);
+
+    if (!hasMemberRole) {
+      errorMessage.setDescription(
+        "This command is available for members only!"
+      );
       await interaction.editReply({ embeds: [errorMessage] });
       return;
     }
@@ -71,11 +79,7 @@ export const pay: Command = {
     });
 
     if (payMemberResponse.error) {
-      const errorMessage = createEmbeded(
-        "❌ Payment Canceled!",
-        payMemberResponse.message,
-        client
-      ).setColor("Red");
+      errorMessage.setDescription(payMemberResponse.message);
       await interaction.editReply({ embeds: [errorMessage] });
       return;
     }
@@ -83,11 +87,9 @@ export const pay: Command = {
     const payActiveMember = payMemberResponse.data[0];
 
     if (!payActiveMember) {
-      const errorMessage = createEmbeded(
-        "❌ Payment Canceled!",
-        `You may only send a payment to another member!`,
-        client
-      ).setColor("Red");
+      errorMessage.setDescription(
+        `You may only send a payment to another member!`
+      );
       await interaction.editReply({ embeds: [errorMessage] });
       return;
     }
@@ -97,11 +99,7 @@ export const pay: Command = {
     const balanceResponse = await getBalance({ discord_snowflake });
 
     if (balanceResponse.error) {
-      const errorMessage = createEmbeded(
-        "❌ Payment Canceled!",
-        `There was an error verifying your balance!`,
-        client
-      ).setColor("Red");
+      errorMessage.setDescription(`There was an error verifying your balance!`);
       await interaction.editReply({ embeds: [errorMessage] });
       return;
     }
@@ -109,43 +107,35 @@ export const pay: Command = {
     const initialBalance = balanceResponse.data[0];
 
     if (initialBalance < point_value) {
-      const errorMessage = createEmbeded(
-        "❌ Payment Canceled!",
-        `Your balance is too low!`,
-        client
-      ).setColor("Red");
+      errorMessage.setDescription(`Your balance is too low!`);
       await interaction.editReply({ embeds: [errorMessage] });
       return;
     }
 
-    const withdrawalResponse = await insertTransaction(
-      { discord_snowflake },
-      -point_value,
-      "mpt-payment"
-    );
+    const withdrawal: TransactionInsert = {
+      queryData: { discord_snowflake },
+      point_value: -point_value,
+      reason_id: "mpt-payment",
+    };
+
+    const withdrawalResponse = await insertTransaction(withdrawal);
 
     if (withdrawalResponse.error) {
-      const errorMessage = createEmbeded(
-        "❌ Payment Canceled!",
-        withdrawalResponse.message,
-        client
-      ).setColor("Red");
+      errorMessage.setDescription(withdrawalResponse.message);
       await interaction.editReply({ embeds: [errorMessage] });
       return;
     }
 
-    const depositResponse = await insertTransaction(
-      { discord_snowflake: pay_snowflake },
+    const deposit: TransactionInsert = {
+      queryData: { discord_snowflake: pay_snowflake },
       point_value,
-      "mpt-payment"
-    );
+      reason_id: "mpt-payment",
+    };
+
+    const depositResponse = await insertTransaction(deposit);
 
     if (depositResponse.error) {
-      const errorMessage = createEmbeded(
-        "❌ Payment Canceled!",
-        depositResponse.message,
-        client
-      ).setColor("Red");
+      errorMessage.setDescription(depositResponse.message);
       await interaction.editReply({ embeds: [errorMessage] });
       return;
     }

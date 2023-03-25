@@ -1,14 +1,20 @@
-import { PermissionFlagsBits, SlashCommandBuilder } from "discord.js";
+import {
+  CommandInteraction,
+  PermissionFlagsBits,
+  SlashCommandBuilder,
+} from "discord.js";
 import { Command } from "../../interfaces/Command";
 import { createEmbeded } from "../../utils/embeded";
 import { commandLog } from "../../utils/logs";
-import {
-  SupabaseResponse,
-  getContact,
-  insertContact,
-  updateContact,
-} from "../../utils/supabase";
+import { getContact, insertContact, updateContact } from "../../utils/supabase";
 import { EmbedBuilder } from "@discordjs/builders";
+import { shirtSizeOptions } from "../../utils/options";
+import {
+  ContactInsert,
+  ContactUpdate,
+  SupabaseResponse,
+} from "../../utils/types";
+import { contactFields } from "../../utils/embedFields";
 
 export const updatecontact: Command = {
   data: new SlashCommandBuilder()
@@ -55,42 +61,13 @@ export const updatecontact: Command = {
         .setMinValue(1000000000)
         .setMaxValue(9999999999)
     )
-    .addStringOption((option) =>
-      option
+    .addStringOption((option) => {
+      shirtSizeOptions().then((sizes) => option.setChoices(...sizes));
+      return option
         .setName("shirtsize")
         .setDescription("The contact's shirt size!")
-        .setRequired(false)
-        .setChoices(
-          {
-            name: "Extra Small",
-            value: "XS",
-          },
-          {
-            name: "Small",
-            value: "S",
-          },
-          {
-            name: "Medium",
-            value: "M",
-          },
-          {
-            name: "Large",
-            value: "L",
-          },
-          {
-            name: "Extra Large",
-            value: "XL",
-          },
-          {
-            name: "2x Extra Large",
-            value: "XXL",
-          },
-          {
-            name: "3x Extra Large",
-            value: "XXXL",
-          }
-        )
-    ),
+        .setRequired(false);
+    }),
   run: async (interaction, client) => {
     await interaction.deferReply({ ephemeral: false });
     const { user } = interaction;
@@ -124,6 +101,12 @@ export const updatecontact: Command = {
       { name: "shirtsize", value: `${shirt_size_id}` },
     ]);
 
+    const errorMessage = createEmbeded(
+      "❌ Update Failed!",
+      "There was an error performing this command!",
+      client
+    ).setColor("Red");
+
     const initialContactResponse = await getContact({ uh_id });
     let contact_id = undefined;
 
@@ -133,8 +116,9 @@ export const updatecontact: Command = {
 
     let contactResponse: SupabaseResponse;
 
-    if (!contact_id) {
-      contactResponse = await insertContact({
+    if (contact_id) {
+      const update: ContactUpdate = {
+        contact_id,
         uh_id,
         email,
         discord_snowflake,
@@ -142,29 +126,31 @@ export const updatecontact: Command = {
         last_name,
         phone_number,
         shirt_size_id,
-      });
+      };
+
+      contactResponse = await updateContact(update, contact_id);
+    } else if (email && first_name) {
+      const insert: ContactInsert = {
+        contact_id,
+        uh_id,
+        email,
+        discord_snowflake,
+        first_name,
+        last_name,
+        phone_number,
+        shirt_size_id,
+      };
+
+      contactResponse = await insertContact(insert);
     } else {
-      contactResponse = await updateContact(
-        {
-          uh_id,
-          email,
-          discord_snowflake,
-          first_name,
-          last_name,
-          phone_number,
-          shirt_size_id,
-        },
-        contact_id
-      );
+      errorMessage.setDescription("Invalid Parameters!");
+      await interaction.editReply({ embeds: [errorMessage] });
+      return;
     }
 
     if (contactResponse.error) {
-      const returnMessage = createEmbeded(
-        "❌ Update Failed!",
-        contactResponse.message,
-        client
-      ).setColor("Red");
-      await interaction.editReply({ embeds: [returnMessage] });
+      errorMessage.setDescription(contactResponse.message);
+      await interaction.editReply({ embeds: [errorMessage] });
       return;
     }
 
@@ -185,90 +171,15 @@ export const updatecontact: Command = {
         client
       )
         .setColor("Purple")
-        .addFields(
-          {
-            name: "Discord",
-            value: `<@${initContact.discord_snowflake}>`,
-            inline: true,
-          },
-          {
-            name: "First Name",
-            value: `${initContact.first_name}`,
-            inline: true,
-          },
-          {
-            name: "Last Name",
-            value: `${initContact.last_name}`,
-            inline: true,
-          },
-          {
-            name: "PSID",
-            value: `${initContact.uh_id}`,
-            inline: true,
-          }
-        )
-        .addFields(
-          {
-            name: "Email",
-            value: `${initContact.email}`,
-            inline: true,
-          },
-          {
-            name: "Phone Number",
-            value: `${initContact.phone_number}`,
-            inline: true,
-          },
-          {
-            name: "Shirt Size",
-            value: `${initContact.shirt_size_id}`,
-            inline: true,
-          }
-        );
+        .addFields(...contactFields(initContact));
       embeds.push(initialContactMessage);
     }
 
     const newContact = contactResponse.data[0];
     const newContactMessage = createEmbeded("👤 New Contact!", " ", client)
       .setColor("Yellow")
-      .addFields(
-        {
-          name: "Discord",
-          value: `<@${newContact.discord_snowflake}>`,
-          inline: true,
-        },
-        {
-          name: "First Name",
-          value: `${newContact.first_name}`,
-          inline: true,
-        },
-        {
-          name: "Last Name",
-          value: `${newContact.last_name}`,
-          inline: true,
-        },
-        {
-          name: "PSID",
-          value: `${newContact.uh_id}`,
-          inline: true,
-        }
-      )
-      .addFields(
-        {
-          name: "Email",
-          value: `${newContact.email}`,
-          inline: true,
-        },
-        {
-          name: "Phone Number",
-          value: `${newContact.phone_number}`,
-          inline: true,
-        },
-        {
-          name: "Shirt Size",
-          value: `${newContact.shirt_size_id}`,
-          inline: true,
-        }
-      );
+      .addFields(...contactFields(newContact));
+
     embeds.push(newContactMessage);
 
     await interaction.editReply({ embeds });

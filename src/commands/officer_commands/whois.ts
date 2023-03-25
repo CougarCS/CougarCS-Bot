@@ -8,6 +8,8 @@ import { Command } from "../../interfaces/Command";
 import { createEmbeded } from "../../utils/embeded";
 import { getBalance, getContact, isMember } from "../../utils/supabase";
 import { commandLog } from "../../utils/logs";
+import { ContactSelect } from "../../utils/types";
+import { fullContactFields } from "../../utils/embedFields";
 
 export const whois: Command = {
   data: new SlashCommandBuilder()
@@ -32,37 +34,27 @@ export const whois: Command = {
       { name: "user", value: `${whoUser}` },
     ]);
 
+    const errorMessage = createEmbeded(
+      "❌ Whois Failed!",
+      "There was an error performing this command!",
+      client
+    ).setColor("Red");
+
     const discord_snowflake = whoUser.id;
     const contactResponse = await getContact({ discord_snowflake });
 
     if (contactResponse.error) {
-      const errorMessage = createEmbeded(
-        "❌ WhoIs Failed!",
-        contactResponse.message,
-        client
-      ).setColor("Red");
+      errorMessage.setDescription(contactResponse.message);
       await interaction.editReply({ embeds: [errorMessage] });
       return;
     }
 
-    const {
-      contact_id,
-      uh_id,
-      email,
-      first_name,
-      last_name,
-      phone_number,
-      shirt_size_id,
-      timestamp,
-    } = contactResponse.data[0];
+    const contact: ContactSelect = contactResponse.data[0];
+    const { contact_id } = contact;
     const memberResponse = await isMember({ contact_id });
 
     if (memberResponse.error) {
-      const errorMessage = createEmbeded(
-        "❌ WhoIs Failed!",
-        memberResponse.message,
-        client
-      ).setColor("Red");
+      errorMessage.setDescription(memberResponse.message);
       await interaction.editReply({ embeds: [errorMessage] });
       return;
     }
@@ -71,11 +63,7 @@ export const whois: Command = {
     const balanceResponse = await getBalance({ contact_id });
 
     if (balanceResponse.error) {
-      const errorMessage = createEmbeded(
-        "❌ WhoIs Failed!",
-        balanceResponse.message,
-        client
-      ).setColor("Red");
+      errorMessage.setDescription(balanceResponse.message);
       await interaction.editReply({ embeds: [errorMessage] });
       return;
     }
@@ -84,66 +72,8 @@ export const whois: Command = {
 
     const returnMessage = createEmbeded("👤 Contact Found!", " ", client)
       .setColor("Blue")
-      .addFields(
-        { name: "Discord", value: `<@${discord_snowflake}>`, inline: true },
-        {
-          name: "Member",
-          value: activeMember ? "✅" : "❌",
-          inline: true,
-        },
-        {
-          name: "CougarCoin",
-          value: `**${balance}**`,
-          inline: true,
-        }
-      )
-      .setThumbnail(whoUser.displayAvatarURL())
-      .addFields(
-        {
-          name: "First Name",
-          value: `${first_name}`,
-          inline: true,
-        },
-        {
-          name: "Last Name",
-          value: `${last_name}`,
-          inline: true,
-        },
-        {
-          name: "PSID",
-          value: `${uh_id}`,
-          inline: true,
-        }
-      )
-      .addFields(
-        {
-          name: "Email",
-          value: `${email}`,
-          inline: true,
-        },
-        {
-          name: "Phone Number",
-          value: `${phone_number}`,
-          inline: true,
-        },
-        {
-          name: "Shirt Size",
-          value: `${shirt_size_id}`,
-          inline: true,
-        }
-      )
-      .addFields(
-        {
-          name: "Contact ID",
-          value: `${contact_id}`,
-          inline: true,
-        },
-        {
-          name: "Date Added",
-          value: `${new Date(timestamp).toUTCString()}`,
-          inline: true,
-        }
-      );
+      .addFields(...fullContactFields(contact, balance, activeMember))
+      .setThumbnail(whoUser.displayAvatarURL());
 
     await interaction.editReply({ embeds: [returnMessage] });
     return;

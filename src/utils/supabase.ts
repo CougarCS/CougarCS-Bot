@@ -1,40 +1,34 @@
 import { PostgrestSingleResponse, createClient } from "@supabase/supabase-js";
+import {
+  ContactInsert,
+  ContactKey,
+  ContactQuery,
+  ContactUpdate,
+  EventAttendanceInsert,
+  SupabaseResponse,
+  TransactionInsert,
+  UniqueContactQuery,
+} from "./types";
+import { Database } from "./schema";
 require("dotenv").config();
 
 const supabaseUrl = process.env.SUPABASE_URL as string;
 const supabaseKey = process.env.SUPABASE_KEY as string;
-const supabase = createClient(supabaseUrl, supabaseKey);
+const supabase = createClient<Database>(supabaseUrl, supabaseKey);
 
-export type UniqueContactKey =
-  | "contact_id"
-  | "uh_id"
-  | "email"
-  | "discord_snowflake";
+const addQueryFilters = (query: any, queryData: ContactQuery) => {
+  Object.keys(queryData).forEach((key) => {
+    const contactKey = key as ContactKey;
 
-export type ContactKey = UniqueContactKey | "first_name" | "last_name";
+    if (!queryData[contactKey]) return;
 
-export type UniqueContactQuery = {
-  contact_id?: string;
-  uh_id?: number;
-  email?: string;
-  discord_snowflake?: string;
-};
-
-export type ContactQuery = {
-  contact_id?: string;
-  uh_id?: number;
-  email?: string;
-  discord_snowflake?: string;
-  first_name?: string;
-  last_name?: string;
-  phone_number?: number;
-  shirt_size_id?: string;
-};
-
-export type SupabaseResponse = {
-  data: any[];
-  error: boolean;
-  message: string;
+    if (contactKey === "uh_id" || contactKey === "contact_id") {
+      query = query.eq(contactKey, queryData[contactKey]);
+    } else {
+      const stringSearch = `%${queryData[contactKey]}%`;
+      query = query.ilike(contactKey, stringSearch);
+    }
+  });
 };
 
 export const pingSB = async (): Promise<SupabaseResponse> => {
@@ -58,10 +52,7 @@ export const getContacts = async (
 ): Promise<SupabaseResponse> => {
   let query = supabase.from("contacts").select("*");
 
-  Object.keys(queryData).forEach((key) => {
-    if (!queryData[key as ContactKey]) return;
-    query = query.eq(key, queryData[key as ContactKey]);
-  });
+  addQueryFilters(query, queryData);
 
   const response = await query;
 
@@ -307,10 +298,10 @@ export const updateDiscordSnowflake = async (
 };
 
 export const insertTransaction = async (
-  queryData: UniqueContactQuery,
-  point_value: number,
-  reason_id: string
+  transactionInfo: TransactionInsert
 ): Promise<SupabaseResponse> => {
+  const { queryData, point_value, reason_id } = transactionInfo;
+
   const contactIdResponse = await getContactId(queryData);
 
   if (contactIdResponse.error) {
@@ -419,7 +410,7 @@ export const cancelMembership = async (
 };
 
 export const insertContact = async (
-  newData: ContactQuery
+  newData: ContactInsert
 ): Promise<SupabaseResponse> => {
   const contactResponse = await supabase
     .from("contacts")
@@ -442,7 +433,7 @@ export const insertContact = async (
 };
 
 export const updateContact = async (
-  newData: ContactQuery,
+  newData: ContactUpdate,
   contact_id: string
 ): Promise<SupabaseResponse> => {
   const contactResponse = await supabase
@@ -463,5 +454,198 @@ export const updateContact = async (
     data: contactResponse.data,
     error: false,
     message: "Successfully updated contact data!",
+  };
+};
+
+export const getMembershipCodes = async (): Promise<SupabaseResponse> => {
+  const membershipCodeResponse = await supabase
+    .from("membership_code")
+    .select("*");
+
+  if (membershipCodeResponse.error) {
+    return {
+      data: [],
+      error: true,
+      message: "There was an error fetching the membership codes!",
+    };
+  }
+
+  if (membershipCodeResponse.data.length === 0) {
+    return {
+      data: [],
+      error: true,
+      message: "No membership codes were found!",
+    };
+  }
+
+  return {
+    data: membershipCodeResponse.data,
+    error: false,
+    message: "Successfully fetched membership codes!",
+  };
+};
+
+export const getShirtSizes = async (): Promise<SupabaseResponse> => {
+  const shirtSizeResponse = await supabase.from("shirt_size").select("*");
+
+  if (shirtSizeResponse.error) {
+    return {
+      data: [],
+      error: true,
+      message: "There was an error fetching the shirt sizes!",
+    };
+  }
+
+  if (shirtSizeResponse.data.length === 0) {
+    return {
+      data: [],
+      error: true,
+      message: "No shirt sizes were found!",
+    };
+  }
+
+  return {
+    data: shirtSizeResponse.data,
+    error: false,
+    message: "Successfully fetched shirt sizes!",
+  };
+};
+
+export const getMemberPointReasons = async (): Promise<SupabaseResponse> => {
+  const pointReasonResponse = await supabase
+    .from("member_point_transaction_reason")
+    .select("*");
+
+  if (pointReasonResponse.error) {
+    return {
+      data: [],
+      error: true,
+      message:
+        "There was an error fetching the member point transaction reasons!",
+    };
+  }
+
+  if (pointReasonResponse.data.length === 0) {
+    return {
+      data: [],
+      error: true,
+      message: "No member point transaction reasons were found!",
+    };
+  }
+
+  return {
+    data: pointReasonResponse.data,
+    error: false,
+    message: "Successfully fetched the member point transaction reasons!",
+  };
+};
+
+export const getEvents = async (): Promise<SupabaseResponse> => {
+  const eventResponse = await supabase.from("event").select("*");
+
+  if (eventResponse.error) {
+    return {
+      data: [],
+      error: true,
+      message: "There was an error fetching the events!",
+    };
+  }
+
+  if (eventResponse.data.length === 0) {
+    return {
+      data: [],
+      error: true,
+      message: "No events were found!",
+    };
+  }
+
+  return {
+    data: eventResponse.data,
+    error: false,
+    message: "Successfully fetched the events!",
+  };
+};
+
+export const insertEventAttendance = async (
+  attendance: EventAttendanceInsert
+): Promise<SupabaseResponse> => {
+  const attendanceResponse = await supabase
+    .from("event_attendance")
+    .insert(attendance)
+    .select("*");
+
+  if (attendanceResponse.error) {
+    return {
+      data: [],
+      error: true,
+      message: "There was an error inserting the event attendance data!",
+    };
+  }
+
+  return {
+    data: attendanceResponse.data,
+    error: false,
+    message: "Successfully inserted the event attendance data!",
+  };
+};
+
+export const getEventAttendance = async (
+  queryData: UniqueContactQuery
+): Promise<SupabaseResponse> => {
+  const contactIdResponse = await getContactId(queryData);
+
+  if (contactIdResponse.error) {
+    return contactIdResponse;
+  }
+
+  const contact_id = contactIdResponse.data[0];
+
+  const attendanceResponse = await supabase
+    .from("event_attendance")
+    .select("*")
+    .eq("contact_id", contact_id)
+    .order("timestamp", { ascending: false });
+
+  if (attendanceResponse.error) {
+    return {
+      data: [],
+      error: true,
+      message: "There was an error fetching event attendance data!",
+    };
+  }
+
+  if (attendanceResponse.data.length === 0) {
+    return {
+      data: [],
+      error: true,
+      message: "No event attendance data was found!",
+    };
+  }
+
+  return {
+    data: attendanceResponse.data,
+    error: false,
+    message: "Successfully fetched event attendance data!",
+  };
+};
+
+export const getEvent = async (event_id: string): Promise<SupabaseResponse> => {
+  const eventResponse = await supabase
+    .from("event")
+    .select("*")
+    .eq("event_id", event_id);
+
+  if (eventResponse.error || eventResponse.data.length === 0) {
+    return {
+      data: [],
+      error: true,
+      message: "There was an error fetching this event!",
+    };
+  }
+
+  return {
+    data: eventResponse.data,
+    error: false,
+    message: "Successfully fetched this event!",
   };
 };

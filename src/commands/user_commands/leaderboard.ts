@@ -4,6 +4,12 @@ import { createEmbeded } from "../../utils/embeded";
 import { getLeaderboard } from "../../utils/supabase";
 import { commandLog } from "../../utils/logs";
 
+const leaderboardBody = (array: string[]): string => {
+  let body = "";
+  array.forEach((slot) => (body = `${body}${slot}\n`));
+  return body;
+};
+
 export const leaderboard: Command = {
   data: new SlashCommandBuilder()
     .setName("leaderboard")
@@ -27,9 +33,8 @@ export const leaderboard: Command = {
       },
     ]);
 
-    const leaderboardResponse = await getLeaderboard(
-      (number?.value || 10) as number
-    );
+    const maxSlots = (number?.value || 10) as number;
+    const leaderboardResponse = await getLeaderboard(maxSlots);
 
     if (leaderboardResponse.error) {
       const errorMessage = createEmbeded(
@@ -41,10 +46,7 @@ export const leaderboard: Command = {
       return;
     }
 
-    let leaderboardString = "";
-    leaderboardResponse.data.forEach(
-      (s) => (leaderboardString = `${leaderboardString}${s}\n`)
-    );
+    const leaderboardString = leaderboardBody(leaderboardResponse.data);
 
     const returnMessage = createEmbeded(
       "<a:CC:991512220909445150> CougarCoin Leaderboard!",

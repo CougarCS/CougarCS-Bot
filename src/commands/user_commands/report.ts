@@ -2,6 +2,7 @@ import { PermissionFlagsBits, SlashCommandBuilder } from "discord.js";
 import { Command } from "../../interfaces/Command";
 import { createEmbeded } from "../../utils/embeded";
 import * as Logger from "../../utils/logs";
+import { reportOptions } from "../../utils/options";
 
 export const report: Command = {
   data: new SlashCommandBuilder()
@@ -11,24 +12,7 @@ export const report: Command = {
       option
         .setName("type")
         .setDescription("What is the type of report you are filing?")
-        .setChoices(
-          {
-            name: "Member Issue",
-            value: "Member Issue",
-          },
-          {
-            name: "Event Issue",
-            value: "Event Issue",
-          },
-          {
-            name: "Administration Issue",
-            value: "Administration Issue",
-          },
-          {
-            name: "Other",
-            value: "Other",
-          }
-        )
+        .setChoices(...reportOptions())
         .setRequired(true)
     )
     .addStringOption((option) =>

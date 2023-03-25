@@ -1,4 +1,6 @@
 import {
+  Client,
+  Collection,
   Guild,
   GuildMember,
   GuildMemberManager,
@@ -13,9 +15,47 @@ import { commandLog } from "../../utils/logs";
 import { isMember } from "../../utils/supabase";
 import { EmbedBuilder } from "@discordjs/builders";
 
-export const pruneexpiredmembers: Command = {
+const getExpiredMembers = async (members: Collection<string, GuildMember>) => {
+  const keys = members.keys();
+  const removedMembers: GuildMember[] = [];
+  for (let i = 0; i < members.size; i++) {
+    const key = keys.next().value;
+    if (!key) break;
+
+    const member = members.get(key);
+    if (!member) break;
+
+    const discord_snowflake = member.id;
+    const memberResponse = await isMember({ discord_snowflake });
+
+    if (memberResponse.error || !memberResponse.data[0]) {
+      removedMembers.push(member);
+    }
+  }
+  return removedMembers;
+};
+
+const removeExpiredMembers = async (
+  removedMembers: GuildMember[],
+  memberRole: Role,
+  currentChannel: TextBasedChannel,
+  client: Client
+) => {
+  for (let i = 0; i < removedMembers.length; i++) {
+    const member = removedMembers[i];
+    const removedMember = createEmbeded(
+      ` `,
+      `**Pruned User: ${member}**`,
+      client
+    ).setColor("Red");
+    await member.roles.remove(memberRole);
+    currentChannel.send({ embeds: [removedMember] });
+  }
+};
+
+export const prunemembers: Command = {
   data: new SlashCommandBuilder()
-    .setName("pruneexpiredmembers")
+    .setName("prunemembers")
     .setDescription(
       "Prune the server of people with invalid/expired memberships!"
     )
@@ -25,7 +65,7 @@ export const pruneexpiredmembers: Command = {
     const { user } = interaction;
     const guild = interaction.guild as Guild;
 
-    commandLog(interaction, "/pruneexpiredmembers", "Purple", []);
+    commandLog(interaction, "/prunemembers", "Purple", []);
 
     await guild.members.fetch();
 
@@ -41,24 +81,8 @@ export const pruneexpiredmembers: Command = {
       return;
     }
 
-    const removedMembers: GuildMember[] = [];
     const { members } = memberRole;
-    const keys = members.keys();
-
-    for (let i = 0; i < members.size; i++) {
-      const key = keys.next().value;
-      if (!key) break;
-
-      const member = members.get(key);
-      if (!member) break;
-
-      const discord_snowflake = member.id;
-      const memberResponse = await isMember({ discord_snowflake });
-
-      if (memberResponse.error || !memberResponse.data[0]) {
-        removedMembers.push(member);
-      }
-    }
+    const removedMembers = await getExpiredMembers(members);
 
     const removedCount = removedMembers.length;
     const suffix = removedMembers.length === 1 ? "" : "s";
@@ -73,24 +97,20 @@ export const pruneexpiredmembers: Command = {
 
     const currentChannel = interaction.channel as TextBasedChannel;
 
-    for (let i = 0; i < removedCount; i++) {
-      const member = removedMembers[i];
-      const removedMember = createEmbeded(
-        ` `,
-        `**Pruned User: ${member}**`,
-        client
-      ).setColor("Red");
-      await member.roles.remove(memberRole);
-      currentChannel.send({ embeds: [removedMember] });
-    }
+    await removeExpiredMembers(
+      removedMembers,
+      memberRole,
+      currentChannel,
+      client
+    );
 
     const finishedMessage = createEmbeded(
       "✅ Prune Completed!",
       " ",
       client
     ).setColor("Green");
-    currentChannel.send({ embeds: [finishedMessage] });
 
+    currentChannel.send({ embeds: [finishedMessage] });
     return;
   },
 };

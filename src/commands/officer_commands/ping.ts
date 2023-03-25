@@ -11,12 +11,15 @@ export const ping: Command = {
   run: async (interaction, client) => {
     await interaction.deferReply({ ephemeral: false });
     const { user } = interaction;
+
     commandLog(interaction, "/ping", "Green", []);
+
     const returnMessage = createEmbeded(
       "🏓 Pong!",
       "Thank you for using the /ping command!",
       client
     ).setColor("Green");
+
     await interaction.editReply({ embeds: [returnMessage] });
     return;
   },

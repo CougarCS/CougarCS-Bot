@@ -8,6 +8,33 @@ import { createEmbeded } from "../../utils/embeded";
 import { commandLog } from "../../utils/logs";
 import { ReactionRoleGiver } from "../../utils/reactions";
 
+const removeWhitespace = (input: string): string => {
+  let output = input;
+  while (output.includes(" ")) {
+    const index = output.indexOf(" ");
+    output = output.substring(0, index) + output.substring(index + 1);
+  }
+  return output;
+};
+
+const parseSplit = (
+  roleParse: string[]
+): { body: string; rolePairs: { emoji: string; role: string }[] } => {
+  const emojiRoles = [];
+  let bodyText = "";
+  for (let i = 0; i < roleParse.length; i += 2) {
+    const emoji = removeWhitespace(roleParse[i]);
+    const role = roleParse[i + 1];
+
+    emojiRoles.push({ emoji, role });
+    bodyText = `${bodyText}${roleParse[i]} \`${roleParse[i + 1]}\`\n`;
+  }
+  return {
+    body: bodyText,
+    rolePairs: emojiRoles,
+  };
+};
+
 export const rolegiver: Command = {
   data: new SlashCommandBuilder()
     .setName("rolegiver")
@@ -51,25 +78,7 @@ export const rolegiver: Command = {
       return;
     }
 
-    const emojiRoles: { emoji: string; role: string }[] = [];
-    let bodyText = "";
-
-    const removeWhitespace = (input: string): string => {
-      let output = input;
-      while (output.includes(" ")) {
-        const index = output.indexOf(" ");
-        output = output.substring(0, index) + output.substring(index + 1);
-      }
-      return output;
-    };
-
-    for (let i = 0; i < roleParse.length; i += 2) {
-      const emoji = removeWhitespace(roleParse[i]);
-      const role = roleParse[i + 1];
-
-      emojiRoles.push({ emoji, role });
-      bodyText = `${bodyText}${roleParse[i]} \`${roleParse[i + 1]}\`\n`;
-    }
+    const { body, rolePairs } = parseSplit(roleParse);
 
     const returnMessage = createEmbeded(
       "✅ Reaction Roles Sent!",
@@ -78,17 +87,15 @@ export const rolegiver: Command = {
     ).setColor("Green");
     await interaction.editReply({ embeds: [returnMessage] });
 
-    const roleMessage = createEmbeded(
-      `Roles: ${type}`,
-      bodyText,
-      client
-    ).setColor("Orange");
+    const roleMessage = createEmbeded(`Roles: ${type}`, body, client).setColor(
+      "Orange"
+    );
 
     const roleSentMessage = await (interaction.channel as TextChannel).send({
       embeds: [roleMessage],
     });
 
-    await ReactionRoleGiver(roleSentMessage, emojiRoles);
+    await ReactionRoleGiver(roleSentMessage, rolePairs);
     return;
   },
 };
