@@ -13,6 +13,7 @@ import { Guild } from "discord.js";
 import { createEmbeded } from "./embeded";
 
 const getOfficerRole = async (guild: Guild) => {
+  await guild.roles.fetch();
   let officerRole = guild.roles.cache.find((r) => r.name === "Officer");
   if (!officerRole) {
     officerRole = (await guild.roles.create({
@@ -26,6 +27,7 @@ const getOfficerRole = async (guild: Guild) => {
 };
 
 const getLogChannel = async (guild: Guild) => {
+  await guild.channels.fetch();
   let logChannel = guild.channels.cache.find((c) => c.name === "cougarcs-logs");
   if (!logChannel) {
     logChannel = await guild.channels.create({
@@ -47,6 +49,7 @@ const getLogChannel = async (guild: Guild) => {
 };
 
 const getReportChannel = async (guild: Guild) => {
+  await guild.channels.fetch();
   let logChannel = guild.channels.cache.find(
     (c) => c.name === "cougarcs-reports"
   );

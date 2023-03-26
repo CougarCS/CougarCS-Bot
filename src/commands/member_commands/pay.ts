@@ -4,6 +4,7 @@ import {
   PermissionFlagsBits,
   Role,
   SlashCommandBuilder,
+  User,
 } from "discord.js";
 import { Command } from "../../interfaces/Command";
 import { createEmbeded } from "../../utils/embeded";
@@ -33,7 +34,8 @@ export const pay: Command = {
     const { user } = interaction;
     const guild = interaction.guild as Guild;
 
-    const payUser = interaction.options.get("member", true).user?.id as string;
+    const payUser = interaction.options.get("member", true).user as User;
+    const pay_snowflake = payUser.id;
     const point_value = Math.floor(
       interaction.options.get("value", true).value as number
     );
@@ -49,19 +51,12 @@ export const pay: Command = {
       client
     ).setColor("Red");
 
-    await guild.members.fetch();
-    const payMember = guild.members.cache.find(
-      (m) => m.id === payUser
-    ) as GuildMember;
-    const pay_snowflake = payMember.id;
+    const payMember = await guild.members.fetch({ user: payUser });
 
-    const member = guild.members.cache.find(
-      (m) => m.id === user.id
-    ) as GuildMember;
+    const member = await guild.members.fetch({ user });
 
-    let memberRole = interaction.guild?.roles.cache.find(
-      (r) => r.name === "Member"
-    );
+    await guild.roles.fetch();
+    let memberRole = guild.roles.cache.find((r) => r.name === "Member");
 
     const hasMemberRole =
       memberRole && member.roles.cache.find((r) => r === memberRole);

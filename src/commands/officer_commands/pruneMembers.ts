@@ -67,8 +67,8 @@ export const prunemembers: Command = {
 
     commandLog(interaction, "/prunemembers", "Purple", []);
 
+    await guild.roles.fetch();
     await guild.members.fetch();
-
     const memberRole = guild.roles.cache.find((r) => r.name === "Member");
 
     if (!memberRole) {

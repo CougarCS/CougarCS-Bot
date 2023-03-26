@@ -23,13 +23,15 @@ export const ReactionRoleGiver = async (
     )?.role;
     if (!roleName) return;
 
+    await message.guild.roles.fetch();
     let role = message.guild.roles.cache.find((r) => r.name === roleName);
 
     if (!role) {
       role = (await message.guild.roles.create({ name: roleName })) as Role;
     }
 
-    message.guild.members.cache.find((g) => user.id === g.id)?.roles.add(role);
+    const member = await message.guild.members.fetch({ user });
+    member.roles.add(role);
   });
 
   collector.on("remove", async (reaction, user) => {
@@ -41,12 +43,12 @@ export const ReactionRoleGiver = async (
     )?.role;
     if (!roleName) return;
 
+    await message.guild.roles.fetch();
     let role = message.guild.roles.cache.find((r) => r.name === roleName);
 
     if (!role) return;
 
-    message.guild.members.cache
-      .find((g) => user.id === g.id)
-      ?.roles.remove(role);
+    const member = await message.guild.members.fetch({ user });
+    member.roles.remove(role);
   });
 };

@@ -50,13 +50,10 @@ export const claim: Command = {
     const reportMsg =
       "If you think this is an error, please use /report to notify an officer!";
 
-    const member = guild.members.cache.find(
-      (gm) => user.id === gm.id
-    ) as GuildMember;
+    const member = await guild.members.fetch({ user });
 
-    let memberRole = interaction.guild?.roles.cache.find(
-      (r) => r.name === "Member"
-    );
+    await guild.roles.fetch();
+    let memberRole = guild.roles.cache.find((r) => r.name === "Member");
 
     if (!memberRole) {
       memberRole = (await guild.roles.create({

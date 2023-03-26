@@ -1,4 +1,9 @@
-import { Guild, PermissionFlagsBits, SlashCommandBuilder } from "discord.js";
+import {
+  Guild,
+  PermissionFlagsBits,
+  SlashCommandBuilder,
+  User,
+} from "discord.js";
 import { Command } from "../../interfaces/Command";
 import { createEmbeded } from "../../utils/embeded";
 import { commandLog } from "../../utils/logs";
@@ -20,8 +25,8 @@ export const cancelmembership: Command = {
     const { user } = interaction;
     const guild = interaction.guild as Guild;
 
-    const discord_snowflake = interaction.options.get("user", true).user
-      ?.id as string;
+    const selectedUser = interaction.options.get("user", true).user as User;
+    const discord_snowflake = selectedUser.id;
 
     commandLog(interaction, "/cancelmembership", "Green", [
       { name: "user", value: `<@${discord_snowflake}>` },
@@ -46,13 +51,12 @@ export const cancelmembership: Command = {
     ).setColor("Green");
     await interaction.editReply({ embeds: [returnMessage] });
 
+    await guild.roles.fetch();
     const memberRole = guild.roles.cache.find((r) => r.name === "Member");
 
     if (!memberRole) return;
 
-    const member = guild.members.cache.find((m) => m.id === discord_snowflake);
-
-    if (!member) return;
+    const member = await guild.members.fetch({ user: selectedUser });
 
     await member.roles.remove(memberRole);
 
