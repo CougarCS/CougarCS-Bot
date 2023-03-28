@@ -1,4 +1,8 @@
-import { PermissionFlagsBits, SlashCommandBuilder } from "discord.js";
+import {
+  CommandInteraction,
+  PermissionFlagsBits,
+  SlashCommandBuilder,
+} from "discord.js";
 import { Command } from "../../interfaces/Command";
 import { createEmbeded } from "../../utils/embeded";
 import { commandLog } from "../../utils/logs";
@@ -10,6 +14,18 @@ import {
   insertEventAttendance,
 } from "../../utils/supabase";
 import { EventAttendanceInsert, UniqueContactQuery } from "../../utils/types";
+
+const sendError = async (
+  errorMessage: string,
+  interaction: CommandInteraction
+) => {
+  const errorEmbed = createEmbeded(
+    "❌ Check In Canceled!",
+    errorMessage,
+    interaction.client
+  ).setColor("Red");
+  await interaction.editReply({ embeds: [errorEmbed] });
+};
 
 export const checkin: Command = {
   data: new SlashCommandBuilder()
@@ -53,52 +69,47 @@ export const checkin: Command = {
     await interaction.deferReply({ ephemeral: false });
     const { user } = interaction;
 
-    const psidOption = interaction.options.get("psid", false);
-    const emailOption = interaction.options.get("email", false);
-    const discordOption = interaction.options.get("discord", false);
+    const contactQuery: UniqueContactQuery = {
+      uh_id: interaction.options.get("psid", false)?.value as
+        | number
+        | undefined,
+      email: interaction.options.get("email", false)?.value as
+        | string
+        | undefined,
+      discord_snowflake: interaction.options.get("discord", false)?.value as
+        | string
+        | undefined,
+    };
+
     const eventOption = interaction.options.get("event", true);
     const swagOption = interaction.options.get("swag", false);
 
-    const uh_id = (psidOption && (psidOption.value as number)) || undefined;
-    const email = (emailOption && (emailOption.value as string)) || undefined;
-    const discord_snowflake =
-      (discordOption && (discordOption.user?.id as string)) || undefined;
     const event_id = eventOption.value as string;
     const swag = !!swagOption?.value;
 
     commandLog(interaction, "/checkin", "Green", [
       { name: "event", value: `${event_id}` },
-      { name: "psid", value: `${uh_id}` },
-      { name: "email", value: `${email}` },
-      { name: "discord", value: `<@${discord_snowflake}>` },
+      { name: "psid", value: `${contactQuery.uh_id}` },
+      { name: "email", value: `${contactQuery.email}` },
+      { name: "discord", value: `<@${contactQuery.discord_snowflake}>` },
       { name: "swag", value: `${swag}` },
     ]);
 
-    const errorMessage = createEmbeded(
-      "❌ Check In canceled!",
-      "There was an error performing this command!",
-      client
-    ).setColor("Red");
-
-    const noParams = !(uh_id || email || discord_snowflake);
+    const noParams = !(
+      contactQuery.uh_id ||
+      contactQuery.email ||
+      contactQuery.discord_snowflake
+    );
 
     if (noParams) {
-      errorMessage.setDescription("No search parameters specified!");
-      interaction.editReply({ embeds: [errorMessage] });
+      await sendError("No search parameters specified!", interaction);
       return;
     }
-
-    const contactQuery: UniqueContactQuery = {
-      uh_id,
-      email,
-      discord_snowflake,
-    };
 
     const contactResponse = await getContact(contactQuery);
 
     if (contactResponse.error) {
-      errorMessage.setDescription(contactResponse.message);
-      interaction.editReply({ embeds: [errorMessage] });
+      await sendError(contactResponse.message, interaction);
       return;
     }
 
@@ -110,10 +121,10 @@ export const checkin: Command = {
     const prevAttendanceResponse = await getEventAttendance({ contact_id });
 
     if (!prevAttendanceResponse.error) {
-      errorMessage.setDescription(
-        `${identifier} is already checked into this event!`
+      await sendError(
+        `${identifier} is already checked into this event!`,
+        interaction
       );
-      interaction.editReply({ embeds: [errorMessage] });
       return;
     }
 
@@ -129,8 +140,7 @@ export const checkin: Command = {
     const attendanceResponse = await insertEventAttendance(attendance);
 
     if (attendanceResponse.error) {
-      errorMessage.setDescription(attendanceResponse.message);
-      interaction.editReply({ embeds: [errorMessage] });
+      await sendError(attendanceResponse.message, interaction);
       return;
     }
 

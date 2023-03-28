@@ -1,5 +1,4 @@
 import {
-  Client,
   CommandInteraction,
   PermissionFlagsBits,
   SlashCommandBuilder,
@@ -12,55 +11,27 @@ import { EmbedBuilder } from "@discordjs/builders";
 import { shirtSizeOptions } from "../../utils/options";
 import {
   ContactInsert,
-  ContactSelect,
   ContactUpdate,
   SupabaseResponse,
 } from "../../utils/types";
 import { contactFields } from "../../utils/embedFields";
-
-const createUpdateEmbeds = (
-  oldContact: ContactSelect,
-  newContact: ContactSelect,
-  client: Client
-): EmbedBuilder[] => {
-  const embeds: EmbedBuilder[] = [];
-
-  const returnMessage = createEmbeded(
-    "✅ Contact Updated!",
-    "The contact information was updated!",
-    client
-  ).setColor("Green");
-  embeds.push(returnMessage);
-
-  const oldContactMessage = createEmbeded("👤 Old Contact!", " ", client)
-    .setColor("Red")
-    .addFields(...contactFields(oldContact));
-  embeds.push(oldContactMessage);
-
-  const newContactMessage = createEmbeded("👤 New Contact!", " ", client)
-    .setColor("Blue")
-    .addFields(...contactFields(newContact));
-
-  embeds.push(newContactMessage);
-  return embeds;
-};
 
 const sendError = async (
   errorMessage: string,
   interaction: CommandInteraction
 ) => {
   const errorEmbed = createEmbeded(
-    "❌ Update Failed!",
+    "❌ Create Failed!",
     errorMessage,
     interaction.client
   ).setColor("Red");
   await interaction.editReply({ embeds: [errorEmbed] });
 };
 
-export const updatecontact: Command = {
+export const createcontact: Command = {
   data: new SlashCommandBuilder()
-    .setName("updatecontact")
-    .setDescription("Update a contact in the database!")
+    .setName("createcontact")
+    .setDescription("Add a contact to the database!")
     .setDefaultMemberPermissions(PermissionFlagsBits.Administrator)
     .addNumberOption((option) =>
       option
@@ -74,24 +45,24 @@ export const updatecontact: Command = {
       option
         .setName("email")
         .setDescription("The email used to purchase a CougarCS membership!")
+        .setRequired(true)
+    )
+    .addStringOption((option) =>
+      option
+        .setName("firstname")
+        .setDescription("The contact's first name!")
+        .setRequired(true)
+    )
+    .addStringOption((option) =>
+      option
+        .setName("lastname")
+        .setDescription("The contact's last name!")
         .setRequired(false)
     )
     .addUserOption((option) =>
       option
         .setName("user")
         .setDescription("User who's contact you would like to update!")
-        .setRequired(false)
-    )
-    .addStringOption((option) =>
-      option
-        .setName("firstname")
-        .setDescription("The contact's first name!")
-        .setRequired(false)
-    )
-    .addStringOption((option) =>
-      option
-        .setName("lastname")
-        .setDescription("The contact's last name!")
         .setRequired(false)
     )
     .addNumberOption((option) =>
@@ -113,17 +84,13 @@ export const updatecontact: Command = {
     await interaction.deferReply({ ephemeral: false });
     const { user } = interaction;
 
-    const update: ContactUpdate = {
+    const create: ContactInsert = {
       uh_id: interaction.options.get("psid", true).value as number,
-      email: interaction.options.get("email", false)?.value as
-        | string
-        | undefined,
+      email: interaction.options.get("email", true).value as string,
       discord_snowflake: interaction.options.get("user", false)?.user?.id as
         | string
         | undefined,
-      first_name: interaction.options.get("firstname", false)?.value as
-        | string
-        | undefined,
+      first_name: interaction.options.get("firstname", true).value as string,
       last_name: interaction.options.get("lastname", false)?.value as
         | string
         | undefined,
@@ -136,38 +103,34 @@ export const updatecontact: Command = {
     };
 
     commandLog(interaction, "/updatecontact", "Green", [
-      { name: "psid", value: `${update.uh_id}` },
-      { name: "email", value: `${update.email}` },
-      { name: "user", value: `<@${update.discord_snowflake}>` },
-      { name: "firstname", value: `${update.first_name}` },
-      { name: "lastname", value: `${update.last_name}` },
-      { name: "phone", value: `${update.phone_number}` },
-      { name: "shirtsize", value: `${update.shirt_size_id}` },
+      { name: "psid", value: `${create.uh_id}` },
+      { name: "email", value: `${create.email}` },
+      { name: "user", value: `<@${create.discord_snowflake}>` },
+      { name: "firstname", value: `${create.first_name}` },
+      { name: "lastname", value: `${create.last_name}` },
+      { name: "phone", value: `${create.phone_number}` },
+      { name: "shirtsize", value: `${create.shirt_size_id}` },
     ]);
 
-    const oldContactResponse = await getContact({
-      uh_id: update.uh_id as number,
-    });
-
-    if (oldContactResponse.error) {
-      await sendError("PSID not found!", interaction);
-      return;
-    }
-
-    const { contact_id } = oldContactResponse.data[0];
-
-    const contactResponse = await updateContact(update, contact_id);
+    const contactResponse = await insertContact(create);
 
     if (contactResponse.error) {
       await sendError(contactResponse.message, interaction);
       return;
     }
 
-    const oldContact = oldContactResponse.data[0];
-    const newContact = contactResponse.data[0];
-    const embeds = createUpdateEmbeds(oldContact, newContact, client);
+    const returnMessage = createEmbeded(
+      "✅ Contact Created!",
+      "The contact has been inserted in the database!",
+      client
+    ).setColor("Green");
 
-    await interaction.editReply({ embeds });
+    const newContact = contactResponse.data[0];
+    const newContactMessage = createEmbeded("👤 New Contact!", " ", client)
+      .setColor("Yellow")
+      .addFields(...contactFields(newContact));
+
+    await interaction.editReply({ embeds: [returnMessage, newContactMessage] });
     return;
   },
 };

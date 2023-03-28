@@ -1,11 +1,61 @@
-import { PermissionFlagsBits, SlashCommandBuilder } from "discord.js";
+import { Client, PermissionFlagsBits, SlashCommandBuilder } from "discord.js";
 import { Command } from "../../interfaces/Command";
 import { createEmbeded, sendBulkEmbeds } from "../../utils/embeded";
 import { commandLog } from "../../utils/logs";
 import { getBalance, getContacts, isMember } from "../../utils/supabase";
 import { EmbedBuilder } from "@discordjs/builders";
 import { fullContactFields } from "../../utils/embedFields";
-import { ContactQuery } from "src/utils/types";
+import { ContactQuery, ContactSelect } from "src/utils/types";
+
+const createContactEmbeds = async (
+  contacts: ContactSelect[],
+  fullprofile: boolean,
+  client: Client
+): Promise<EmbedBuilder[]> => {
+  const embeds: EmbedBuilder[] = [];
+  const contactCount = contacts.length;
+  const suffix = contactCount === 1 ? "" : "s";
+
+  const returnMessage = createEmbeded(
+    `🔎 Found ${contactCount} result${suffix}:`,
+    " ",
+    client
+  ).setColor("Yellow");
+  embeds.push(returnMessage);
+
+  for (let i = 0; i < contacts.length; i++) {
+    const contact = contacts[i];
+    const { contact_id } = contact;
+    const memberResponse = await isMember({ contact_id });
+    const activeMember = !memberResponse.error && memberResponse.data[0];
+
+    if (!fullprofile) {
+      const embed = createEmbeded(
+        `${contact.first_name} ${contact.last_name} (${contact.uh_id})`,
+        `Member: ${activeMember ? "✅" : "❌"}`,
+        client
+      ).setColor("Green");
+      embeds.push(embed);
+      continue;
+    }
+
+    const discord = contact.discord_snowflake
+      ? `<@${contact.discord_snowflake}>`
+      : "null";
+    const balanceResponse = await getBalance({ contact_id });
+    let balance = 0;
+
+    if (!balanceResponse.error) {
+      balance = balanceResponse.data[0];
+    }
+
+    const embed = createEmbeded(" ", " ", client).addFields(
+      ...fullContactFields(contact, balance, activeMember)
+    );
+    embeds.push(embed);
+  }
+  return embeds;
+};
 
 export const find: Command = {
   data: new SlashCommandBuilder()
@@ -56,42 +106,44 @@ export const find: Command = {
     await interaction.deferReply({ ephemeral: false });
     const { user } = interaction;
 
-    const psid = interaction.options.get("psid", false)?.value as
-      | number
-      | undefined;
-    const email = interaction.options.get("email", false)?.value as
-      | string
-      | undefined;
-    const first_name = interaction.options.get("firstname", false)?.value as
-      | string
-      | undefined;
-    const last_name = interaction.options.get("lastname", false)?.value as
-      | string
-      | undefined;
-    const discord_snowflake = interaction.options.get("discord", false)?.user
-      ?.id as string | undefined;
+    const query: ContactQuery = {
+      uh_id: interaction.options.get("psid", false)?.value as
+        | number
+        | undefined,
+      email: interaction.options.get("email", false)?.value as
+        | string
+        | undefined,
+      first_name: interaction.options.get("firstname", false)?.value as
+        | string
+        | undefined,
+      last_name: interaction.options.get("lastname", false)?.value as
+        | string
+        | undefined,
+      discord_snowflake: interaction.options.get("discord", false)?.user?.id as
+        | string
+        | undefined,
+    };
     const fullprofile = interaction.options.get("seefullcontact", false)
       ?.value as boolean | undefined;
 
     commandLog(interaction, "/find", "Green", [
-      { name: "psid", value: `${psid}` },
-      { name: "email", value: `${email}` },
-      { name: "firstname", value: `${first_name}` },
-      { name: "lastname", value: `${last_name}` },
+      { name: "psid", value: `${query.uh_id}` },
+      { name: "email", value: `${query.email}` },
+      { name: "firstname", value: `${query.first_name}` },
+      { name: "lastname", value: `${query.last_name}` },
       {
         name: "discord",
-        value: `${discord_snowflake}`,
+        value: `${query.discord_snowflake}`,
       },
       { name: "seefullcontact", value: `${fullprofile}` },
     ]);
 
     const noParams = !(
-      psid ||
-      email ||
-      first_name ||
-      last_name ||
-      discord_snowflake ||
-      fullprofile
+      query.uh_id ||
+      query.email ||
+      query.first_name ||
+      query.last_name ||
+      query.discord_snowflake
     );
 
     if (noParams) {
@@ -103,14 +155,6 @@ export const find: Command = {
       await interaction.editReply({ embeds: [returnMessage] });
       return;
     }
-
-    const query: ContactQuery = {
-      uh_id: psid,
-      email,
-      first_name,
-      last_name,
-      discord_snowflake,
-    };
 
     const contactsResponse = await getContacts(query);
 
@@ -124,49 +168,9 @@ export const find: Command = {
       return;
     }
 
-    const contacts = contactsResponse.data;
-    const contactCount = contacts.length;
-    const suffix = contactCount === 1 ? "" : "s";
-    const embeds = [];
+    const contacts = contactsResponse.data as ContactSelect[];
 
-    const returnMessage = createEmbeded(
-      `🔎 Found ${contactCount} result${suffix}:`,
-      " ",
-      client
-    ).setColor("Yellow");
-    embeds.push(returnMessage);
-
-    for (let i = 0; i < contacts.length; i++) {
-      const contact = contacts[i];
-      const { contact_id } = contact;
-      const memberResponse = await isMember({ contact_id });
-      const activeMember = !memberResponse.error && memberResponse.data[0];
-
-      if (!fullprofile) {
-        const embed = createEmbeded(
-          `${contact.first_name} ${contact.last_name} (${contact.uh_id})`,
-          `Member: ${activeMember ? "✅" : "❌"}`,
-          client
-        ).setColor("Green");
-        embeds.push(embed);
-        continue;
-      }
-
-      const discord = contact.discord_snowflake
-        ? `<@${contact.discord_snowflake}>`
-        : "null";
-      const balanceResponse = await getBalance({ contact_id });
-      let balance = 0;
-
-      if (!balanceResponse.error) {
-        balance = balanceResponse.data[0];
-      }
-
-      const embed = createEmbeded(" ", " ", client).addFields(
-        ...fullContactFields(contact, balance, activeMember)
-      );
-      embeds.push(embed);
-    }
+    const embeds = await createContactEmbeds(contacts, !!fullprofile, client);
 
     await sendBulkEmbeds(interaction, embeds);
     return;

@@ -1,4 +1,5 @@
 import {
+  CommandInteraction,
   Guild,
   GuildMember,
   PermissionFlagsBits,
@@ -11,6 +12,18 @@ import { createEmbeded } from "../../utils/embeded";
 import { commandLog } from "../../utils/logs";
 import { getBalance, insertTransaction, isMember } from "../../utils/supabase";
 import { TransactionInsert } from "../../utils/types";
+
+const sendError = async (
+  errorMessage: string,
+  interaction: CommandInteraction
+) => {
+  const errorEmbed = createEmbeded(
+    "❌ Payment Canceled!",
+    errorMessage,
+    interaction.client
+  ).setColor("Red");
+  await interaction.editReply({ embeds: [errorEmbed] });
+};
 
 export const pay: Command = {
   data: new SlashCommandBuilder()
@@ -45,12 +58,6 @@ export const pay: Command = {
       { name: "value", value: `${point_value}` },
     ]);
 
-    const errorMessage = createEmbeded(
-      "❌ Payment Canceled!",
-      "There was an error performing this command!",
-      client
-    ).setColor("Red");
-
     const payMember = await guild.members.fetch({ user: payUser });
 
     const member = await guild.members.fetch({ user });
@@ -62,10 +69,10 @@ export const pay: Command = {
       memberRole && member.roles.cache.find((r) => r === memberRole);
 
     if (!hasMemberRole) {
-      errorMessage.setDescription(
-        "This command is available for members only!"
+      await sendError(
+        "This command is available for members only!",
+        interaction
       );
-      await interaction.editReply({ embeds: [errorMessage] });
       return;
     }
 
@@ -74,18 +81,17 @@ export const pay: Command = {
     });
 
     if (payMemberResponse.error) {
-      errorMessage.setDescription(payMemberResponse.message);
-      await interaction.editReply({ embeds: [errorMessage] });
+      await sendError(payMemberResponse.message, interaction);
       return;
     }
 
     const payActiveMember = payMemberResponse.data[0];
 
     if (!payActiveMember) {
-      errorMessage.setDescription(
-        `You may only send a payment to another member!`
+      await sendError(
+        `You may only send a payment to another member!`,
+        interaction
       );
-      await interaction.editReply({ embeds: [errorMessage] });
       return;
     }
 
@@ -94,16 +100,17 @@ export const pay: Command = {
     const balanceResponse = await getBalance({ discord_snowflake });
 
     if (balanceResponse.error) {
-      errorMessage.setDescription(`There was an error verifying your balance!`);
-      await interaction.editReply({ embeds: [errorMessage] });
+      await sendError(
+        `There was an error verifying your balance!`,
+        interaction
+      );
       return;
     }
 
     const initialBalance = balanceResponse.data[0];
 
     if (initialBalance < point_value) {
-      errorMessage.setDescription(`Your balance is too low!`);
-      await interaction.editReply({ embeds: [errorMessage] });
+      await sendError(`Your balance is too low!`, interaction);
       return;
     }
 
@@ -116,8 +123,7 @@ export const pay: Command = {
     const withdrawalResponse = await insertTransaction(withdrawal);
 
     if (withdrawalResponse.error) {
-      errorMessage.setDescription(withdrawalResponse.message);
-      await interaction.editReply({ embeds: [errorMessage] });
+      await sendError(withdrawalResponse.message, interaction);
       return;
     }
 
@@ -130,8 +136,7 @@ export const pay: Command = {
     const depositResponse = await insertTransaction(deposit);
 
     if (depositResponse.error) {
-      errorMessage.setDescription(depositResponse.message);
-      await interaction.editReply({ embeds: [errorMessage] });
+      await sendError(depositResponse.message, interaction);
       return;
     }
 

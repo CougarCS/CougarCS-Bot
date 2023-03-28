@@ -1,4 +1,5 @@
 import {
+  CommandInteraction,
   Guild,
   PermissionFlagsBits,
   SlashCommandBuilder,
@@ -10,6 +11,18 @@ import { getBalance, getContact, isMember } from "../../utils/supabase";
 import { commandLog } from "../../utils/logs";
 import { ContactSelect } from "../../utils/types";
 import { fullContactFields } from "../../utils/embedFields";
+
+const sendError = async (
+  errorMessage: string,
+  interaction: CommandInteraction
+) => {
+  const errorEmbed = createEmbeded(
+    "❌ Whois Failed!",
+    errorMessage,
+    interaction.client
+  ).setColor("Red");
+  await interaction.editReply({ embeds: [errorEmbed] });
+};
 
 export const whois: Command = {
   data: new SlashCommandBuilder()
@@ -34,18 +47,11 @@ export const whois: Command = {
       { name: "user", value: `${whoUser}` },
     ]);
 
-    const errorMessage = createEmbeded(
-      "❌ Whois Failed!",
-      "There was an error performing this command!",
-      client
-    ).setColor("Red");
-
     const discord_snowflake = whoUser.id;
     const contactResponse = await getContact({ discord_snowflake });
 
     if (contactResponse.error) {
-      errorMessage.setDescription(contactResponse.message);
-      await interaction.editReply({ embeds: [errorMessage] });
+      await sendError(contactResponse.message, interaction);
       return;
     }
 
@@ -54,8 +60,7 @@ export const whois: Command = {
     const memberResponse = await isMember({ contact_id });
 
     if (memberResponse.error) {
-      errorMessage.setDescription(memberResponse.message);
-      await interaction.editReply({ embeds: [errorMessage] });
+      await sendError(memberResponse.message, interaction);
       return;
     }
 
@@ -63,8 +68,7 @@ export const whois: Command = {
     const balanceResponse = await getBalance({ contact_id });
 
     if (balanceResponse.error) {
-      errorMessage.setDescription(balanceResponse.message);
-      await interaction.editReply({ embeds: [errorMessage] });
+      await sendError(balanceResponse.message, interaction);
       return;
     }
 

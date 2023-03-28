@@ -17,6 +17,7 @@ import { updatecontact } from "../commands/admin_commands/updateContact";
 import { cancelmembership } from "../commands/admin_commands/cancelMembership";
 import { checkin } from "../commands/officer_commands/checkin";
 import { attendance } from "../commands/officer_commands/attendance";
+import { createcontact } from "../commands/admin_commands/createContact";
 
 export const CommandList: Command[] = [
   attendance,
@@ -24,6 +25,7 @@ export const CommandList: Command[] = [
   cancelmembership,
   checkin,
   claim,
+  createcontact,
   find,
   grant,
   grantmembership,

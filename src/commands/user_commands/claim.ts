@@ -1,9 +1,27 @@
-import { Guild, GuildMember, Role, SlashCommandBuilder } from "discord.js";
+import {
+  CommandInteraction,
+  Guild,
+  GuildMember,
+  Role,
+  SlashCommandBuilder,
+} from "discord.js";
 import { Command } from "../../interfaces/Command";
 import { createEmbeded } from "../../utils/embeded";
 import { commandLog } from "../../utils/logs";
 import { getContact, isMember, updateContact } from "../../utils/supabase";
 import { SupabaseResponse } from "src/utils/types";
+
+const sendError = async (
+  errorMessage: string,
+  interaction: CommandInteraction
+) => {
+  const errorEmbed = createEmbeded(
+    "❌ Claim Failed!",
+    errorMessage,
+    interaction.client
+  ).setColor("Red");
+  await interaction.editReply({ embeds: [errorEmbed] });
+};
 
 export const claim: Command = {
   data: new SlashCommandBuilder()
@@ -38,12 +56,6 @@ export const claim: Command = {
       { name: "psid", value: `${uh_id}` },
       { name: "email", value: `${email}` },
     ]);
-
-    const errorMessage = createEmbeded(
-      "❌ Claim Failed!",
-      "There was an error performing this command!",
-      client
-    ).setColor("Red");
 
     const reminderMsg =
       "You must purchase a membership from https://cougarcs.com before claiming it!";
@@ -84,8 +96,10 @@ export const claim: Command = {
     }
 
     if (contactResponse.error) {
-      errorMessage.setDescription(`${contactResponse.message}\n${reminderMsg}`);
-      await interaction.editReply({ embeds: [errorMessage] });
+      await sendError(
+        `${contactResponse.message}\n${reminderMsg}`,
+        interaction
+      );
       return;
     }
 
@@ -94,18 +108,17 @@ export const claim: Command = {
     const memberResponse = await isMember({ contact_id });
 
     if (memberResponse.error) {
-      errorMessage.setDescription(`${memberResponse.message}\n${reminderMsg}`);
-      await interaction.editReply({ embeds: [errorMessage] });
+      await sendError(`${memberResponse.message}\n${reminderMsg}`, interaction);
       return;
     }
 
     const activeMember = memberResponse.data[0];
 
     if (!activeMember) {
-      errorMessage.setDescription(
-        `You do not have an active membership!\n${reminderMsg}`
+      await sendError(
+        `You do not have an active membership!\n${reminderMsg}`,
+        interaction
       );
-      await interaction.editReply({ embeds: [errorMessage] });
       return;
     }
 
@@ -116,10 +129,10 @@ export const claim: Command = {
     }
 
     if (updateResponse.error) {
-      errorMessage.setDescription(
-        `Discord account could not be linked!\n${reportMsg}`
+      await sendError(
+        `Discord account could not be linked!\n${reportMsg}`,
+        interaction
       );
-      await interaction.editReply({ embeds: [errorMessage] });
       return;
     }
 
@@ -128,10 +141,10 @@ export const claim: Command = {
       contact.discord_snowflake;
 
     if (claimedByOtherUser) {
-      errorMessage.setDescription(
-        `This membership has already been claimed by <@${contact.discord_snowflake}>\n${reportMsg}`
+      await sendError(
+        `This membership has already been claimed by <@${contact.discord_snowflake}>\n${reportMsg}`,
+        interaction
       );
-      await interaction.editReply({ embeds: [errorMessage] });
       return;
     }
 

@@ -1,4 +1,8 @@
-import { PermissionFlagsBits, SlashCommandBuilder } from "discord.js";
+import {
+  CommandInteraction,
+  PermissionFlagsBits,
+  SlashCommandBuilder,
+} from "discord.js";
 import { Command } from "../../interfaces/Command";
 import { createEmbeded } from "../../utils/embeded";
 import { commandLog } from "../../utils/logs";
@@ -7,6 +11,18 @@ import {
   membershipCodeOptions,
   membershipLengthOptions,
 } from "../../utils/options";
+
+const sendError = async (
+  errorMessage: string,
+  interaction: CommandInteraction
+) => {
+  const errorEmbed = createEmbeded(
+    "❌ Grant Failed!",
+    errorMessage,
+    interaction.client
+  ).setColor("Red");
+  await interaction.editReply({ embeds: [errorEmbed] });
+};
 
 export const grantmembership: Command = {
   data: new SlashCommandBuilder()
@@ -51,19 +67,13 @@ export const grantmembership: Command = {
       { name: "reason", value: reason_id },
     ]);
 
-    const errorMessage = createEmbeded(
-      "❌ Grant Failed!",
-      "There was an error performing this command!",
-      client
-    ).setColor("Red");
-
     const contactResponse = await getContact({ discord_snowflake });
 
     if (contactResponse.error) {
-      errorMessage.setDescription(
-        `${contactResponse.message}\nYou can create a new contact with \`/updatecontact\`!`
+      await sendError(
+        `${contactResponse.message}\nYou can create a new contact with \`/updatecontact\`!`,
+        interaction
       );
-      await interaction.editReply({ embeds: [errorMessage] });
       return;
     }
 
@@ -76,8 +86,7 @@ export const grantmembership: Command = {
     );
 
     if (membershipResponse.error) {
-      errorMessage.setDescription(membershipResponse.message);
-      await interaction.editReply({ embeds: [errorMessage] });
+      await sendError(membershipResponse.message, interaction);
       return;
     }
 

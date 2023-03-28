@@ -14,13 +14,28 @@ export const onReady = async (client: Client) => {
   const commandData = CommandList.map((command) => command.data.toJSON());
 
   console.log("🔨 Started loading (/) commands.");
-  await rest.put(
-    Routes.applicationGuildCommands(
-      client.user?.id || "missing id",
-      process.env.GUILD_ID as string
-    ),
-    { body: commandData }
-  );
+
+  await client.guilds.fetch();
+  const guilds = client.guilds.cache;
+
+  for (const guildEntry of guilds) {
+    const guild = guildEntry[1];
+    await rest.put(
+      Routes.applicationGuildCommands(
+        client.user?.id || "missing id",
+        guild.id
+      ),
+      { body: commandData }
+    );
+  }
+
+  // await rest.put(
+  //   Routes.applicationGuildCommands(
+  //     client.user?.id || "missing id",
+  //     process.env.GUILD_ID as string
+  //   ),
+  //   { body: commandData }
+  // );
   console.log("✅ Successfully loaded (/) commands.");
 
   client.user?.setPresence({

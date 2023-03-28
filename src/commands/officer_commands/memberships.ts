@@ -1,5 +1,6 @@
 import {
   Client,
+  CommandInteraction,
   EmbedBuilder,
   PermissionFlagsBits,
   SlashCommandBuilder,
@@ -8,6 +9,19 @@ import { Command } from "../../interfaces/Command";
 import { createEmbeded, sendBulkEmbeds } from "../../utils/embeded";
 import { commandLog } from "../../utils/logs";
 import { getMembershipReason, getMemberships } from "../../utils/supabase";
+import { UniqueContactQuery } from "../../utils/types";
+
+const sendError = async (
+  errorMessage: string,
+  interaction: CommandInteraction
+) => {
+  const errorEmbed = createEmbeded(
+    "❌ Search Canceled!",
+    errorMessage,
+    interaction.client
+  ).setColor("Red");
+  await interaction.editReply({ embeds: [errorEmbed] });
+};
 
 const formatMembership = async (
   membership: any,
@@ -66,47 +80,38 @@ export const memberships: Command = {
     await interaction.deferReply({ ephemeral: false });
     const { user } = interaction;
 
-    const psidOption = interaction.options.get("psid", false);
-    const emailOption = interaction.options.get("email", false);
-    const discordOption = interaction.options.get("discord", false);
-
-    const uh_id = (psidOption && (psidOption.value as number)) || undefined;
-    const email = (emailOption && (emailOption.value as string)) || undefined;
-    const discord_snowflake =
-      (discordOption && (discordOption.user?.id as string)) || undefined;
+    const query: UniqueContactQuery = {
+      uh_id: interaction.options.get("psid", false)?.value as
+        | number
+        | undefined,
+      email: interaction.options.get("email", false)?.value as
+        | string
+        | undefined,
+      discord_snowflake: interaction.options.get("discord", false)?.user?.id as
+        | string
+        | undefined,
+    };
 
     commandLog(interaction, "/memberships", "Green", [
-      { name: "psid", value: `${uh_id}` },
-      { name: "email", value: `${email}` },
+      { name: "psid", value: `${query.uh_id}` },
+      { name: "email", value: `${query.email}` },
       {
         name: "discord",
-        value: `<@${discord_snowflake}>`,
+        value: `<@${query.discord_snowflake}>`,
       },
     ]);
 
-    const errorMessage = createEmbeded(
-      "❌ Search Canceled!",
-      "There was an error performing this command!",
-      client
-    ).setColor("Red");
-
-    const noParams = !(uh_id || email || discord_snowflake);
+    const noParams = !(query.uh_id || query.email || query.discord_snowflake);
 
     if (noParams) {
-      errorMessage.setDescription("No search parameters specified!");
-      await interaction.editReply({ embeds: [errorMessage] });
+      await sendError("No search parameters specified!", interaction);
       return;
     }
 
-    const membershipResponse = await getMemberships({
-      uh_id,
-      email,
-      discord_snowflake,
-    });
+    const membershipResponse = await getMemberships(query);
 
     if (membershipResponse.error) {
-      errorMessage.setDescription(membershipResponse.message);
-      await interaction.editReply({ embeds: [errorMessage] });
+      await sendError(membershipResponse.message, interaction);
       return;
     }
 
@@ -123,8 +128,7 @@ export const memberships: Command = {
 
     membershipEmbeds.push(infoMessage);
 
-    for (let i = 0; i < memberships.length; i++) {
-      const membership = memberships[i];
+    for (const membership of memberships) {
       membershipEmbeds.push(await formatMembership(membership, client));
     }
 

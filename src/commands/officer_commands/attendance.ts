@@ -1,5 +1,6 @@
 import {
   Client,
+  CommandInteraction,
   EmbedBuilder,
   PermissionFlagsBits,
   SlashCommandBuilder,
@@ -8,6 +9,18 @@ import { Command } from "../../interfaces/Command";
 import { createEmbeded, sendBulkEmbeds } from "../../utils/embeded";
 import { commandLog } from "../../utils/logs";
 import { getEvent, getEventAttendance } from "../../utils/supabase";
+
+const sendError = async (
+  errorMessage: string,
+  interaction: CommandInteraction
+) => {
+  const errorEmbed = createEmbeded(
+    "❌ Search Canceled!",
+    errorMessage,
+    interaction.client
+  ).setColor("Red");
+  await interaction.editReply({ embeds: [errorEmbed] });
+};
 
 const attendanceEmbeds = async (
   attendanceArray: any[],
@@ -80,17 +93,10 @@ export const attendance: Command = {
       { name: "discord", value: `<@${discord_snowflake}>` },
     ]);
 
-    const errorMessage = createEmbeded(
-      "❌ Search Canceled!",
-      "There was an error performing this command!",
-      client
-    ).setColor("Red");
-
     const noParams = !(uh_id || email || discord_snowflake);
 
     if (noParams) {
-      errorMessage.setDescription("No search parameters specified!");
-      await interaction.editReply({ embeds: [errorMessage] });
+      await sendError("No search parameters specified!", interaction);
       return;
     }
 
@@ -101,8 +107,7 @@ export const attendance: Command = {
     });
 
     if (attendanceResponse.error) {
-      errorMessage.setDescription(attendanceResponse.message);
-      await interaction.editReply({ embeds: [errorMessage] });
+      await sendError(attendanceResponse.message, interaction);
       return;
     }
 
