@@ -2,7 +2,7 @@ import { Guild, SlashCommandBuilder, User } from "discord.js";
 import { Command } from "../../interfaces/Command";
 import { createEmbeded } from "../../utils/embeded";
 import { getBalance } from "../../utils/supabase";
-import { commandLog } from "../../utils/logs";
+import { commandLog, sendError } from "../../utils/logs";
 
 export const balance: Command = {
   data: new SlashCommandBuilder()
@@ -25,6 +25,8 @@ export const balance: Command = {
       { name: "member", value: `${balanceMember?.user}` },
     ]);
 
+    const errorTitle = "❌ Balance Failed!";
+
     let discord_snowflake = user.id;
 
     if (balanceMember && balanceMember.user) {
@@ -34,12 +36,7 @@ export const balance: Command = {
     const balanceResponse = await getBalance({ discord_snowflake });
 
     if (balanceResponse.error) {
-      const errorMessage = createEmbeded(
-        "❌ Balance Failed!",
-        balanceResponse.message,
-        client
-      ).setColor("Red");
-      await interaction.editReply({ embeds: [errorMessage] });
+      await sendError(errorTitle, balanceResponse.message, interaction);
       return;
     }
 

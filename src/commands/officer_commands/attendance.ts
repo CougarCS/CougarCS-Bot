@@ -1,26 +1,13 @@
 import {
   Client,
-  CommandInteraction,
   EmbedBuilder,
   PermissionFlagsBits,
   SlashCommandBuilder,
 } from "discord.js";
 import { Command } from "../../interfaces/Command";
 import { createEmbeded, sendBulkEmbeds } from "../../utils/embeded";
-import { commandLog } from "../../utils/logs";
+import { commandLog, sendError } from "../../utils/logs";
 import { getEvent, getEventAttendance } from "../../utils/supabase";
-
-const sendError = async (
-  errorMessage: string,
-  interaction: CommandInteraction
-) => {
-  const errorEmbed = createEmbeded(
-    "❌ Search Canceled!",
-    errorMessage,
-    interaction.client
-  ).setColor("Red");
-  await interaction.editReply({ embeds: [errorEmbed] });
-};
 
 const attendanceEmbeds = async (
   attendanceArray: any[],
@@ -93,10 +80,16 @@ export const attendance: Command = {
       { name: "discord", value: `<@${discord_snowflake}>` },
     ]);
 
+    const errorTitle = "❌ Search Canceled!";
+
     const noParams = !(uh_id || email || discord_snowflake);
 
     if (noParams) {
-      await sendError("No search parameters specified!", interaction);
+      await sendError(
+        errorTitle,
+        "No search parameters specified!",
+        interaction
+      );
       return;
     }
 
@@ -107,7 +100,7 @@ export const attendance: Command = {
     });
 
     if (attendanceResponse.error) {
-      await sendError(attendanceResponse.message, interaction);
+      await sendError(errorTitle, attendanceResponse.message, interaction);
       return;
     }
 

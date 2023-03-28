@@ -1,7 +1,7 @@
 import { Client, PermissionFlagsBits, SlashCommandBuilder } from "discord.js";
 import { Command } from "../../interfaces/Command";
 import { createEmbeded, sendBulkEmbeds } from "../../utils/embeded";
-import { commandLog } from "../../utils/logs";
+import { commandLog, sendError } from "../../utils/logs";
 import { getBalance, getContacts, isMember } from "../../utils/supabase";
 import { EmbedBuilder } from "@discordjs/builders";
 import { fullContactFields } from "../../utils/embedFields";
@@ -138,6 +138,8 @@ export const find: Command = {
       { name: "seefullcontact", value: `${fullprofile}` },
     ]);
 
+    const errorTitle = "❌ Search Canceled!";
+
     const noParams = !(
       query.uh_id ||
       query.email ||
@@ -147,12 +149,11 @@ export const find: Command = {
     );
 
     if (noParams) {
-      const returnMessage = createEmbeded(
-        "❌ Search canceled!",
+      await sendError(
+        errorTitle,
         "No search parameters specified!",
-        client
-      ).setColor("Red");
-      await interaction.editReply({ embeds: [returnMessage] });
+        interaction
+      );
       return;
     }
 

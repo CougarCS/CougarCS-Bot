@@ -1,14 +1,10 @@
-import { EmbedBuilder } from "@discordjs/builders";
 import {
   ChannelType,
-  Client,
   ColorResolvable,
   CommandInteraction,
   Role,
   TextChannel,
-  User,
 } from "discord.js";
-import { GuildBasedChannel } from "discord.js";
 import { Guild } from "discord.js";
 import { createEmbeded } from "./embeded";
 
@@ -138,4 +134,17 @@ export const log = async (
     .setTimestamp();
   const logChannel = await getLogChannel(guild);
   await logChannel.send({ embeds: [message] });
+};
+
+export const sendError = async (
+  errorTitle: string,
+  errorMessage: string,
+  interaction: CommandInteraction
+) => {
+  const errorEmbed = createEmbeded(
+    errorTitle,
+    errorMessage,
+    interaction.client
+  ).setColor("Red");
+  await interaction.editReply({ embeds: [errorEmbed] });
 };

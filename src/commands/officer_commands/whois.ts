@@ -1,5 +1,4 @@
 import {
-  CommandInteraction,
   Guild,
   PermissionFlagsBits,
   SlashCommandBuilder,
@@ -8,21 +7,9 @@ import {
 import { Command } from "../../interfaces/Command";
 import { createEmbeded } from "../../utils/embeded";
 import { getBalance, getContact, isMember } from "../../utils/supabase";
-import { commandLog } from "../../utils/logs";
+import { commandLog, sendError } from "../../utils/logs";
 import { ContactSelect } from "../../utils/types";
 import { fullContactFields } from "../../utils/embedFields";
-
-const sendError = async (
-  errorMessage: string,
-  interaction: CommandInteraction
-) => {
-  const errorEmbed = createEmbeded(
-    "❌ Whois Failed!",
-    errorMessage,
-    interaction.client
-  ).setColor("Red");
-  await interaction.editReply({ embeds: [errorEmbed] });
-};
 
 export const whois: Command = {
   data: new SlashCommandBuilder()
@@ -47,11 +34,13 @@ export const whois: Command = {
       { name: "user", value: `${whoUser}` },
     ]);
 
+    const errorTitle = "❌ Whois Failed!";
+
     const discord_snowflake = whoUser.id;
     const contactResponse = await getContact({ discord_snowflake });
 
     if (contactResponse.error) {
-      await sendError(contactResponse.message, interaction);
+      await sendError(errorTitle, contactResponse.message, interaction);
       return;
     }
 
@@ -60,7 +49,7 @@ export const whois: Command = {
     const memberResponse = await isMember({ contact_id });
 
     if (memberResponse.error) {
-      await sendError(memberResponse.message, interaction);
+      await sendError(errorTitle, memberResponse.message, interaction);
       return;
     }
 
@@ -68,7 +57,7 @@ export const whois: Command = {
     const balanceResponse = await getBalance({ contact_id });
 
     if (balanceResponse.error) {
-      await sendError(balanceResponse.message, interaction);
+      await sendError(errorTitle, balanceResponse.message, interaction);
       return;
     }
 

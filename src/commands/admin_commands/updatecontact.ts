@@ -1,21 +1,11 @@
-import {
-  Client,
-  CommandInteraction,
-  PermissionFlagsBits,
-  SlashCommandBuilder,
-} from "discord.js";
+import { Client, PermissionFlagsBits, SlashCommandBuilder } from "discord.js";
 import { Command } from "../../interfaces/Command";
 import { createEmbeded } from "../../utils/embeded";
-import { commandLog } from "../../utils/logs";
-import { getContact, insertContact, updateContact } from "../../utils/supabase";
+import { commandLog, sendError } from "../../utils/logs";
+import { getContact, updateContact } from "../../utils/supabase";
 import { EmbedBuilder } from "@discordjs/builders";
 import { shirtSizeOptions } from "../../utils/options";
-import {
-  ContactInsert,
-  ContactSelect,
-  ContactUpdate,
-  SupabaseResponse,
-} from "../../utils/types";
+import { ContactSelect, ContactUpdate } from "../../utils/types";
 import { contactFields } from "../../utils/embedFields";
 
 const createUpdateEmbeds = (
@@ -43,18 +33,6 @@ const createUpdateEmbeds = (
 
   embeds.push(newContactMessage);
   return embeds;
-};
-
-const sendError = async (
-  errorMessage: string,
-  interaction: CommandInteraction
-) => {
-  const errorEmbed = createEmbeded(
-    "❌ Update Failed!",
-    errorMessage,
-    interaction.client
-  ).setColor("Red");
-  await interaction.editReply({ embeds: [errorEmbed] });
 };
 
 export const updatecontact: Command = {
@@ -145,12 +123,14 @@ export const updatecontact: Command = {
       { name: "shirtsize", value: `${update.shirt_size_id}` },
     ]);
 
+    const errorTitle = "❌ Update Failed!";
+
     const oldContactResponse = await getContact({
       uh_id: update.uh_id as number,
     });
 
     if (oldContactResponse.error) {
-      await sendError("PSID not found!", interaction);
+      await sendError(errorTitle, "PSID not found!", interaction);
       return;
     }
 
@@ -159,7 +139,7 @@ export const updatecontact: Command = {
     const contactResponse = await updateContact(update, contact_id);
 
     if (contactResponse.error) {
-      await sendError(contactResponse.message, interaction);
+      await sendError(errorTitle, contactResponse.message, interaction);
       return;
     }
 

@@ -1,27 +1,10 @@
-import {
-  CommandInteraction,
-  PermissionFlagsBits,
-  SlashCommandBuilder,
-  User,
-} from "discord.js";
+import { PermissionFlagsBits, SlashCommandBuilder } from "discord.js";
 import { Command } from "../../interfaces/Command";
 import { createEmbeded } from "../../utils/embeded";
 import { getBalance, insertTransaction } from "../../utils/supabase";
-import { commandLog } from "../../utils/logs";
+import { commandLog, sendError } from "../../utils/logs";
 import { memberPointReasonOptions } from "../../utils/options";
 import { TransactionInsert } from "../../utils/types";
-
-const sendError = async (
-  errorMessage: string,
-  interaction: CommandInteraction
-) => {
-  const errorEmbed = createEmbeded(
-    "❌ Grant Failed!",
-    errorMessage,
-    interaction.client
-  ).setColor("Red");
-  await interaction.editReply({ embeds: [errorEmbed] });
-};
 
 export const grant: Command = {
   data: new SlashCommandBuilder()
@@ -76,17 +59,23 @@ export const grant: Command = {
       { name: "reason", value: `${transactionInfo.reason_id}` },
     ]);
 
+    const errorTitle = "❌ Grant Failed!";
+
     const { discord_snowflake } = transactionInfo.queryData;
 
     if (discord_snowflake === user.id) {
-      await sendError("You cannot grant CougarCoin to yourself!", interaction);
+      await sendError(
+        errorTitle,
+        "You cannot grant CougarCoin to yourself!",
+        interaction
+      );
       return;
     }
 
     const transactionResponse = await insertTransaction(transactionInfo);
 
     if (transactionResponse.error) {
-      await sendError(transactionResponse.message, interaction);
+      await sendError(errorTitle, transactionResponse.message, interaction);
       return;
     }
 

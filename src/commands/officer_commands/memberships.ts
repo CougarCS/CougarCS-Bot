@@ -1,27 +1,14 @@
 import {
   Client,
-  CommandInteraction,
   EmbedBuilder,
   PermissionFlagsBits,
   SlashCommandBuilder,
 } from "discord.js";
 import { Command } from "../../interfaces/Command";
 import { createEmbeded, sendBulkEmbeds } from "../../utils/embeded";
-import { commandLog } from "../../utils/logs";
+import { commandLog, sendError } from "../../utils/logs";
 import { getMembershipReason, getMemberships } from "../../utils/supabase";
 import { UniqueContactQuery } from "../../utils/types";
-
-const sendError = async (
-  errorMessage: string,
-  interaction: CommandInteraction
-) => {
-  const errorEmbed = createEmbeded(
-    "❌ Search Canceled!",
-    errorMessage,
-    interaction.client
-  ).setColor("Red");
-  await interaction.editReply({ embeds: [errorEmbed] });
-};
 
 const formatMembership = async (
   membership: any,
@@ -101,17 +88,23 @@ export const memberships: Command = {
       },
     ]);
 
+    const errorTitle = "❌ Search Canceled!";
+
     const noParams = !(query.uh_id || query.email || query.discord_snowflake);
 
     if (noParams) {
-      await sendError("No search parameters specified!", interaction);
+      await sendError(
+        errorTitle,
+        "No search parameters specified!",
+        interaction
+      );
       return;
     }
 
     const membershipResponse = await getMemberships(query);
 
     if (membershipResponse.error) {
-      await sendError(membershipResponse.message, interaction);
+      await sendError(errorTitle, membershipResponse.message, interaction);
       return;
     }
 

@@ -5,7 +5,7 @@ import {
 } from "discord.js";
 import { Command } from "../../interfaces/Command";
 import { createEmbeded } from "../../utils/embeded";
-import { commandLog } from "../../utils/logs";
+import { commandLog, sendError } from "../../utils/logs";
 import { ReactionRoleGiver } from "../../utils/reactions";
 
 const removeWhitespace = (input: string): string => {
@@ -66,15 +66,16 @@ export const rolegiver: Command = {
       { name: "roles", value: roleString },
     ]);
 
+    const errorTitle = "❌ Reaction Roles Failed!";
+
     const roleParse = roleString.split(", ");
 
     if (roleParse.length % 2 === 1) {
-      const errorMessage = createEmbeded(
-        "❌ Reaction Roles Failed!",
-        "You must enter your emoji + description pairs in order and complete!\n",
-        client
-      ).setColor("Red");
-      await interaction.editReply({ embeds: [errorMessage] });
+      await sendError(
+        errorTitle,
+        "You must enter your emoji + description pairs in order and complete!",
+        interaction
+      );
       return;
     }
 

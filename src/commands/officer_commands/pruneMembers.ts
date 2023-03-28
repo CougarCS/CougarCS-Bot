@@ -3,17 +3,15 @@ import {
   Collection,
   Guild,
   GuildMember,
-  GuildMemberManager,
   PermissionFlagsBits,
   Role,
   SlashCommandBuilder,
   TextBasedChannel,
 } from "discord.js";
 import { Command } from "../../interfaces/Command";
-import { createEmbeded, sendBulkEmbeds } from "../../utils/embeded";
-import { commandLog } from "../../utils/logs";
+import { createEmbeded } from "../../utils/embeded";
+import { commandLog, sendError } from "../../utils/logs";
 import { isMember } from "../../utils/supabase";
-import { EmbedBuilder } from "@discordjs/builders";
 
 const getExpiredMembers = async (members: Collection<string, GuildMember>) => {
   const keys = members.keys();
@@ -67,17 +65,14 @@ export const prunemembers: Command = {
 
     commandLog(interaction, "/prunemembers", "Purple", []);
 
+    const errorTitle = `❌ Prune Canceled!`;
+
     await guild.roles.fetch();
     await guild.members.fetch();
     const memberRole = guild.roles.cache.find((r) => r.name === "Member");
 
     if (!memberRole) {
-      const errorMessage = createEmbeded(
-        `❌ Prune Canceled!`,
-        `Member role not found!`,
-        client
-      ).setColor("Red");
-      await interaction.editReply({ embeds: [errorMessage] });
+      await sendError(errorTitle, "Member role not found!", interaction);
       return;
     }
 

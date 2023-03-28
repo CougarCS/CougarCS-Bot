@@ -2,7 +2,7 @@ import { SlashCommandBuilder } from "discord.js";
 import { Command } from "../../interfaces/Command";
 import { createEmbeded } from "../../utils/embeded";
 import { getLeaderboard } from "../../utils/supabase";
-import { commandLog } from "../../utils/logs";
+import { commandLog, sendError } from "../../utils/logs";
 
 const leaderboardBody = (array: string[]): string => {
   let body = "";
@@ -33,16 +33,13 @@ export const leaderboard: Command = {
       },
     ]);
 
+    const errorTitle = "❌ Leaderboard Canceled!";
+
     const maxSlots = (number?.value || 10) as number;
     const leaderboardResponse = await getLeaderboard(maxSlots);
 
     if (leaderboardResponse.error) {
-      const errorMessage = createEmbeded(
-        "❌ Leaderboard Canceled!",
-        leaderboardResponse.message,
-        client
-      ).setColor("Red");
-      await interaction.editReply({ embeds: [errorMessage] });
+      await sendError(errorTitle, leaderboardResponse.message, interaction);
       return;
     }
 

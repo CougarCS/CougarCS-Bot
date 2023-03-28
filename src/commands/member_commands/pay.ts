@@ -1,29 +1,9 @@
-import {
-  CommandInteraction,
-  Guild,
-  GuildMember,
-  PermissionFlagsBits,
-  Role,
-  SlashCommandBuilder,
-  User,
-} from "discord.js";
+import { Guild, SlashCommandBuilder, User } from "discord.js";
 import { Command } from "../../interfaces/Command";
 import { createEmbeded } from "../../utils/embeded";
-import { commandLog } from "../../utils/logs";
+import { commandLog, sendError } from "../../utils/logs";
 import { getBalance, insertTransaction, isMember } from "../../utils/supabase";
 import { TransactionInsert } from "../../utils/types";
-
-const sendError = async (
-  errorMessage: string,
-  interaction: CommandInteraction
-) => {
-  const errorEmbed = createEmbeded(
-    "❌ Payment Canceled!",
-    errorMessage,
-    interaction.client
-  ).setColor("Red");
-  await interaction.editReply({ embeds: [errorEmbed] });
-};
 
 export const pay: Command = {
   data: new SlashCommandBuilder()
@@ -58,6 +38,8 @@ export const pay: Command = {
       { name: "value", value: `${point_value}` },
     ]);
 
+    const errorTitle = "❌ Payment Canceled!";
+
     const payMember = await guild.members.fetch({ user: payUser });
 
     const member = await guild.members.fetch({ user });
@@ -70,6 +52,7 @@ export const pay: Command = {
 
     if (!hasMemberRole) {
       await sendError(
+        errorTitle,
         "This command is available for members only!",
         interaction
       );
@@ -81,7 +64,7 @@ export const pay: Command = {
     });
 
     if (payMemberResponse.error) {
-      await sendError(payMemberResponse.message, interaction);
+      await sendError(errorTitle, payMemberResponse.message, interaction);
       return;
     }
 
@@ -89,6 +72,7 @@ export const pay: Command = {
 
     if (!payActiveMember) {
       await sendError(
+        errorTitle,
         `You may only send a payment to another member!`,
         interaction
       );
@@ -101,6 +85,7 @@ export const pay: Command = {
 
     if (balanceResponse.error) {
       await sendError(
+        errorTitle,
         `There was an error verifying your balance!`,
         interaction
       );
@@ -110,7 +95,7 @@ export const pay: Command = {
     const initialBalance = balanceResponse.data[0];
 
     if (initialBalance < point_value) {
-      await sendError(`Your balance is too low!`, interaction);
+      await sendError(errorTitle, `Your balance is too low!`, interaction);
       return;
     }
 
@@ -123,7 +108,7 @@ export const pay: Command = {
     const withdrawalResponse = await insertTransaction(withdrawal);
 
     if (withdrawalResponse.error) {
-      await sendError(withdrawalResponse.message, interaction);
+      await sendError(errorTitle, withdrawalResponse.message, interaction);
       return;
     }
 
@@ -136,7 +121,7 @@ export const pay: Command = {
     const depositResponse = await insertTransaction(deposit);
 
     if (depositResponse.error) {
-      await sendError(depositResponse.message, interaction);
+      await sendError(errorTitle, depositResponse.message, interaction);
       return;
     }
 

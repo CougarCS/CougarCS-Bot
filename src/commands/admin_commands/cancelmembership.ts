@@ -6,7 +6,7 @@ import {
 } from "discord.js";
 import { Command } from "../../interfaces/Command";
 import { createEmbeded } from "../../utils/embeded";
-import { commandLog } from "../../utils/logs";
+import { commandLog, sendError } from "../../utils/logs";
 import { cancelMembership } from "../../utils/supabase";
 
 export const cancelmembership: Command = {
@@ -32,15 +32,12 @@ export const cancelmembership: Command = {
       { name: "user", value: `<@${discord_snowflake}>` },
     ]);
 
+    const errorTitle = "❌ Update Failed!";
+
     const cancelResponse = await cancelMembership({ discord_snowflake });
 
     if (cancelResponse.error) {
-      const errorMessage = createEmbeded(
-        "❌ Update Failed!",
-        cancelResponse.message,
-        client
-      ).setColor("Red");
-      await interaction.editReply({ embeds: [errorMessage] });
+      await sendError(errorTitle, cancelResponse.message, interaction);
       return;
     }
 

@@ -1,32 +1,11 @@
-import {
-  CommandInteraction,
-  PermissionFlagsBits,
-  SlashCommandBuilder,
-} from "discord.js";
+import { PermissionFlagsBits, SlashCommandBuilder } from "discord.js";
 import { Command } from "../../interfaces/Command";
 import { createEmbeded } from "../../utils/embeded";
-import { commandLog } from "../../utils/logs";
-import { getContact, insertContact, updateContact } from "../../utils/supabase";
-import { EmbedBuilder } from "@discordjs/builders";
+import { commandLog, sendError } from "../../utils/logs";
+import { insertContact } from "../../utils/supabase";
 import { shirtSizeOptions } from "../../utils/options";
-import {
-  ContactInsert,
-  ContactUpdate,
-  SupabaseResponse,
-} from "../../utils/types";
+import { ContactInsert } from "../../utils/types";
 import { contactFields } from "../../utils/embedFields";
-
-const sendError = async (
-  errorMessage: string,
-  interaction: CommandInteraction
-) => {
-  const errorEmbed = createEmbeded(
-    "❌ Create Failed!",
-    errorMessage,
-    interaction.client
-  ).setColor("Red");
-  await interaction.editReply({ embeds: [errorEmbed] });
-};
 
 export const createcontact: Command = {
   data: new SlashCommandBuilder()
@@ -112,10 +91,12 @@ export const createcontact: Command = {
       { name: "shirtsize", value: `${create.shirt_size_id}` },
     ]);
 
+    const errorTitle = "❌ Create Failed!";
+
     const contactResponse = await insertContact(create);
 
     if (contactResponse.error) {
-      await sendError(contactResponse.message, interaction);
+      await sendError(errorTitle, contactResponse.message, interaction);
       return;
     }
 

@@ -1,31 +1,14 @@
-import {
-  CommandInteraction,
-  PermissionFlagsBits,
-  SlashCommandBuilder,
-} from "discord.js";
+import { PermissionFlagsBits, SlashCommandBuilder } from "discord.js";
 import { Command } from "../../interfaces/Command";
 import { createEmbeded } from "../../utils/embeded";
-import { commandLog } from "../../utils/logs";
+import { commandLog, sendError } from "../../utils/logs";
 import { eventOptions } from "../../utils/options";
 import {
   getContact,
-  getEvent,
   getEventAttendance,
   insertEventAttendance,
 } from "../../utils/supabase";
 import { EventAttendanceInsert, UniqueContactQuery } from "../../utils/types";
-
-const sendError = async (
-  errorMessage: string,
-  interaction: CommandInteraction
-) => {
-  const errorEmbed = createEmbeded(
-    "❌ Check In Canceled!",
-    errorMessage,
-    interaction.client
-  ).setColor("Red");
-  await interaction.editReply({ embeds: [errorEmbed] });
-};
 
 export const checkin: Command = {
   data: new SlashCommandBuilder()
@@ -95,6 +78,8 @@ export const checkin: Command = {
       { name: "swag", value: `${swag}` },
     ]);
 
+    const errorTitle = "❌ Check In Canceled!";
+
     const noParams = !(
       contactQuery.uh_id ||
       contactQuery.email ||
@@ -102,14 +87,18 @@ export const checkin: Command = {
     );
 
     if (noParams) {
-      await sendError("No search parameters specified!", interaction);
+      await sendError(
+        errorTitle,
+        "No search parameters specified!",
+        interaction
+      );
       return;
     }
 
     const contactResponse = await getContact(contactQuery);
 
     if (contactResponse.error) {
-      await sendError(contactResponse.message, interaction);
+      await sendError(errorTitle, contactResponse.message, interaction);
       return;
     }
 
@@ -122,6 +111,7 @@ export const checkin: Command = {
 
     if (!prevAttendanceResponse.error) {
       await sendError(
+        errorTitle,
         `${identifier} is already checked into this event!`,
         interaction
       );
@@ -140,7 +130,7 @@ export const checkin: Command = {
     const attendanceResponse = await insertEventAttendance(attendance);
 
     if (attendanceResponse.error) {
-      await sendError(attendanceResponse.message, interaction);
+      await sendError(errorTitle, attendanceResponse.message, interaction);
       return;
     }
 

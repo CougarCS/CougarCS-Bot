@@ -2,7 +2,7 @@ import { PermissionFlagsBits, SlashCommandBuilder } from "discord.js";
 import { Command } from "../../interfaces/Command";
 import { createEmbeded } from "../../utils/embeded";
 import { pingSB } from "../../utils/supabase";
-import { commandLog } from "../../utils/logs";
+import { commandLog, sendError } from "../../utils/logs";
 
 export const supabaseping: Command = {
   data: new SlashCommandBuilder()
@@ -17,15 +17,16 @@ export const supabaseping: Command = {
 
     commandLog(interaction, "/supabaseping", "#3ECF8E", []);
 
+    const errorTitle = "❌ Supabase Failed!";
+
     const ping = await pingSB();
 
     if (ping.error) {
-      const errorMessage = createEmbeded(
-        "❌ Supabase Failed!",
+      await sendError(
+        errorTitle,
         `${JSON.stringify(ping.message, null, 1)}`,
-        client
-      ).setColor("Red");
-      await interaction.editReply({ embeds: [errorMessage] });
+        interaction
+      );
       return;
     }
 

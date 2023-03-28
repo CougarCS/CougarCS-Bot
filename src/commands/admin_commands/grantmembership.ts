@@ -1,28 +1,12 @@
-import {
-  CommandInteraction,
-  PermissionFlagsBits,
-  SlashCommandBuilder,
-} from "discord.js";
+import { PermissionFlagsBits, SlashCommandBuilder } from "discord.js";
 import { Command } from "../../interfaces/Command";
 import { createEmbeded } from "../../utils/embeded";
-import { commandLog } from "../../utils/logs";
+import { commandLog, sendError } from "../../utils/logs";
 import { getContact, insertMembership } from "../../utils/supabase";
 import {
   membershipCodeOptions,
   membershipLengthOptions,
 } from "../../utils/options";
-
-const sendError = async (
-  errorMessage: string,
-  interaction: CommandInteraction
-) => {
-  const errorEmbed = createEmbeded(
-    "❌ Grant Failed!",
-    errorMessage,
-    interaction.client
-  ).setColor("Red");
-  await interaction.editReply({ embeds: [errorEmbed] });
-};
 
 export const grantmembership: Command = {
   data: new SlashCommandBuilder()
@@ -67,10 +51,13 @@ export const grantmembership: Command = {
       { name: "reason", value: reason_id },
     ]);
 
+    const errorTitle = "❌ Grant Failed!";
+
     const contactResponse = await getContact({ discord_snowflake });
 
     if (contactResponse.error) {
       await sendError(
+        errorTitle,
         `${contactResponse.message}\nYou can create a new contact with \`/updatecontact\`!`,
         interaction
       );
@@ -86,7 +73,7 @@ export const grantmembership: Command = {
     );
 
     if (membershipResponse.error) {
-      await sendError(membershipResponse.message, interaction);
+      await sendError(errorTitle, membershipResponse.message, interaction);
       return;
     }
 
