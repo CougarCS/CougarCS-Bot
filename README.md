@@ -1,4 +1,5 @@
 # CougarCS Discord Bot!
+
 - #### Requirements
   - [NodeJS](https://nodejs.org/en/) Version 16+
   - [Supabase](https://supabase.com/) Backend Project
@@ -28,29 +29,36 @@
   - `./interfaces` contains interfaces
   - `./utils` contains utility files
   - `./interfaces` contains interfaces
-  - `./utils` contains utility files  
+  - `./utils` contains utility files
+
 ## Commands
+
 - #### User Commands
-`/balance`
-`/claim`
-`/leaderboard`
-`/report`
+  `/balance`
+  `/claim`
+  `/leaderboard`
+  `/report`
 - #### Member Commands
-`/pay`
+  `/pay`
 - #### Officer Commands
-`/find`
-`/grant`
-`/memberships`
-`/ping`
-`/pruneexpiredmembers`
-`/rolegiver`
-`/supabaseping`
-`/whois`
+  `/attendance`
+  `/checkin`
+  `/find`
+  `/grant`
+  `/memberships`
+  `/ping`
+  `/pruneexpiredmembers`
+  `/rolegiver`
+  `/supabaseping`
+  `/whois`
 - #### Admin Commands
-`/cancelmembership`
-`/grantmembership`
-`/updatecontact`
+  `/cancelmembership`
+  `/createcontact`
+  `/grantmembership`
+  `/updatecontact`
+
 ## Contributing
+
 - #### Ideas
   - We want everyone to be able to help us in any way they can! Every idea is welcome, please open an issue describing what you have in mind first. We'll discuss your idea and we may add it to the bot! Feel free to also leave your thoughts!
 - #### Bugs
