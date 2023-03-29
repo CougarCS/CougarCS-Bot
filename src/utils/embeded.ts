@@ -1,9 +1,8 @@
-import { Client, EmbedBuilder, User } from "discord.js";
+import { Client, CommandInteraction, EmbedBuilder, User } from "discord.js";
 
 export function createEmbeded(
   title: string,
   message: string,
-  user: User,
   client: Client
 ): EmbedBuilder {
   let iconURL: string | null | undefined;
@@ -18,12 +17,28 @@ export function createEmbeded(
   }
 
   return new EmbedBuilder()
-    .setColor("#ffeded")
+    .setColor("Green")
     .setTitle(title)
     .setDescription(message)
-    .setTimestamp()
-    .setFooter({
-      text: `${client.user?.tag}`,
-      iconURL: iconURL as string,
-    });
+    .setTimestamp(null)
+    .setFooter(null);
 }
+
+export const sendBulkEmbeds = async (
+  interaction: CommandInteraction,
+  embedArray: EmbedBuilder[]
+) => {
+  const embedChunks: EmbedBuilder[][] = [];
+
+  for (let i = 0; i < embedArray.length; i++) {
+    if (i % 10 === 0) embedChunks.push([]);
+    const currentArray = embedChunks[embedChunks.length - 1];
+    currentArray.push(embedArray[i]);
+  }
+
+  await interaction.editReply({ embeds: embedChunks[0] });
+
+  for (let i = 1; i < embedChunks.length; i++) {
+    await interaction.followUp({ embeds: embedChunks[i] });
+  }
+};

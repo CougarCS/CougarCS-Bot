@@ -4,6 +4,7 @@ import { Routes } from "discord-api-types/v10";
 import { CommandList } from "../utils/_Commandlists";
 import config from "../config/config.json";
 import "dotenv/config";
+import { log } from "../utils/logs";
 
 export const onReady = async (client: Client) => {
   const rest = new REST({ version: "10" }).setToken(
@@ -13,14 +14,28 @@ export const onReady = async (client: Client) => {
   const commandData = CommandList.map((command) => command.data.toJSON());
 
   console.log("🔨 Started loading (/) commands.");
-  // client.application?.commands.set([]);
-  await rest.put(
-    Routes.applicationGuildCommands(
-      client.user?.id || "missing id",
-      process.env.GUILD_ID as string
-    ),
-    { body: commandData }
-  );
+
+  await client.guilds.fetch();
+  const guilds = client.guilds.cache;
+
+  for (const guildEntry of guilds) {
+    const guild = guildEntry[1];
+    await rest.put(
+      Routes.applicationGuildCommands(
+        client.user?.id || "missing id",
+        guild.id
+      ),
+      { body: commandData }
+    );
+  }
+
+  // await rest.put(
+  //   Routes.applicationGuildCommands(
+  //     client.user?.id || "missing id",
+  //     process.env.GUILD_ID as string
+  //   ),
+  //   { body: commandData }
+  // );
   console.log("✅ Successfully loaded (/) commands.");
 
   client.user?.setPresence({
@@ -37,5 +52,14 @@ export const onReady = async (client: Client) => {
   );
 
   console.log(`🤖 ${client.user?.tag} is online ⚡`);
-  console.log("🚀 Initialization complete");
+  console.log("😺 Initialization complete");
+
+  client.guilds.cache.forEach((g) => {
+    log(
+      "🔁 Bot Restarted",
+      "The CougarCS bot has been restarted. All previous interactions are no longer connected.",
+      "Blue",
+      g
+    );
+  });
 };
