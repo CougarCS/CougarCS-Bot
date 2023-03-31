@@ -44,6 +44,35 @@ export interface Database {
           uh_id?: number | null
         }
       }
+      discord_guilds: {
+        Row: {
+          admin_role_id: string | null
+          guild_id: string
+          log_channel_id: string | null
+          member_role_id: string | null
+          name: string
+          officer_role_id: string | null
+          report_channel_id: string | null
+        }
+        Insert: {
+          admin_role_id?: string | null
+          guild_id: string
+          log_channel_id?: string | null
+          member_role_id?: string | null
+          name: string
+          officer_role_id?: string | null
+          report_channel_id?: string | null
+        }
+        Update: {
+          admin_role_id?: string | null
+          guild_id?: string
+          log_channel_id?: string | null
+          member_role_id?: string | null
+          name?: string
+          officer_role_id?: string | null
+          report_channel_id?: string | null
+        }
+      }
       event: {
         Row: {
           date: string
@@ -54,7 +83,7 @@ export interface Database {
           title: string
         }
         Insert: {
-          date?: string
+          date: string
           description?: string | null
           duration?: number | null
           event_id?: string
@@ -83,7 +112,7 @@ export interface Database {
           event_attendance_id?: string
           event_id: string
           swag?: boolean
-          timestamp: string
+          timestamp?: string
         }
         Update: {
           contact_id?: string
@@ -96,21 +125,21 @@ export interface Database {
       member_point_transaction: {
         Row: {
           contact_id: string
-          member_point_transaction: string
+          member_point_transaction_id: string
           member_point_transaction_reason_id: string
           point_value: number
           timestamp: string
         }
         Insert: {
           contact_id: string
-          member_point_transaction?: string
+          member_point_transaction_id?: string
           member_point_transaction_reason_id: string
           point_value: number
           timestamp?: string
         }
         Update: {
           contact_id?: string
-          member_point_transaction?: string
+          member_point_transaction_id?: string
           member_point_transaction_reason_id?: string
           point_value?: number
           timestamp?: string
@@ -136,24 +165,24 @@ export interface Database {
           end_date: string
           membership_code_id: string
           membership_id: string
+          semesters: number
           start_date: string
-          timestamp: string
         }
         Insert: {
           contact_id: string
           end_date?: string
           membership_code_id: string
           membership_id?: string
+          semesters: number
           start_date?: string
-          timestamp?: string
         }
         Update: {
           contact_id?: string
           end_date?: string
           membership_code_id?: string
           membership_id?: string
+          semesters?: number
           start_date?: string
-          timestamp?: string
         }
       }
       membership_code: {
@@ -172,15 +201,15 @@ export interface Database {
       }
       shirt_size: {
         Row: {
-          message: string | null
+          message: string
           shirt_size_id: string
         }
         Insert: {
-          message?: string | null
+          message: string
           shirt_size_id: string
         }
         Update: {
-          message?: string | null
+          message?: string
           shirt_size_id?: string
         }
       }
