@@ -360,6 +360,7 @@ export const insertMembership = async (
     start_date,
     end_date,
     membership_code_id: reason_id,
+    semesters: semester ? 1 : 2,
   });
 
   if (insertResponse.error) {
