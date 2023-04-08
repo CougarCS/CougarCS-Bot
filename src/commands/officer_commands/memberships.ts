@@ -20,6 +20,11 @@ const formatMembership = async (
   const endMonth = new Date(membership.end_date).getMonth();
   const endSeason = endMonth < 6 ? "Spring" : "Fall";
   const term = startSeason === endSeason ? "Year" : "Semester";
+  const numSemesters = membership.semesters;
+  
+  const endDate = new Date(membership.end_date);
+  const currentDate = new Date();
+  const isActive = endDate > currentDate ? "True" : "False";
 
   const membershipReasonResponse = await getMembershipReason(
     membership.membership_code_id
@@ -32,8 +37,9 @@ const formatMembership = async (
   }
 
   return createEmbeded(
+  
     `${startSeason} ${startYear}: ${term} Long`,
-    `${reason}`,
+    `Number of Semesters: ${numSemesters}\nCurrent Member: ${isActive}\n${reason}`, 
     client
   ).setColor("Green");
 };
