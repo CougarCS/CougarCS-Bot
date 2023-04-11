@@ -12,7 +12,7 @@ export const grantmembership: Command = {
   data: new SlashCommandBuilder()
     .setName("grantmembership")
     .setDescription("Grant CougarCS membership to a user!")
-    //.setDefaultMemberPermissions(PermissionFlagsBits.Administrator)
+    .setDefaultMemberPermissions(PermissionFlagsBits.Administrator)
     .addUserOption((option) =>
       option
         .setName("user")
