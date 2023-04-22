@@ -68,39 +68,32 @@ export const grantmembership: Command = {
 
     const isAMember = await isMember({contact_id});
  
-    if (isAMember.error) {
-
-      const membershipResponse = await insertMembership(
-        { contact_id },
-        length,
-        reason_id
+    if(!isAMember.error && isAMember.data[0]) {
+      await sendError(
+          "❌ Membership Denied!",
+          `<@${discord_snowflake}> has already received a membership!`,
+          interaction
       );
-
-      if (membershipResponse.error) {
-        await sendError(errorTitle, membershipResponse.message, interaction);
-        return;
-      }
-
-      const returnMessage = createEmbeded(
-        "✅ Membership Granted!",
-        `<@${discord_snowflake}> has successfully received a ${length} long membership!`,
-        client
-      ).setColor("Green");
-      await interaction.editReply({ embeds: [returnMessage] });
       return;
+    }
 
+    const membershipResponse = await insertMembership(
+      { contact_id },
+      length,
+      reason_id
+    );
+
+    if (membershipResponse.error) {
+      await sendError(errorTitle, membershipResponse.message, interaction);
+      return;
     }
 
     const returnMessage = createEmbeded(
-      "❌ Membership Denied!",
-      `<@${discord_snowflake}> has already received a membership!`,
+      "✅ Membership Granted!",
+      `<@${discord_snowflake}> has successfully received a ${length} long membership!`,
       client
-    ).setColor("Red");
+    ).setColor("Green");
     await interaction.editReply({ embeds: [returnMessage] });
     return;
-    
-    
-    
-
   },
 };
