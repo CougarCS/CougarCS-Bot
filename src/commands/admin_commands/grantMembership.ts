@@ -36,12 +36,12 @@ export const grantmembership: Command = {
   run: async (interaction, client) => {
     await interaction.deferReply({ ephemeral: false });
     const { user } = interaction;
-    
+
     const discord_snowflake = interaction.options.get("user", true).user
       ?.id as string;
     const length = interaction.options.get("length", true).value as string;
     const reason_id = interaction.options.get("reason", true).value as string;
-    
+
     commandLog(interaction, "/grantmembership", "Green", [
       {
         name: "user",
@@ -66,13 +66,13 @@ export const grantmembership: Command = {
 
     const { contact_id } = contactResponse.data[0];
 
-    const isAMember = await isMember({contact_id});
- 
-    if(!isAMember.error && isAMember.data[0]) {
+    const isAMember = await isMember({ contact_id });
+
+    if (!isAMember.error && isAMember.data[0]) {
       await sendError(
-          "❌ Membership Denied!",
-          `<@${discord_snowflake}> has already received a membership!`,
-          interaction
+        errorTitle,
+        `<@${discord_snowflake}> has already received a membership!`,
+        interaction
       );
       return;
     }

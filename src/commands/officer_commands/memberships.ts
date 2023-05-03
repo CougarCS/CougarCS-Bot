@@ -18,14 +18,16 @@ const formatMembership = async (
   const startSeason = startMonth < 6 ? "Spring" : "Fall";
   const startYear = new Date(membership.start_date).getFullYear();
   const endMonth = new Date(membership.end_date).getMonth();
-  const endSeason = endMonth < 6 ? "Spring" : "Fall";
   const endDate = new Date(membership.end_date);
   const endDay = new Date(membership.end_date).getDate();
-  const term = startSeason === endSeason ? "Year" : "Semester";
   const numSemesters = membership.semesters;
   const currentDate = new Date();
-  const isCanceled = ((endMonth == 0 || endMonth == 6) && endDay == 1) ? false: true;
-  const status = isCanceled ? "Canceled" : endDate >= currentDate ? "Active" : "Expired";
+  const isCanceled = (endMonth !== 0 && endMonth !== 6) || endDay !== 1;
+  const status = isCanceled
+    ? "Canceled"
+    : endDate >= currentDate
+    ? "Active"
+    : "Expired";
 
   const membershipReasonResponse = await getMembershipReason(
     membership.membership_code_id
@@ -38,9 +40,8 @@ const formatMembership = async (
   }
 
   return createEmbeded(
-  
-    `${startSeason} ${startYear}: ${term} Long`,
-    `Number of Semesters: ${numSemesters}\nStatus: ${status}\n${reason}`, 
+    `${startSeason} ${startYear}`,
+    `Number of Semesters: ${numSemesters}\nStatus: ${status}\n${reason}`,
     client
   ).setColor("Green");
 };
