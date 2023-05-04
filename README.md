@@ -22,12 +22,10 @@
   - `npm run dev` : Starts the ts-node-dev watcher and recompiles + runs code whenever a change is made.
   - `npm run build` : Compiles .TS files to .JS using TSC
 - #### Structure
-  - `index.ts` contains handler routing and login
+  - `./index.ts` contains handler routing and login
   - `./commands` contains individual commands
-  - `./configs` contains data storage/configuration
+  - `./config` contains data storage/configuration
   - `./events` contains handlers for different events
-  - `./interfaces` contains interfaces
-  - `./utils` contains utility files
   - `./interfaces` contains interfaces
   - `./utils` contains utility files
 
@@ -49,6 +47,7 @@
   `/ping`
   `/pruneexpiredmembers`
   `/rolegiver`
+  `/setguildconfig`
   `/supabaseping`
   `/whois`
 - #### Admin Commands
