@@ -2,7 +2,7 @@ import { PermissionFlagsBits, SlashCommandBuilder } from "discord.js";
 import { Command } from "../../interfaces/Command";
 import { createEmbeded } from "../../utils/embeded";
 import { commandLog, sendError } from "../../utils/logs";
-import { getContact, insertMembership } from "../../utils/supabase";
+import { getContact, isMember, insertMembership } from "../../utils/supabase";
 import {
   membershipCodeOptions,
   membershipLengthOptions,
@@ -65,6 +65,17 @@ export const grantmembership: Command = {
     }
 
     const { contact_id } = contactResponse.data[0];
+
+    const isMemberResponse = await isMember({ contact_id });
+
+    if (!isMemberResponse.error && isMemberResponse.data[0]) {
+      await sendError(
+        errorTitle,
+        `<@${discord_snowflake}> has already received a membership!`,
+        interaction
+      );
+      return;
+    }
 
     const membershipResponse = await insertMembership(
       { contact_id },
