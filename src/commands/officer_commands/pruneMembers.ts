@@ -11,7 +11,7 @@ import {
 import { Command } from "../../interfaces/Command";
 import { createEmbeded } from "../../utils/embeded";
 import { commandLog, sendError } from "../../utils/logs";
-import { isMember } from "../../utils/supabase";
+import { getRole, isMember } from "../../utils/supabase";
 
 const getExpiredMembers = async (members: Collection<string, GuildMember>) => {
   const keys = members.keys();
@@ -67,9 +67,16 @@ export const prunemembers: Command = {
 
     const errorTitle = `❌ Prune Canceled!`;
 
-    await guild.roles.fetch();
     await guild.members.fetch();
-    const memberRole = guild.roles.cache.find((r) => r.name === "Member");
+
+    const roleResponse = await getRole("member", guild);
+
+    if (roleResponse.error) {
+      await sendError(errorTitle, roleResponse.message, interaction);
+      return;
+    }
+
+    const memberRole = roleResponse.data[0] as Role;
 
     if (!memberRole) {
       await sendError(errorTitle, "Member role not found!", interaction);

@@ -1,8 +1,19 @@
-import { PermissionFlagsBits, SlashCommandBuilder } from "discord.js";
+import {
+  Guild,
+  PermissionFlagsBits,
+  Role,
+  SlashCommandBuilder,
+  User,
+} from "discord.js";
 import { Command } from "../../interfaces/Command";
 import { createEmbeded } from "../../utils/embeded";
 import { commandLog, sendError } from "../../utils/logs";
-import { getContact, isMember, insertMembership } from "../../utils/supabase";
+import {
+  getContact,
+  getRole,
+  isMember,
+  insertMembership,
+} from "../../utils/supabase";
 import {
   membershipCodeOptions,
   membershipLengthOptions,
@@ -58,7 +69,7 @@ export const grantmembership: Command = {
     if (contactResponse.error) {
       await sendError(
         errorTitle,
-        `${contactResponse.message}\nYou can create a new contact with \`/updatecontact\`!`,
+        `${contactResponse.message}\nYou can create a new contact with \`/createcontact\`!`,
         interaction
       );
       return;
@@ -94,6 +105,24 @@ export const grantmembership: Command = {
       client
     ).setColor("Green");
     await interaction.editReply({ embeds: [returnMessage] });
+
+    const guild = interaction.guild as Guild;
+
+    const member = await guild.members.fetch({
+      user: interaction.options.get("user", true).user as User,
+    });
+
+    const roleResponse = await getRole("member", guild);
+
+    if (roleResponse.error) {
+      await sendError(errorTitle, roleResponse.message, interaction);
+      return;
+    }
+
+    const memberRole = roleResponse.data[0] as Role;
+
+    await member.roles.add(memberRole);
+
     return;
   },
 };

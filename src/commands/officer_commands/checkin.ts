@@ -5,6 +5,7 @@ import { commandLog, sendError } from "../../utils/logs";
 import { eventOptions } from "../../utils/options";
 import {
   getContact,
+  getEvent,
   getEventAttendance,
   insertEventAttendance,
 } from "../../utils/supabase";
@@ -127,6 +128,15 @@ export const checkin: Command = {
       timestamp,
     };
 
+    const eventResponse = await getEvent(event_id);
+
+    if (eventResponse.error) {
+      await sendError(errorTitle, eventResponse.message, interaction);
+      return;
+    }
+
+    const eventName = eventResponse.data[0].title;
+
     const attendanceResponse = await insertEventAttendance(attendance);
 
     if (attendanceResponse.error) {
@@ -136,7 +146,7 @@ export const checkin: Command = {
 
     const returnMessage = createEmbeded(
       "✅ Checked In!",
-      `${identifier} has been checked into the event!`,
+      `${identifier} has been checked into the event: ${eventName}!`,
       client
     ).setColor("Green");
 

@@ -79,3 +79,33 @@ export type EventAttendanceInsert = {
   swag?: boolean;
   timestamp: string;
 };
+
+export type GuildInsert = {
+  admin_role_id?: string | null;
+  guild_id: string;
+  log_channel_id?: string | null;
+  member_role_id?: string | null;
+  name: string;
+  officer_role_id?: string | null;
+  report_channel_id?: string | null;
+};
+
+export type GuildUpdate = {
+  admin_role_id?: string | null;
+  guild_id?: string;
+  log_channel_id?: string | null;
+  member_role_id?: string | null;
+  name?: string;
+  officer_role_id?: string | null;
+  report_channel_id?: string | null;
+};
+
+export type GuildSelect = {
+  admin_role_id: string | null;
+  guild_id: string;
+  log_channel_id: string | null;
+  member_role_id: string | null;
+  name: string;
+  officer_role_id: string | null;
+  report_channel_id: string | null;
+};

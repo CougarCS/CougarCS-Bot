@@ -1,13 +1,14 @@
 import {
   Guild,
   PermissionFlagsBits,
+  Role,
   SlashCommandBuilder,
   User,
 } from "discord.js";
 import { Command } from "../../interfaces/Command";
 import { createEmbeded } from "../../utils/embeded";
 import { commandLog, sendError } from "../../utils/logs";
-import { cancelMembership } from "../../utils/supabase";
+import { cancelMembership, getRole } from "../../utils/supabase";
 
 export const cancelmembership: Command = {
   data: new SlashCommandBuilder()
@@ -48,10 +49,14 @@ export const cancelmembership: Command = {
     ).setColor("Green");
     await interaction.editReply({ embeds: [returnMessage] });
 
-    await guild.roles.fetch();
-    const memberRole = guild.roles.cache.find((r) => r.name === "Member");
+    const roleResponse = await getRole("member", guild);
 
-    if (!memberRole) return;
+    if (roleResponse.error) {
+      await sendError(errorTitle, roleResponse.message, interaction);
+      return;
+    }
+
+    const memberRole = roleResponse.data[0] as Role;
 
     const member = await guild.members.fetch({ user: selectedUser });
 

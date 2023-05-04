@@ -2,7 +2,12 @@ import { Guild, Role, SlashCommandBuilder } from "discord.js";
 import { Command } from "../../interfaces/Command";
 import { createEmbeded } from "../../utils/embeded";
 import { commandLog, sendError } from "../../utils/logs";
-import { getContact, isMember, updateContact } from "../../utils/supabase";
+import {
+  getContact,
+  getRole,
+  isMember,
+  updateContact,
+} from "../../utils/supabase";
 import { SupabaseResponse } from "src/utils/types";
 
 export const claim: Command = {
@@ -48,15 +53,14 @@ export const claim: Command = {
 
     const member = await guild.members.fetch({ user });
 
-    await guild.roles.fetch();
-    let memberRole = guild.roles.cache.find((r) => r.name === "Member");
+    const roleResponse = await getRole("member", guild);
 
-    if (!memberRole) {
-      memberRole = (await guild.roles.create({
-        color: "Blue",
-        name: "Member",
-      })) as Role;
+    if (roleResponse.error) {
+      await sendError(errorTitle, roleResponse.message, interaction);
+      return;
     }
+
+    const memberRole = roleResponse.data[0] as Role;
 
     const haveMemberRole = !!member.roles.cache.find((r) => r === memberRole);
 
