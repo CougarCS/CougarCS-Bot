@@ -66,9 +66,9 @@ export const grantmembership: Command = {
 
     const { contact_id } = contactResponse.data[0];
 
-    const isAMember = await isMember({ contact_id });
+    const isMemberResponse = await isMember({ contact_id });
 
-    if (!isAMember.error && isAMember.data[0]) {
+    if (!isMemberResponse.error && isMemberResponse.data[0]) {
       await sendError(
         errorTitle,
         `<@${discord_snowflake}> has already received a membership!`,

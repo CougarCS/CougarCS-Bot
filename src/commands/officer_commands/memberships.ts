@@ -23,11 +23,11 @@ const formatMembership = async (
   const numSemesters = membership.semesters;
   const currentDate = new Date();
   const isCanceled = (endMonth !== 0 && endMonth !== 6) || endDay !== 1;
-  const status = isCanceled
-    ? "Canceled"
-    : endDate >= currentDate
-    ? "Active"
-    : "Expired";
+
+  let status = "Active";
+
+  if (endDate < currentDate) status = "Expired";
+  if (isCanceled) status = "Canceled";
 
   const membershipReasonResponse = await getMembershipReason(
     membership.membership_code_id
