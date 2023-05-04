@@ -10,6 +10,12 @@ import { commandLog, sendError } from "../../utils/logs";
 import { getMembershipReason, getMemberships } from "../../utils/supabase";
 import { UniqueContactQuery } from "../../utils/types";
 
+const decideStatus = (isCanceled: boolean, isExpired: boolean): string => {
+  if (isCanceled) return "Canceled";
+  if (isExpired) return "Expired";
+  return "Active";
+};
+
 const formatMembership = async (
   membership: any,
   client: Client
@@ -22,12 +28,11 @@ const formatMembership = async (
   const endDay = new Date(membership.end_date).getDate();
   const numSemesters = membership.semesters;
   const currentDate = new Date();
+
   const isCanceled = (endMonth !== 0 && endMonth !== 6) || endDay !== 1;
+  const isExpired = endDate < currentDate;
 
-  let status = "Active";
-
-  if (endDate < currentDate) status = "Expired";
-  if (isCanceled) status = "Canceled";
+  const status = decideStatus(isCanceled, isExpired);
 
   const membershipReasonResponse = await getMembershipReason(
     membership.membership_code_id
