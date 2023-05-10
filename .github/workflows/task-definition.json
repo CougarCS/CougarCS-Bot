@@ -3,7 +3,7 @@
   "containerDefinitions": [
     {
       "name": "cougarcs-bot-dev",
-      "image": "public.ecr.aws/docker/library/httpd:latest",
+      "image": "https://056781185616.dkr.ecr.us-east-2.amazonaws.com/cougarcs-bot:latest",
       "cpu": 0,
       "portMappings": [
         {
