@@ -13,7 +13,6 @@
         }
       ],
       "essential": true,
-      "entryPoint": ["sh", "-c"],
       "logConfiguration": {
         "logDriver": "awslogs",
         "options": {
