@@ -25,5 +25,6 @@
   "networkMode": "awsvpc",
   "requiresCompatibilities": ["FARGATE"],
   "cpu": "256",
+  "executionRoleArn": "arn:aws:iam::056781185616:role/GitHubAction-AssumeRoleWithAction",
   "memory": "512"
 }
