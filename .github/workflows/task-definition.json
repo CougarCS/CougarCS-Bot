@@ -28,23 +28,23 @@
       "secrets": [
         {
           "name": "TOKEN",
-          "valueFrom": "arn:aws:secretsmanager:us-east-2:056781185616:secret:bot-dev-env-61dWzO:TOKEN"
+          "valueFrom": "arn:aws:secretsmanager:us-east-2:056781185616:secret:bot-dev-env-61dWzO:TOKEN::"
         },
         {
           "name": "GUILD_ID",
-          "valueFrom": "arn:aws:secretsmanager:us-east-2:056781185616:secret:bot-dev-env-61dWzO:GUILD_ID"
+          "valueFrom": "arn:aws:secretsmanager:us-east-2:056781185616:secret:bot-dev-env-61dWzO:GUILD_ID::"
         },
         {
           "name": "CLIENT_ID",
-          "valueFrom": "arn:aws:secretsmanager:us-east-2:056781185616:secret:bot-dev-env-61dWzO:CLIENT_ID"
+          "valueFrom": "arn:aws:secretsmanager:us-east-2:056781185616:secret:bot-dev-env-61dWzO:CLIENT_ID::"
         },
         {
           "name": "SUPABASE_URL",
-          "valueFrom": "arn:aws:secretsmanager:us-east-2:056781185616:secret:bot-dev-env-61dWzO:SUPABASE_URL"
+          "valueFrom": "arn:aws:secretsmanager:us-east-2:056781185616:secret:bot-dev-env-61dWzO:SUPABASE_URL::"
         },
         {
           "name": "SUPABASE_KEY",
-          "valueFrom": "arn:aws:secretsmanager:us-east-2:056781185616:secret:bot-dev-env-61dWzO:SUPABASE_KEY"
+          "valueFrom": "arn:aws:secretsmanager:us-east-2:056781185616:secret:bot-dev-env-61dWzO:SUPABASE_KEY::"
         }
       ]
     }
