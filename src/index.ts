@@ -6,14 +6,15 @@ import { IntentOptions } from "./config/intentOptions";
 import "dotenv/config";
 
 (async () => {
-  console.log("Test");
-  console.log(`Supabase URL: ${process.env.SUPABASE_URL}`);
-  // if (!validateEnv()) return;
-  // const client = new Client({ intents: IntentOptions });
-  // client.on("ready", async () => await onReady(client));
-  // client.on(
-  //   "interactionCreate",
-  //   async (interaction) => await onInteraction(interaction, client)
-  // );
-  // await client.login(process.env.TOKEN);
+  if (!validateEnv()) return;
+  const client = new Client({ intents: IntentOptions });
+
+  client.on("ready", async () => await onReady(client));
+
+  client.on(
+    "interactionCreate",
+    async (interaction) => await onInteraction(interaction, client)
+  );
+
+  await client.login(process.env.TOKEN);
 })();
