@@ -1,8 +1,8 @@
 {
-  "family": "fargate",
+  "family": "deploy-bot",
   "containerDefinitions": [
     {
-      "name": "cougarcs-bot-dev",
+      "name": "cougarcs-bot",
       "image": "https://056781185616.dkr.ecr.us-east-2.amazonaws.com/cougarcs-bot:latest",
       "cpu": 0,
       "portMappings": [
@@ -16,10 +16,10 @@
       "logConfiguration": {
         "logDriver": "awslogs",
         "options": {
-          "awslogs-group": "bot-dev-container",
+          "awslogs-group": "bot-container",
           "awslogs-region": "us-east-2",
           "awslogs-create-group": "true",
-          "awslogs-stream-prefix": "bot-dev"
+          "awslogs-stream-prefix": "bot"
         }
       },
       "environment": [],
@@ -28,23 +28,19 @@
       "secrets": [
         {
           "name": "TOKEN",
-          "valueFrom": "arn:aws:secretsmanager:us-east-2:056781185616:secret:bot-dev-env-61dWzO:TOKEN::"
-        },
-        {
-          "name": "GUILD_ID",
-          "valueFrom": "arn:aws:secretsmanager:us-east-2:056781185616:secret:bot-dev-env-61dWzO:GUILD_ID::"
+          "valueFrom": "arn:aws:secretsmanager:us-east-2:056781185616:secret:bot-env-sIJJxo:TOKEN::"
         },
         {
           "name": "CLIENT_ID",
-          "valueFrom": "arn:aws:secretsmanager:us-east-2:056781185616:secret:bot-dev-env-61dWzO:CLIENT_ID::"
+          "valueFrom": "arn:aws:secretsmanager:us-east-2:056781185616:secret:bot-env-sIJJxo:CLIENT_ID::"
         },
         {
           "name": "SUPABASE_URL",
-          "valueFrom": "arn:aws:secretsmanager:us-east-2:056781185616:secret:bot-dev-env-61dWzO:SUPABASE_URL::"
+          "valueFrom": "arn:aws:secretsmanager:us-east-2:056781185616:secret:bot-env-sIJJxo:SUPABASE_URL::"
         },
         {
           "name": "SUPABASE_KEY",
-          "valueFrom": "arn:aws:secretsmanager:us-east-2:056781185616:secret:bot-dev-env-61dWzO:SUPABASE_KEY::"
+          "valueFrom": "arn:aws:secretsmanager:us-east-2:056781185616:secret:bot-env-sIJJxo:SUPABASE_KEY::"
         }
       ]
     }
