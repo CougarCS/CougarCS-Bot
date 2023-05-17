@@ -1,8 +1,13 @@
-import { Guild, SlashCommandBuilder, User } from "discord.js";
+import { Guild, Role, SlashCommandBuilder, User } from "discord.js";
 import { Command } from "../../interfaces/Command";
 import { createEmbeded } from "../../utils/embeded";
 import { commandLog, sendError } from "../../utils/logs";
-import { getBalance, insertTransaction, isMember } from "../../utils/supabase";
+import {
+  getBalance,
+  getRole,
+  insertTransaction,
+  isMember,
+} from "../../utils/supabase";
 import { TransactionInsert } from "../../utils/types";
 
 export const pay: Command = {
@@ -44,11 +49,16 @@ export const pay: Command = {
 
     const member = await guild.members.fetch({ user });
 
-    await guild.roles.fetch();
-    let memberRole = guild.roles.cache.find((r) => r.name === "Member");
+    const roleResponse = await getRole("member", guild);
 
-    const hasMemberRole =
-      memberRole && member.roles.cache.find((r) => r === memberRole);
+    if (roleResponse.error) {
+      await sendError(errorTitle, "There is no member role!", interaction);
+      return;
+    }
+
+    const memberRole = roleResponse.data[0] as Role;
+
+    const hasMemberRole = member.roles.cache.find((r) => r === memberRole);
 
     if (!hasMemberRole) {
       await sendError(
@@ -59,18 +69,11 @@ export const pay: Command = {
       return;
     }
 
-    const payMemberResponse = await isMember({
-      discord_snowflake: pay_snowflake,
-    });
+    const payMemberHasMemberRole = payMember.roles.cache.find(
+      (r) => r === memberRole
+    );
 
-    if (payMemberResponse.error) {
-      await sendError(errorTitle, payMemberResponse.message, interaction);
-      return;
-    }
-
-    const payActiveMember = payMemberResponse.data[0];
-
-    if (!payActiveMember) {
+    if (!payMemberHasMemberRole) {
       await sendError(
         errorTitle,
         `You may only send a payment to another member!`,

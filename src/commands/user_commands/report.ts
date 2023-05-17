@@ -22,7 +22,7 @@ export const report: Command = {
         .setRequired(true)
     ),
   run: async (interaction, client) => {
-    await interaction.deferReply({ ephemeral: false });
+    await interaction.deferReply({ ephemeral: true });
     const { user } = interaction;
 
     const type = interaction.options.get("type", true).value as string;
@@ -39,7 +39,9 @@ export const report: Command = {
       client
     ).setColor("Green");
     await interaction.editReply({ embeds: [returnMessage] });
+
     Logger.report(interaction, type, message);
+
     return;
   },
 };

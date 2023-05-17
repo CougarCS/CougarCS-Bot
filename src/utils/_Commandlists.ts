@@ -18,6 +18,7 @@ import { cancelmembership } from "../commands/admin_commands/cancelMembership";
 import { checkin } from "../commands/officer_commands/checkin";
 import { attendance } from "../commands/officer_commands/attendance";
 import { createcontact } from "../commands/admin_commands/createContact";
+import { setguildconfig } from "../commands/officer_commands/setGuildConfig";
 
 export const CommandList: Command[] = [
   attendance,
@@ -36,6 +37,7 @@ export const CommandList: Command[] = [
   prunemembers,
   report,
   rolegiver,
+  setguildconfig,
   supabaseping,
   updatecontact,
   whois,

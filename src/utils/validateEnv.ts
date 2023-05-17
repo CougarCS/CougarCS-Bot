@@ -4,13 +4,18 @@ export const validateEnv = () => {
     return false;
   }
 
-  if (!process.env.GUILD_ID) {
-    console.warn("Missing Guild ID.");
+  if (!process.env.CLIENT_ID) {
+    console.warn("Missing Creator ID.");
     return false;
   }
 
-  if (!process.env.CLIENT_ID) {
-    console.warn("Missing Creator ID.");
+  if (!process.env.SUPABASE_URL) {
+    console.warn("Missing Supabase URL.");
+    return false;
+  }
+
+  if (!process.env.SUPABASE_KEY) {
+    console.warn("Missing Supabase Key.");
     return false;
   }
 

@@ -48,11 +48,6 @@ export const whois: Command = {
     const { contact_id } = contact;
     const memberResponse = await isMember({ contact_id });
 
-    if (memberResponse.error) {
-      await sendError(errorTitle, memberResponse.message, interaction);
-      return;
-    }
-
     const activeMember = memberResponse.data[0];
     const balanceResponse = await getBalance({ contact_id });
 

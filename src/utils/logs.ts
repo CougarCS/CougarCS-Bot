@@ -7,66 +7,7 @@ import {
 } from "discord.js";
 import { Guild } from "discord.js";
 import { createEmbeded } from "./embeded";
-
-const getOfficerRole = async (guild: Guild) => {
-  await guild.roles.fetch();
-  let officerRole = guild.roles.cache.find((r) => r.name === "Officer");
-  if (!officerRole) {
-    officerRole = (await guild.roles.create({
-      color: "Red",
-      name: "Officer",
-      position: 1,
-      permissions: ["ManageChannels"],
-    })) as Role;
-  }
-  return officerRole;
-};
-
-const getLogChannel = async (guild: Guild) => {
-  await guild.channels.fetch();
-  let logChannel = guild.channels.cache.find((c) => c.name === "cougarcs-logs");
-  if (!logChannel) {
-    logChannel = await guild.channels.create({
-      name: "cougarcs-logs",
-      permissionOverwrites: [
-        {
-          id: guild.id,
-          deny: "ViewChannel",
-        },
-        {
-          id: (await getOfficerRole(guild)).id,
-          allow: "ViewChannel",
-        },
-      ],
-      type: ChannelType.GuildText,
-    });
-  }
-  return logChannel as TextChannel;
-};
-
-const getReportChannel = async (guild: Guild) => {
-  await guild.channels.fetch();
-  let logChannel = guild.channels.cache.find(
-    (c) => c.name === "cougarcs-reports"
-  );
-  if (!logChannel) {
-    logChannel = await guild.channels.create({
-      name: "cougarcs-reports",
-      permissionOverwrites: [
-        {
-          id: guild.id,
-          deny: "ViewChannel",
-        },
-        {
-          id: (await getOfficerRole(guild)).id,
-          allow: "ViewChannel",
-        },
-      ],
-      type: ChannelType.GuildText,
-    });
-  }
-  return logChannel as TextChannel;
-};
+import { getChannel, getRole } from "./supabase";
 
 export const commandLog = async (
   interaction: CommandInteraction,
@@ -75,7 +16,11 @@ export const commandLog = async (
   params: { name: string; value: string }[]
 ) => {
   const guild = interaction.guild as Guild;
-  const logChannel = await getLogChannel(guild);
+  const channelResponse = await getChannel("log", guild);
+
+  if (channelResponse.error) return;
+
+  const logChannel = channelResponse.data[0];
 
   let fullCommand = commandName;
   params.forEach((p) => {
@@ -103,7 +48,11 @@ export const report = async (
   message: string
 ) => {
   const guild = interaction.guild as Guild;
-  const logChannel = await getReportChannel(guild);
+  const channelResponse = await getChannel("report", guild);
+
+  if (channelResponse.error) return;
+
+  const reportChannel = channelResponse.data[0];
 
   const report = createEmbeded(
     `📢 User Report!`,
@@ -117,9 +66,13 @@ export const report = async (
       value: type,
     });
 
-  logChannel.send({
+  const roleResponse = await getRole("officer", guild);
+
+  const officerRole = roleResponse.data[0];
+
+  reportChannel.send({
     embeds: [report],
-    content: `${await getOfficerRole(guild)}`,
+    content: `${officerRole}`,
   });
 };
 
@@ -132,8 +85,16 @@ export const log = async (
   const message = createEmbeded(title, body, guild.client)
     .setColor(color)
     .setTimestamp();
-  const logChannel = await getLogChannel(guild);
-  await logChannel.send({ embeds: [message] });
+
+  const channelResponse = await getChannel("log", guild);
+
+  console.log(`${guild.name}: ${channelResponse.message}`);
+
+  if (channelResponse.error) return;
+
+  const logChannel = channelResponse.data[0];
+
+  logChannel.send({ embeds: [message] });
 };
 
 export const sendError = async (
