@@ -19,7 +19,5 @@ export const validateEnv = () => {
     return false;
   }
 
-  console.log(`Supabase URL: ${process.env.SUPABASE_URL}`);
-
   return true;
 };
