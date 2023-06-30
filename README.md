@@ -56,6 +56,11 @@
   `/grantmembership`
   `/updatecontact`
 
+## Docker
+
+- To build the image, run `docker build -t <image-name> .`
+- To create a container, run `docker run -dp <docker-port>:<external-port> --env-file .env <image-name>`
+
 ## Contributing
 
 - #### Ideas
