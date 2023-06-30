@@ -135,7 +135,7 @@ export const setguildconfig: Command = {
       return;
     }
 
-    const oldGuilData = guildResponse.data[0] as GuildSelect;
+    const oldGuildData = guildResponse.data[0] as GuildSelect;
 
     const updateResponse = await updateGuildData(update, guild);
 
@@ -146,7 +146,7 @@ export const setguildconfig: Command = {
 
     const newGuildData = updateResponse.data[0] as GuildSelect;
 
-    const embeds = createUpdateEmbeds(oldGuilData, newGuildData);
+    const embeds = createUpdateEmbeds(oldGuildData, newGuildData);
 
     await interaction.editReply({ embeds });
     return;

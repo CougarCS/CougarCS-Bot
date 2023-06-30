@@ -11,7 +11,6 @@
      - Contents of the `.env` file:
   ```
   TOKEN = <Discord_Bot_Token>
-  GUILD_ID = <Guild_ID>
   CLIENT_ID = <Owner_ID>
   SUPABASE_URL = <Supabase_Project_URL>
   SUPABASE_KEY = <Supabase_Service_Key>

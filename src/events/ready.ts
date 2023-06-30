@@ -29,13 +29,6 @@ export const onReady = async (client: Client) => {
     );
   }
 
-  // await rest.put(
-  //   Routes.applicationGuildCommands(
-  //     client.user?.id || "missing id",
-  //     process.env.GUILD_ID as string
-  //   ),
-  //   { body: commandData }
-  // );
   console.log("✅ Successfully loaded (/) commands.");
 
   client.user?.setPresence({
@@ -54,12 +47,12 @@ export const onReady = async (client: Client) => {
   console.log(`🤖 ${client.user?.tag} is online ⚡`);
   console.log("😺 Initialization complete");
 
-  client.guilds.cache.forEach((g) => {
+  client.guilds.cache.forEach((guild) => {
     log(
       "🔁 Bot Restarted",
       "The CougarCS bot has been restarted. All previous interactions are no longer connected.",
       "Blue",
-      g
+      guild
     );
   });
 };
