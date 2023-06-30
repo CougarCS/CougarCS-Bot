@@ -1,4 +1,4 @@
-import { Client, PermissionFlagsBits, SlashCommandBuilder } from "discord.js";
+import { PermissionFlagsBits, SlashCommandBuilder } from "discord.js";
 import { Command } from "../../interfaces/Command";
 import { createEmbeded, sendBulkEmbeds } from "../../utils/embeded";
 import { commandLog, sendError } from "../../utils/logs";
@@ -9,8 +9,7 @@ import { ContactQuery, ContactSelect } from "src/utils/types";
 
 const createContactEmbeds = async (
   contacts: ContactSelect[],
-  fullprofile: boolean,
-  client: Client
+  fullprofile: boolean
 ): Promise<EmbedBuilder[]> => {
   const embeds: EmbedBuilder[] = [];
   const contactCount = contacts.length;
@@ -18,8 +17,7 @@ const createContactEmbeds = async (
 
   const returnMessage = createEmbeded(
     `🔎 Found ${contactCount} result${suffix}:`,
-    " ",
-    client
+    " "
   ).setColor("Yellow");
   embeds.push(returnMessage);
 
@@ -32,16 +30,12 @@ const createContactEmbeds = async (
     if (!fullprofile) {
       const embed = createEmbeded(
         `${contact.first_name} ${contact.last_name} (${contact.uh_id})`,
-        `Member: ${activeMember ? "✅" : "❌"}`,
-        client
+        `Member: ${activeMember ? "✅" : "❌"}`
       ).setColor("Green");
       embeds.push(embed);
       continue;
     }
 
-    const discord = contact.discord_snowflake
-      ? `<@${contact.discord_snowflake}>`
-      : "null";
     const balanceResponse = await getBalance({ contact_id });
     let balance = 0;
 
@@ -49,7 +43,7 @@ const createContactEmbeds = async (
       balance = balanceResponse.data[0];
     }
 
-    const embed = createEmbeded(" ", " ", client).addFields(
+    const embed = createEmbeded(" ", " ").addFields(
       ...fullContactFields(contact, balance, activeMember)
     );
     embeds.push(embed);
@@ -102,9 +96,8 @@ export const find: Command = {
         )
         .setRequired(false)
     ),
-  run: async (interaction, client) => {
+  run: async (interaction) => {
     await interaction.deferReply({ ephemeral: false });
-    const { user } = interaction;
 
     const query: ContactQuery = {
       uh_id: interaction.options.get("psid", false)?.value as
@@ -160,18 +153,16 @@ export const find: Command = {
     const contactsResponse = await getContacts(query);
 
     if (contactsResponse.error) {
-      const returnMessage = createEmbeded(
-        `🔎 Found 0 results!`,
-        " ",
-        client
-      ).setColor("Red");
+      const returnMessage = createEmbeded(`🔎 Found 0 results!`, " ").setColor(
+        "Red"
+      );
       await interaction.editReply({ embeds: [returnMessage] });
       return;
     }
 
     const contacts = contactsResponse.data as ContactSelect[];
 
-    const embeds = await createContactEmbeds(contacts, !!fullprofile, client);
+    const embeds = await createContactEmbeds(contacts, !!fullprofile);
 
     await sendBulkEmbeds(interaction, embeds);
     return;

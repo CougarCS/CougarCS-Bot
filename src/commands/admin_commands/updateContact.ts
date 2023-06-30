@@ -1,4 +1,4 @@
-import { Client, PermissionFlagsBits, SlashCommandBuilder } from "discord.js";
+import { PermissionFlagsBits, SlashCommandBuilder } from "discord.js";
 import { Command } from "../../interfaces/Command";
 import { createEmbeded } from "../../utils/embeded";
 import { commandLog, sendError } from "../../utils/logs";
@@ -10,24 +10,22 @@ import { contactFields } from "../../utils/embedFields";
 
 const createUpdateEmbeds = (
   oldContact: ContactSelect,
-  newContact: ContactSelect,
-  client: Client
+  newContact: ContactSelect
 ): EmbedBuilder[] => {
   const embeds: EmbedBuilder[] = [];
 
   const returnMessage = createEmbeded(
     "✅ Contact Updated!",
-    "The contact information was updated!",
-    client
+    "The contact information was updated!"
   ).setColor("Green");
   embeds.push(returnMessage);
 
-  const oldContactMessage = createEmbeded("👤 Old Contact!", " ", client)
+  const oldContactMessage = createEmbeded("👤 Old Contact!", " ")
     .setColor("Red")
     .addFields(...contactFields(oldContact));
   embeds.push(oldContactMessage);
 
-  const newContactMessage = createEmbeded("👤 New Contact!", " ", client)
+  const newContactMessage = createEmbeded("👤 New Contact!", " ")
     .setColor("Blue")
     .addFields(...contactFields(newContact));
 
@@ -87,9 +85,8 @@ export const updatecontact: Command = {
         .setDescription("The contact's shirt size!")
         .setRequired(false);
     }),
-  run: async (interaction, client) => {
+  run: async (interaction) => {
     await interaction.deferReply({ ephemeral: false });
-    const { user } = interaction;
 
     const update: ContactUpdate = {
       uh_id: interaction.options.get("psid", true).value as number,
@@ -145,7 +142,7 @@ export const updatecontact: Command = {
 
     const oldContact = oldContactResponse.data[0];
     const newContact = contactResponse.data[0];
-    const embeds = createUpdateEmbeds(oldContact, newContact, client);
+    const embeds = createUpdateEmbeds(oldContact, newContact);
 
     await interaction.editReply({ embeds });
     return;

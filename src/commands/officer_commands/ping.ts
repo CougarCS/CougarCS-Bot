@@ -8,16 +8,14 @@ export const ping: Command = {
     .setName("ping")
     .setDescription("Ping the CougarCS Bot!")
     .setDefaultMemberPermissions(PermissionFlagsBits.ManageChannels),
-  run: async (interaction, client) => {
+  run: async (interaction) => {
     await interaction.deferReply({ ephemeral: false });
-    const { user } = interaction;
 
     commandLog(interaction, "/ping", "Green", []);
 
     const returnMessage = createEmbeded(
       "🏓 Pong!",
-      "Thank you for using the /ping command!",
-      client
+      "Thank you for using the /ping command!"
     ).setColor("Green");
 
     await interaction.editReply({ embeds: [returnMessage] });

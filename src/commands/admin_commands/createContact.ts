@@ -59,9 +59,8 @@ export const createcontact: Command = {
         .setDescription("The contact's shirt size!")
         .setRequired(false);
     }),
-  run: async (interaction, client) => {
+  run: async (interaction) => {
     await interaction.deferReply({ ephemeral: false });
-    const { user } = interaction;
 
     const create: ContactInsert = {
       uh_id: interaction.options.get("psid", true).value as number,
@@ -102,12 +101,11 @@ export const createcontact: Command = {
 
     const returnMessage = createEmbeded(
       "✅ Contact Created!",
-      "The contact has been inserted in the database!",
-      client
+      "The contact has been inserted in the database!"
     ).setColor("Green");
 
     const newContact = contactResponse.data[0];
-    const newContactMessage = createEmbeded("👤 New Contact!", " ", client)
+    const newContactMessage = createEmbeded("👤 New Contact!", " ")
       .setColor("Yellow")
       .addFields(...contactFields(newContact));
 

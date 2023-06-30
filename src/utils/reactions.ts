@@ -6,9 +6,7 @@ export const ReactionRoleGiver = async (
 ) => {
   for (let i = 0; i < emojiRoles.length; i++) {
     const { emoji } = emojiRoles[i];
-    try {
-      await message.react(emoji || "❓");
-    } catch (e) {}
+    await message.react(emoji || "❓");
   }
 
   const collector = message.createReactionCollector();
@@ -44,7 +42,7 @@ export const ReactionRoleGiver = async (
     if (!roleName) return;
 
     await message.guild.roles.fetch();
-    let role = message.guild.roles.cache.find((r) => r.name === roleName);
+    const role = message.guild.roles.cache.find((r) => r.name === roleName);
 
     if (!role) return;
 

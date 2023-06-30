@@ -31,7 +31,7 @@ export const claim: Command = {
         .setRequired(false)
     ),
 
-  run: async (interaction, client) => {
+  run: async (interaction) => {
     await interaction.deferReply({ ephemeral: true });
     const { user } = interaction;
     const guild = interaction.guild as Guild;
@@ -67,8 +67,7 @@ export const claim: Command = {
     if (haveMemberRole) {
       const returnMessage = createEmbeded(
         "✅ Membership Confirmed!",
-        `You still have the ${memberRole} role!`,
-        client
+        `You still have the ${memberRole} role!`
       ).setColor("Green");
       await interaction.editReply({ embeds: [returnMessage] });
       return;
@@ -148,8 +147,7 @@ export const claim: Command = {
 
     const returnMessage = createEmbeded(
       "✅ Membership Claimed!",
-      `The ${memberRole} role has been applied!`,
-      client
+      `The ${memberRole} role has been applied!`
     ).setColor("Green");
     await interaction.editReply({ embeds: [returnMessage] });
     return;

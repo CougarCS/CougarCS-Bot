@@ -2,12 +2,7 @@ import { Guild, Role, SlashCommandBuilder, User } from "discord.js";
 import { Command } from "../../interfaces/Command";
 import { createEmbeded } from "../../utils/embeded";
 import { commandLog, sendError } from "../../utils/logs";
-import {
-  getBalance,
-  getRole,
-  insertTransaction,
-  isMember,
-} from "../../utils/supabase";
+import { getBalance, getRole, insertTransaction } from "../../utils/supabase";
 import { TransactionInsert } from "../../utils/types";
 
 export const pay: Command = {
@@ -27,7 +22,7 @@ export const pay: Command = {
         .setRequired(true)
         .setMinValue(1)
     ),
-  run: async (interaction, client) => {
+  run: async (interaction) => {
     await interaction.deferReply({ ephemeral: false });
     const { user } = interaction;
     const guild = interaction.guild as Guild;
@@ -141,8 +136,7 @@ export const pay: Command = {
 
     const returnMessage = createEmbeded(
       "<a:CC:991512220909445150> CougarCoin Paid!",
-      `You paid **${point_value}** CougarCoin to ${payMember.user}!`,
-      client
+      `You paid **${point_value}** CougarCoin to ${payMember.user}!`
     )
       .setColor("Green")
       .addFields(
