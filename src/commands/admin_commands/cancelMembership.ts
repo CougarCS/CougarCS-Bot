@@ -1,13 +1,14 @@
 import {
   Guild,
   PermissionFlagsBits,
+  Role,
   SlashCommandBuilder,
   User,
 } from "discord.js";
 import { Command } from "../../interfaces/Command";
 import { createEmbeded } from "../../utils/embeded";
 import { commandLog, sendError } from "../../utils/logs";
-import { cancelMembership } from "../../utils/supabase";
+import { cancelMembership, getRole } from "../../utils/supabase";
 
 export const cancelmembership: Command = {
   data: new SlashCommandBuilder()
@@ -20,9 +21,8 @@ export const cancelmembership: Command = {
         .setDescription("User who you would like to grant membership to!")
         .setRequired(true)
     ),
-  run: async (interaction, client) => {
+  run: async (interaction) => {
     await interaction.deferReply({ ephemeral: false });
-    const { user } = interaction;
     const guild = interaction.guild as Guild;
 
     const selectedUser = interaction.options.get("user", true).user as User;
@@ -43,15 +43,18 @@ export const cancelmembership: Command = {
 
     const returnMessage = createEmbeded(
       "✅ Membership canceled!",
-      `<@${discord_snowflake}>'s membership has been successfully canceled!`,
-      client
+      `<@${discord_snowflake}>'s membership has been successfully canceled!`
     ).setColor("Green");
     await interaction.editReply({ embeds: [returnMessage] });
 
-    await guild.roles.fetch();
-    const memberRole = guild.roles.cache.find((r) => r.name === "Member");
+    const roleResponse = await getRole("member", guild);
 
-    if (!memberRole) return;
+    if (roleResponse.error) {
+      await sendError(errorTitle, roleResponse.message, interaction);
+      return;
+    }
+
+    const memberRole = roleResponse.data[0] as Role;
 
     const member = await guild.members.fetch({ user: selectedUser });
 

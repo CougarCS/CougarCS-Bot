@@ -1,5 +1,5 @@
 import { APIEmbedField, RestOrArray } from "discord.js";
-import { ContactSelect } from "./types";
+import { ContactSelect, GuildSelect } from "./types";
 
 export const contactFields = (
   contact: ContactSelect
@@ -140,6 +140,58 @@ export const fullContactFields = (
     {
       name: "Timestamp",
       value: `${timeString}`,
+      inline: true,
+    },
+  ];
+};
+
+export const guildConfigFields = (
+  guildConfig: GuildSelect
+): RestOrArray<APIEmbedField> => {
+  const {
+    guild_id,
+    name,
+    admin_role_id,
+    officer_role_id,
+    member_role_id,
+    log_channel_id,
+    report_channel_id,
+  } = guildConfig;
+
+  return [
+    {
+      name: "Guild Name",
+      value: `${name}`,
+      inline: true,
+    },
+    {
+      name: "Admin Role",
+      value: `<@&${admin_role_id}>`,
+      inline: true,
+    },
+    {
+      name: "Officer Role",
+      value: `<@&${officer_role_id}>`,
+      inline: true,
+    },
+    {
+      name: "Member Role",
+      value: `<@&${member_role_id}>`,
+      inline: true,
+    },
+    {
+      name: "Log Channel",
+      value: `<#${log_channel_id}>`,
+      inline: true,
+    },
+    {
+      name: "Report Channel",
+      value: `<#${report_channel_id}>`,
+      inline: true,
+    },
+    {
+      name: "Guild ID",
+      value: `${guild_id}`,
       inline: true,
     },
   ];

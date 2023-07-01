@@ -1,21 +1,6 @@
-import { Client, CommandInteraction, EmbedBuilder, User } from "discord.js";
+import { CommandInteraction, EmbedBuilder } from "discord.js";
 
-export function createEmbeded(
-  title: string,
-  message: string,
-  client: Client
-): EmbedBuilder {
-  let iconURL: string | null | undefined;
-
-  if (
-    client.user?.avatarURL({ extension: "png" }) === null ||
-    client.user?.avatarURL({ extension: "png" }) === undefined
-  ) {
-    iconURL = "https://avatars.githubusercontent.com/u/107168679?s=200&v=4";
-  } else {
-    iconURL = client.user?.avatarURL({ extension: "png" });
-  }
-
+export function createEmbeded(title: string, message: string): EmbedBuilder {
   return new EmbedBuilder()
     .setColor("Green")
     .setTitle(title)

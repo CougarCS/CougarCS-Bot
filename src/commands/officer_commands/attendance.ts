@@ -1,5 +1,4 @@
 import {
-  Client,
   EmbedBuilder,
   PermissionFlagsBits,
   SlashCommandBuilder,
@@ -8,18 +7,17 @@ import { Command } from "../../interfaces/Command";
 import { createEmbeded, sendBulkEmbeds } from "../../utils/embeded";
 import { commandLog, sendError } from "../../utils/logs";
 import { getEvent, getEventAttendance } from "../../utils/supabase";
+import { AttendanceSelect } from "src/utils/types";
 
 const attendanceEmbeds = async (
-  attendanceArray: any[],
-  client: Client
+  attendanceArray: AttendanceSelect[]
 ): Promise<EmbedBuilder[]> => {
   const attendanceEmbeds: EmbedBuilder[] = [];
   const attendanceCount = attendanceArray.length;
   const suffix = attendanceCount === 1 ? "" : "s";
   const infoMessage = createEmbeded(
     `🔎 Found ${attendanceCount} result${suffix}:`,
-    " ",
-    client
+    " "
   ).setColor("Yellow");
   attendanceEmbeds.push(infoMessage);
 
@@ -28,9 +26,7 @@ const attendanceEmbeds = async (
     const { event_id } = attendance;
     const eventResponse = await getEvent(event_id);
     const identifier = eventResponse.data[0]?.title || event_id;
-    const embed = createEmbeded(`${identifier} ✅`, " ", client).setColor(
-      "Green"
-    );
+    const embed = createEmbeded(`${identifier} ✅`, " ").setColor("Green");
     attendanceEmbeds.push(embed);
   }
   return attendanceEmbeds;
@@ -61,9 +57,8 @@ export const attendance: Command = {
         .setDescription("The email used to purchase a CougarCS membership!")
         .setRequired(false)
     ),
-  run: async (interaction, client) => {
+  run: async (interaction) => {
     await interaction.deferReply({ ephemeral: false });
-    const { user } = interaction;
 
     const psidOption = interaction.options.get("psid", false);
     const emailOption = interaction.options.get("email", false);
@@ -105,7 +100,7 @@ export const attendance: Command = {
     }
 
     const attendanceArray = attendanceResponse.data;
-    const embeds = await attendanceEmbeds(attendanceArray, client);
+    const embeds = await attendanceEmbeds(attendanceArray);
 
     await sendBulkEmbeds(interaction, embeds);
     return;

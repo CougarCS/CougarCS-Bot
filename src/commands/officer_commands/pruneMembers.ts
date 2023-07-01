@@ -1,5 +1,4 @@
 import {
-  Client,
   Collection,
   Guild,
   GuildMember,
@@ -11,7 +10,7 @@ import {
 import { Command } from "../../interfaces/Command";
 import { createEmbeded } from "../../utils/embeded";
 import { commandLog, sendError } from "../../utils/logs";
-import { isMember } from "../../utils/supabase";
+import { getRole, isMember } from "../../utils/supabase";
 
 const getExpiredMembers = async (members: Collection<string, GuildMember>) => {
   const keys = members.keys();
@@ -36,15 +35,13 @@ const getExpiredMembers = async (members: Collection<string, GuildMember>) => {
 const removeExpiredMembers = async (
   removedMembers: GuildMember[],
   memberRole: Role,
-  currentChannel: TextBasedChannel,
-  client: Client
+  currentChannel: TextBasedChannel
 ) => {
   for (let i = 0; i < removedMembers.length; i++) {
     const member = removedMembers[i];
     const removedMember = createEmbeded(
       ` `,
-      `**Pruned User: ${member}**`,
-      client
+      `**Pruned User: ${member}**`
     ).setColor("Red");
     await member.roles.remove(memberRole);
     currentChannel.send({ embeds: [removedMember] });
@@ -58,18 +55,24 @@ export const prunemembers: Command = {
       "Prune the server of people with invalid/expired memberships!"
     )
     .setDefaultMemberPermissions(PermissionFlagsBits.ManageChannels),
-  run: async (interaction, client) => {
+  run: async (interaction) => {
     await interaction.deferReply({ ephemeral: false });
-    const { user } = interaction;
     const guild = interaction.guild as Guild;
 
     commandLog(interaction, "/prunemembers", "Purple", []);
 
     const errorTitle = `❌ Prune Canceled!`;
 
-    await guild.roles.fetch();
     await guild.members.fetch();
-    const memberRole = guild.roles.cache.find((r) => r.name === "Member");
+
+    const roleResponse = await getRole("member", guild);
+
+    if (roleResponse.error) {
+      await sendError(errorTitle, roleResponse.message, interaction);
+      return;
+    }
+
+    const memberRole = roleResponse.data[0] as Role;
 
     if (!memberRole) {
       await sendError(errorTitle, "Member role not found!", interaction);
@@ -84,26 +87,18 @@ export const prunemembers: Command = {
 
     const returnMessage = createEmbeded(
       `🚪 Pruning ${removedCount} expired membership${suffix}!`,
-      "Please wait until all users have been pruned.",
-      client
+      "Please wait until all users have been pruned."
     ).setColor("Purple");
 
     await interaction.editReply({ embeds: [returnMessage] });
 
     const currentChannel = interaction.channel as TextBasedChannel;
 
-    await removeExpiredMembers(
-      removedMembers,
-      memberRole,
-      currentChannel,
-      client
-    );
+    await removeExpiredMembers(removedMembers, memberRole, currentChannel);
 
-    const finishedMessage = createEmbeded(
-      "✅ Prune Completed!",
-      " ",
-      client
-    ).setColor("Green");
+    const finishedMessage = createEmbeded("✅ Prune Completed!", " ").setColor(
+      "Green"
+    );
 
     currentChannel.send({ embeds: [finishedMessage] });
     return;

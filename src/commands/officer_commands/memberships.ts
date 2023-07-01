@@ -1,5 +1,4 @@
 import {
-  Client,
   EmbedBuilder,
   PermissionFlagsBits,
   SlashCommandBuilder,
@@ -8,18 +7,30 @@ import { Command } from "../../interfaces/Command";
 import { createEmbeded, sendBulkEmbeds } from "../../utils/embeded";
 import { commandLog, sendError } from "../../utils/logs";
 import { getMembershipReason, getMemberships } from "../../utils/supabase";
-import { UniqueContactQuery } from "../../utils/types";
+import { MembershipSelect, UniqueContactQuery } from "../../utils/types";
+
+const decideStatus = (isCanceled: boolean, isExpired: boolean): string => {
+  if (isCanceled) return "Canceled";
+  if (isExpired) return "Expired";
+  return "Active";
+};
 
 const formatMembership = async (
-  membership: any,
-  client: Client
+  membership: MembershipSelect
 ): Promise<EmbedBuilder> => {
   const startMonth = new Date(membership.start_date).getMonth();
   const startSeason = startMonth < 6 ? "Spring" : "Fall";
   const startYear = new Date(membership.start_date).getFullYear();
   const endMonth = new Date(membership.end_date).getMonth();
-  const endSeason = endMonth < 6 ? "Spring" : "Fall";
-  const term = startSeason === endSeason ? "Year" : "Semester";
+  const endDate = new Date(membership.end_date);
+  const endDay = new Date(membership.end_date).getDate();
+  const numSemesters = membership.semesters;
+  const currentDate = new Date();
+
+  const isCanceled = (endMonth !== 0 && endMonth !== 6) || endDay !== 1;
+  const isExpired = endDate < currentDate;
+
+  const status = decideStatus(isCanceled, isExpired);
 
   const membershipReasonResponse = await getMembershipReason(
     membership.membership_code_id
@@ -32,9 +43,8 @@ const formatMembership = async (
   }
 
   return createEmbeded(
-    `${startSeason} ${startYear}: ${term} Long`,
-    `${reason}`,
-    client
+    `${startSeason} ${startYear}`,
+    `Number of Semesters: ${numSemesters}\nStatus: ${status}\n${reason}`
   ).setColor("Green");
 };
 
@@ -63,9 +73,8 @@ export const memberships: Command = {
         .setDescription("The email used to purchase a CougarCS membership!")
         .setRequired(false)
     ),
-  run: async (interaction, client) => {
+  run: async (interaction) => {
     await interaction.deferReply({ ephemeral: false });
-    const { user } = interaction;
 
     const query: UniqueContactQuery = {
       uh_id: interaction.options.get("psid", false)?.value as
@@ -115,14 +124,13 @@ export const memberships: Command = {
 
     const infoMessage = createEmbeded(
       `🔎 Found ${membershipCount} result${suffix}:`,
-      " ",
-      client
+      " "
     ).setColor("Yellow");
 
     membershipEmbeds.push(infoMessage);
 
     for (const membership of memberships) {
-      membershipEmbeds.push(await formatMembership(membership, client));
+      membershipEmbeds.push(await formatMembership(membership));
     }
 
     await sendBulkEmbeds(interaction, membershipEmbeds);

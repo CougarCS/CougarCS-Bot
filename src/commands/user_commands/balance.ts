@@ -1,4 +1,4 @@
-import { Guild, SlashCommandBuilder, User } from "discord.js";
+import { SlashCommandBuilder } from "discord.js";
 import { Command } from "../../interfaces/Command";
 import { createEmbeded } from "../../utils/embeded";
 import { getBalance } from "../../utils/supabase";
@@ -14,10 +14,9 @@ export const balance: Command = {
         .setDescription("Member who's CougarCoin balance you want to see!")
         .setRequired(false)
     ),
-  run: async (interaction, client) => {
+  run: async (interaction) => {
     await interaction.deferReply({ ephemeral: false });
     const { user } = interaction;
-    const guild = interaction.guild as Guild;
 
     const balanceMember = interaction.options.get("member", false);
 
@@ -48,8 +47,7 @@ export const balance: Command = {
 
     const returnMessage = createEmbeded(
       "<a:CC:991512220909445150> CougarCoin Balance!",
-      `${prefix} **${balance}** CougarCoin!`,
-      client
+      `${prefix} **${balance}** CougarCoin!`
     ).setColor("#FFD800");
     await interaction.editReply({ embeds: [returnMessage] });
     return;

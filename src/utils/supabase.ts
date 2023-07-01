@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-var-requires */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { createClient } from "@supabase/supabase-js";
 import {
   ContactInsert,
@@ -5,11 +7,13 @@ import {
   ContactQuery,
   ContactUpdate,
   EventAttendanceInsert,
+  GuildUpdate,
   SupabaseResponse,
   TransactionInsert,
   UniqueContactQuery,
 } from "./types";
 import { Database } from "./schema";
+import { Guild } from "discord.js";
 require("dotenv").config();
 
 const supabaseUrl = process.env.SUPABASE_URL as string;
@@ -50,7 +54,7 @@ export const pingSB = async (): Promise<SupabaseResponse> => {
 export const getContacts = async (
   queryData: ContactQuery
 ): Promise<SupabaseResponse> => {
-  let query = supabase.from("contacts").select("*");
+  const query = supabase.from("contacts").select("*");
 
   addQueryFilters(query, queryData);
 
@@ -319,6 +323,7 @@ export const insertTransaction = async (
     });
 
   if (insertResponse.error) {
+    console.error(insertResponse.error);
     return {
       data: [],
       error: true,
@@ -659,7 +664,9 @@ export const getEvent = async (event_id: string): Promise<SupabaseResponse> => {
   };
 };
 
-export const getMembershipReason = async (membership_code_id: string) => {
+export const getMembershipReason = async (
+  membership_code_id: string
+): Promise<SupabaseResponse> => {
   const membershipReasonResponse = await supabase
     .from("membership_code")
     .select("message")
@@ -685,5 +692,159 @@ export const getMembershipReason = async (membership_code_id: string) => {
     data: membershipReasonResponse.data,
     error: false,
     message: "Successfully fetched the membership reason!",
+  };
+};
+
+export const insertGuildData = async (
+  guild: Guild
+): Promise<SupabaseResponse> => {
+  const guild_id = guild.id;
+  const { name } = guild;
+
+  const guildResponse = await supabase
+    .from("discord_guilds")
+    .insert({ guild_id, name })
+    .select("*");
+
+  if (guildResponse.error) {
+    return {
+      data: [],
+      error: true,
+      message: "There was an error inserting the guild data!",
+    };
+  }
+
+  return {
+    data: guildResponse.data,
+    error: false,
+    message: "Successfully inserted the guild data!",
+  };
+};
+
+export const updateGuildData = async (
+  newData: GuildUpdate,
+  guild: Guild
+): Promise<SupabaseResponse> => {
+  const guildResponse = await supabase
+    .from("discord_guilds")
+    .update(newData)
+    .eq("guild_id", guild.id)
+    .select("*");
+
+  if (guildResponse.error) {
+    return {
+      data: [],
+      error: true,
+      message: "There was an error updating the guild data!",
+    };
+  }
+
+  return {
+    data: guildResponse.data,
+    error: false,
+    message: "Successfully updated the guild data!",
+  };
+};
+
+export const getGuildData = async (guild: Guild): Promise<SupabaseResponse> => {
+  const guildResponse = await supabase
+    .from("discord_guilds")
+    .select("*")
+    .eq("guild_id", guild.id);
+
+  if (guildResponse.error) {
+    return {
+      data: [],
+      error: true,
+      message: "There was an error fetching the guild data!",
+    };
+  }
+
+  if (guildResponse.data.length === 0) {
+    return {
+      data: [],
+      error: true,
+      message: "No guild data was found!",
+    };
+  }
+
+  return {
+    data: guildResponse.data,
+    error: false,
+    message: "Successfully fetched the guild data!",
+  };
+};
+
+export const getRole = async (
+  roleName: "member" | "officer" | "admin",
+  guild: Guild
+): Promise<SupabaseResponse> => {
+  const guildResponse = await getGuildData(guild);
+
+  if (guildResponse.error) {
+    return guildResponse;
+  }
+
+  const roleId = guildResponse.data[0][`${roleName}_role_id`];
+
+  if (!roleId) {
+    return {
+      data: [],
+      error: true,
+      message: "There was an error fetching the role!",
+    };
+  }
+
+  const role = await guild.roles.fetch(roleId);
+
+  if (!role) {
+    return {
+      data: [],
+      error: true,
+      message: "There was an error fetching the role!",
+    };
+  }
+
+  return {
+    data: [role],
+    error: false,
+    message: "Successfully fetched the role!",
+  };
+};
+
+export const getChannel = async (
+  channelName: "log" | "report",
+  guild: Guild
+): Promise<SupabaseResponse> => {
+  const guildResponse = await getGuildData(guild);
+
+  if (guildResponse.error) {
+    return guildResponse;
+  }
+
+  const channelId = guildResponse.data[0][`${channelName}_channel_id`];
+
+  if (!channelId) {
+    return {
+      data: [],
+      error: true,
+      message: "There was an error fetching the channel!",
+    };
+  }
+
+  const channel = await guild.channels.fetch(channelId);
+
+  if (!channel) {
+    return {
+      data: [],
+      error: true,
+      message: "There was an error fetching the channel!",
+    };
+  }
+
+  return {
+    data: [channel],
+    error: false,
+    message: "Successfully fetched the channel!",
   };
 };

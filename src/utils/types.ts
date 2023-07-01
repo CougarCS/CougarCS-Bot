@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 export type UniqueContactKey =
   | "contact_id"
   | "uh_id"
@@ -77,5 +78,52 @@ export type EventAttendanceInsert = {
   event_attendance_id?: string;
   event_id: string;
   swag?: boolean;
+  timestamp: string;
+};
+
+export type GuildInsert = {
+  admin_role_id?: string | null;
+  guild_id: string;
+  log_channel_id?: string | null;
+  member_role_id?: string | null;
+  name: string;
+  officer_role_id?: string | null;
+  report_channel_id?: string | null;
+};
+
+export type GuildUpdate = {
+  admin_role_id?: string | null;
+  guild_id?: string;
+  log_channel_id?: string | null;
+  member_role_id?: string | null;
+  name?: string;
+  officer_role_id?: string | null;
+  report_channel_id?: string | null;
+};
+
+export type GuildSelect = {
+  admin_role_id: string | null;
+  guild_id: string;
+  log_channel_id: string | null;
+  member_role_id: string | null;
+  name: string;
+  officer_role_id: string | null;
+  report_channel_id: string | null;
+};
+
+export type MembershipSelect = {
+  contact_id: string;
+  end_date: string;
+  membership_code_id: string;
+  membership_id: string;
+  semesters: number;
+  start_date: string;
+};
+
+export type AttendanceSelect = {
+  contact_id: string;
+  event_attendance_id: string;
+  event_id: string;
+  swag: boolean;
   timestamp: string;
 };

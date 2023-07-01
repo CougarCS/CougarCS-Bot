@@ -5,6 +5,7 @@ import { commandLog, sendError } from "../../utils/logs";
 import { eventOptions } from "../../utils/options";
 import {
   getContact,
+  getEvent,
   getEventAttendance,
   insertEventAttendance,
 } from "../../utils/supabase";
@@ -48,9 +49,8 @@ export const checkin: Command = {
         .setDescription("Indicate if the member got swag!")
         .setRequired(false)
     ),
-  run: async (interaction, client) => {
+  run: async (interaction) => {
     await interaction.deferReply({ ephemeral: false });
-    const { user } = interaction;
 
     const contactQuery: UniqueContactQuery = {
       uh_id: interaction.options.get("psid", false)?.value as
@@ -127,6 +127,15 @@ export const checkin: Command = {
       timestamp,
     };
 
+    const eventResponse = await getEvent(event_id);
+
+    if (eventResponse.error) {
+      await sendError(errorTitle, eventResponse.message, interaction);
+      return;
+    }
+
+    const eventName = eventResponse.data[0].title;
+
     const attendanceResponse = await insertEventAttendance(attendance);
 
     if (attendanceResponse.error) {
@@ -136,8 +145,7 @@ export const checkin: Command = {
 
     const returnMessage = createEmbeded(
       "✅ Checked In!",
-      `${identifier} has been checked into the event!`,
-      client
+      `${identifier} has been checked into the event: ${eventName}!`
     ).setColor("Green");
 
     await interaction.editReply({ embeds: [returnMessage] });

@@ -21,9 +21,8 @@ export const report: Command = {
         .setDescription("Please describe your report in full detail!")
         .setRequired(true)
     ),
-  run: async (interaction, client) => {
-    await interaction.deferReply({ ephemeral: false });
-    const { user } = interaction;
+  run: async (interaction) => {
+    await interaction.deferReply({ ephemeral: true });
 
     const type = interaction.options.get("type", true).value as string;
     const message = interaction.options.get("message", true).value as string;
@@ -35,11 +34,12 @@ export const report: Command = {
 
     const returnMessage = createEmbeded(
       "📢 Report Submitted!",
-      "Your report has been submitted and is currently in review!",
-      client
+      "Your report has been submitted and is currently in review!"
     ).setColor("Green");
     await interaction.editReply({ embeds: [returnMessage] });
+
     Logger.report(interaction, type, message);
+
     return;
   },
 };

@@ -1,9 +1,4 @@
-import {
-  Guild,
-  PermissionFlagsBits,
-  SlashCommandBuilder,
-  User,
-} from "discord.js";
+import { PermissionFlagsBits, SlashCommandBuilder, User } from "discord.js";
 import { Command } from "../../interfaces/Command";
 import { createEmbeded } from "../../utils/embeded";
 import { getBalance, getContact, isMember } from "../../utils/supabase";
@@ -22,10 +17,8 @@ export const whois: Command = {
         .setDescription("User you wish to look for")
         .setRequired(true)
     ),
-  run: async (interaction, client) => {
+  run: async (interaction) => {
     await interaction.deferReply({ ephemeral: false });
-    const { user } = interaction;
-    const guild = interaction.guild as Guild;
 
     const whoUserOption = interaction.options.get("user", true);
     const whoUser = whoUserOption.user as User;
@@ -48,11 +41,6 @@ export const whois: Command = {
     const { contact_id } = contact;
     const memberResponse = await isMember({ contact_id });
 
-    if (memberResponse.error) {
-      await sendError(errorTitle, memberResponse.message, interaction);
-      return;
-    }
-
     const activeMember = memberResponse.data[0];
     const balanceResponse = await getBalance({ contact_id });
 
@@ -63,7 +51,7 @@ export const whois: Command = {
 
     const balance = balanceResponse.data[0];
 
-    const returnMessage = createEmbeded("👤 Contact Found!", " ", client)
+    const returnMessage = createEmbeded("👤 Contact Found!", " ")
       .setColor("Blue")
       .addFields(...fullContactFields(contact, balance, activeMember))
       .setThumbnail(whoUser.displayAvatarURL());
