@@ -21,9 +21,8 @@ export const cancelmembership: Command = {
         .setDescription("User who you would like to grant membership to!")
         .setRequired(true)
     ),
-  run: async (interaction, client) => {
+  run: async (interaction) => {
     await interaction.deferReply({ ephemeral: false });
-    const { user } = interaction;
     const guild = interaction.guild as Guild;
 
     const selectedUser = interaction.options.get("user", true).user as User;
@@ -44,8 +43,7 @@ export const cancelmembership: Command = {
 
     const returnMessage = createEmbeded(
       "✅ Membership canceled!",
-      `<@${discord_snowflake}>'s membership has been successfully canceled!`,
-      client
+      `<@${discord_snowflake}>'s membership has been successfully canceled!`
     ).setColor("Green");
     await interaction.editReply({ embeds: [returnMessage] });
 

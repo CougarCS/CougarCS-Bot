@@ -1,5 +1,4 @@
 import {
-  Client,
   EmbedBuilder,
   Guild,
   PermissionFlagsBits,
@@ -18,24 +17,22 @@ import { guildConfigFields } from "../../utils/embedFields";
 
 const createUpdateEmbeds = (
   oldGuildData: GuildSelect,
-  newGuildData: GuildSelect,
-  client: Client
+  newGuildData: GuildSelect
 ): EmbedBuilder[] => {
   const embeds: EmbedBuilder[] = [];
 
   const returnMessage = createEmbeded(
     "✅ Guild Config Updated!",
-    "This guild's configuration information was updated!",
-    client
+    "This guild's configuration information was updated!"
   ).setColor("Green");
   embeds.push(returnMessage);
 
-  const oldConfigMessage = createEmbeded("⏳ Old Config!", " ", client)
+  const oldConfigMessage = createEmbeded("⏳ Old Config!", " ")
     .setColor("Red")
     .addFields(...guildConfigFields(oldGuildData));
   embeds.push(oldConfigMessage);
 
-  const newConfigMessage = createEmbeded("⌛ New Contact!", " ", client)
+  const newConfigMessage = createEmbeded("⌛ New Contact!", " ")
     .setColor("Blue")
     .addFields(...guildConfigFields(newGuildData));
 
@@ -78,9 +75,8 @@ export const setguildconfig: Command = {
         .setDescription("The CougarCS Report Channel!")
         .setRequired(false)
     ),
-  run: async (interaction, client) => {
+  run: async (interaction) => {
     await interaction.deferReply({ ephemeral: false });
-    const { user } = interaction;
 
     const update: GuildUpdate = {
       member_role_id: interaction.options.get("memberrole", false)?.value as
@@ -150,7 +146,7 @@ export const setguildconfig: Command = {
 
     const newGuildData = updateResponse.data[0] as GuildSelect;
 
-    const embeds = createUpdateEmbeds(oldGuildData, newGuildData, client);
+    const embeds = createUpdateEmbeds(oldGuildData, newGuildData);
 
     await interaction.editReply({ embeds });
     return;

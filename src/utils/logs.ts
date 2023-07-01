@@ -1,10 +1,4 @@
-import {
-  ChannelType,
-  ColorResolvable,
-  CommandInteraction,
-  Role,
-  TextChannel,
-} from "discord.js";
+import { ColorResolvable, CommandInteraction } from "discord.js";
 import { Guild } from "discord.js";
 import { createEmbeded } from "./embeded";
 import { getChannel, getRole } from "./supabase";
@@ -29,8 +23,7 @@ export const commandLog = async (
 
   const message = createEmbeded(
     `Log ${commandName}`,
-    `${interaction.user} used **${commandName}** in ${interaction.channel}`,
-    interaction.client
+    `${interaction.user} used **${commandName}** in ${interaction.channel}`
   )
     .setColor(color)
     .setTimestamp()
@@ -56,8 +49,7 @@ export const report = async (
 
   const report = createEmbeded(
     `📢 User Report!`,
-    `**${interaction.user} submitted the following report in ${interaction.channel}:**\n"${message}"`,
-    interaction.client
+    `**${interaction.user} submitted the following report in ${interaction.channel}:**\n"${message}"`
   )
     .setColor("Red")
     .setTimestamp()
@@ -82,9 +74,7 @@ export const log = async (
   color: ColorResolvable,
   guild: Guild
 ) => {
-  const message = createEmbeded(title, body, guild.client)
-    .setColor(color)
-    .setTimestamp();
+  const message = createEmbeded(title, body).setColor(color).setTimestamp();
 
   const channelResponse = await getChannel("log", guild);
 
@@ -102,10 +92,6 @@ export const sendError = async (
   errorMessage: string,
   interaction: CommandInteraction
 ) => {
-  const errorEmbed = createEmbeded(
-    errorTitle,
-    errorMessage,
-    interaction.client
-  ).setColor("Red");
+  const errorEmbed = createEmbeded(errorTitle, errorMessage).setColor("Red");
   await interaction.editReply({ embeds: [errorEmbed] });
 };

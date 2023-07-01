@@ -49,9 +49,8 @@ export const checkin: Command = {
         .setDescription("Indicate if the member got swag!")
         .setRequired(false)
     ),
-  run: async (interaction, client) => {
+  run: async (interaction) => {
     await interaction.deferReply({ ephemeral: false });
-    const { user } = interaction;
 
     const contactQuery: UniqueContactQuery = {
       uh_id: interaction.options.get("psid", false)?.value as
@@ -146,8 +145,7 @@ export const checkin: Command = {
 
     const returnMessage = createEmbeded(
       "✅ Checked In!",
-      `${identifier} has been checked into the event: ${eventName}!`,
-      client
+      `${identifier} has been checked into the event: ${eventName}!`
     ).setColor("Green");
 
     await interaction.editReply({ embeds: [returnMessage] });

@@ -54,9 +54,8 @@ export const rolegiver: Command = {
         .setRequired(true)
     )
     .setDefaultMemberPermissions(PermissionFlagsBits.ManageChannels),
-  run: async (interaction, client) => {
+  run: async (interaction) => {
     await interaction.deferReply({ ephemeral: true });
-    const { user } = interaction;
 
     const type = interaction.options.get("roletype", true).value as string;
     const roleString = interaction.options.get("roles", true).value as string;
@@ -83,12 +82,11 @@ export const rolegiver: Command = {
 
     const returnMessage = createEmbeded(
       "✅ Reaction Roles Sent!",
-      "Your reaction roles have been sent in this channel!",
-      client
+      "Your reaction roles have been sent in this channel!"
     ).setColor("Green");
     await interaction.editReply({ embeds: [returnMessage] });
 
-    const roleMessage = createEmbeded(`Roles: ${type}`, body, client).setColor(
+    const roleMessage = createEmbeded(`Roles: ${type}`, body).setColor(
       "Orange"
     );
 

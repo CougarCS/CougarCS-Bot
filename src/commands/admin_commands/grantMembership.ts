@@ -44,9 +44,8 @@ export const grantmembership: Command = {
         .setDescription("Reason for the membership!")
         .setRequired(true);
     }),
-  run: async (interaction, client) => {
+  run: async (interaction) => {
     await interaction.deferReply({ ephemeral: false });
-    const { user } = interaction;
 
     const discord_snowflake = interaction.options.get("user", true).user
       ?.id as string;
@@ -101,8 +100,7 @@ export const grantmembership: Command = {
 
     const returnMessage = createEmbeded(
       "✅ Membership Granted!",
-      `<@${discord_snowflake}> has successfully received a ${length} long membership!`,
-      client
+      `<@${discord_snowflake}> has successfully received a ${length} long membership!`
     ).setColor("Green");
     await interaction.editReply({ embeds: [returnMessage] });
 

@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-var-requires */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { createClient } from "@supabase/supabase-js";
 import {
   ContactInsert,
@@ -52,7 +54,7 @@ export const pingSB = async (): Promise<SupabaseResponse> => {
 export const getContacts = async (
   queryData: ContactQuery
 ): Promise<SupabaseResponse> => {
-  let query = supabase.from("contacts").select("*");
+  const query = supabase.from("contacts").select("*");
 
   addQueryFilters(query, queryData);
 

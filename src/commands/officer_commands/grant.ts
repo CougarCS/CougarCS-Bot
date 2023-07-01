@@ -34,7 +34,7 @@ export const grant: Command = {
         .setRequired(false);
     })
     .setDefaultMemberPermissions(PermissionFlagsBits.ManageChannels),
-  run: async (interaction, client) => {
+  run: async (interaction) => {
     await interaction.deferReply({ ephemeral: false });
     const { user } = interaction;
 
@@ -88,8 +88,7 @@ export const grant: Command = {
 
     const returnMessage = createEmbeded(
       "<a:CC:991512220909445150> CougarCoin Granted!",
-      `<@${discord_snowflake}> has received **${transactionInfo.point_value}** CougarCoin!\n\nNew balance: **${balance}**`,
-      client
+      `<@${discord_snowflake}> has received **${transactionInfo.point_value}** CougarCoin!\n\nNew balance: **${balance}**`
     ).setColor("Green");
     await interaction.editReply({ embeds: [returnMessage] });
     return;

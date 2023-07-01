@@ -22,9 +22,8 @@ export const leaderboard: Command = {
         .setMinValue(1)
         .setRequired(false)
     ),
-  run: async (interaction, client) => {
+  run: async (interaction) => {
     await interaction.deferReply({ ephemeral: false });
-    const { user } = interaction;
     const number = interaction.options.get("number", false);
     commandLog(interaction, "/leaderboard", "Green", [
       {
@@ -47,8 +46,7 @@ export const leaderboard: Command = {
 
     const returnMessage = createEmbeded(
       "<a:CC:991512220909445150> CougarCoin Leaderboard!",
-      leaderboardString || "The leaderboard is empty!",
-      client
+      leaderboardString || "The leaderboard is empty!"
     ).setColor("Green");
     await interaction.editReply({ embeds: [returnMessage] });
     return;

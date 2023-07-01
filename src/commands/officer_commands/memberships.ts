@@ -1,5 +1,4 @@
 import {
-  Client,
   EmbedBuilder,
   PermissionFlagsBits,
   SlashCommandBuilder,
@@ -8,7 +7,7 @@ import { Command } from "../../interfaces/Command";
 import { createEmbeded, sendBulkEmbeds } from "../../utils/embeded";
 import { commandLog, sendError } from "../../utils/logs";
 import { getMembershipReason, getMemberships } from "../../utils/supabase";
-import { UniqueContactQuery } from "../../utils/types";
+import { MembershipSelect, UniqueContactQuery } from "../../utils/types";
 
 const decideStatus = (isCanceled: boolean, isExpired: boolean): string => {
   if (isCanceled) return "Canceled";
@@ -17,8 +16,7 @@ const decideStatus = (isCanceled: boolean, isExpired: boolean): string => {
 };
 
 const formatMembership = async (
-  membership: any,
-  client: Client
+  membership: MembershipSelect
 ): Promise<EmbedBuilder> => {
   const startMonth = new Date(membership.start_date).getMonth();
   const startSeason = startMonth < 6 ? "Spring" : "Fall";
@@ -46,8 +44,7 @@ const formatMembership = async (
 
   return createEmbeded(
     `${startSeason} ${startYear}`,
-    `Number of Semesters: ${numSemesters}\nStatus: ${status}\n${reason}`,
-    client
+    `Number of Semesters: ${numSemesters}\nStatus: ${status}\n${reason}`
   ).setColor("Green");
 };
 
@@ -76,9 +73,8 @@ export const memberships: Command = {
         .setDescription("The email used to purchase a CougarCS membership!")
         .setRequired(false)
     ),
-  run: async (interaction, client) => {
+  run: async (interaction) => {
     await interaction.deferReply({ ephemeral: false });
-    const { user } = interaction;
 
     const query: UniqueContactQuery = {
       uh_id: interaction.options.get("psid", false)?.value as
@@ -128,14 +124,13 @@ export const memberships: Command = {
 
     const infoMessage = createEmbeded(
       `🔎 Found ${membershipCount} result${suffix}:`,
-      " ",
-      client
+      " "
     ).setColor("Yellow");
 
     membershipEmbeds.push(infoMessage);
 
     for (const membership of memberships) {
-      membershipEmbeds.push(await formatMembership(membership, client));
+      membershipEmbeds.push(await formatMembership(membership));
     }
 
     await sendBulkEmbeds(interaction, membershipEmbeds);
