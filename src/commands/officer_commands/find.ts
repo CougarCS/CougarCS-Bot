@@ -1,15 +1,26 @@
-import { PermissionFlagsBits, SlashCommandBuilder } from "discord.js";
+import {
+  Guild,
+  PermissionFlagsBits,
+  Role,
+  SlashCommandBuilder,
+} from "discord.js";
 import { Command } from "../../interfaces/Command";
 import { createEmbeded, sendBulkEmbeds } from "../../utils/embeded";
 import { commandLog, sendError } from "../../utils/logs";
-import { getBalance, getContacts, isMember } from "../../utils/supabase";
+import {
+  getBalance,
+  getContacts,
+  getRole,
+  isMember,
+} from "../../utils/supabase";
 import { EmbedBuilder } from "@discordjs/builders";
 import { fullContactFields } from "../../utils/embedFields";
 import { ContactQuery, ContactSelect } from "src/utils/types";
 
 const createContactEmbeds = async (
   contacts: ContactSelect[],
-  fullprofile: boolean
+  fullprofile: boolean,
+  isAdmin?: boolean
 ): Promise<EmbedBuilder[]> => {
   const embeds: EmbedBuilder[] = [];
   const contactCount = contacts.length;
@@ -44,7 +55,7 @@ const createContactEmbeds = async (
     }
 
     const embed = createEmbeded(" ", " ").addFields(
-      ...fullContactFields(contact, balance, activeMember)
+      ...fullContactFields(contact, balance, activeMember, isAdmin)
     );
     embeds.push(embed);
   }
@@ -97,7 +108,9 @@ export const find: Command = {
         .setRequired(false)
     ),
   run: async (interaction) => {
-    await interaction.deferReply({ ephemeral: false });
+    await interaction.deferReply({ ephemeral: true });
+    const { user } = interaction;
+    const guild = interaction.guild as Guild;
 
     const query: ContactQuery = {
       uh_id: interaction.options.get("psid", false)?.value as
@@ -162,7 +175,17 @@ export const find: Command = {
 
     const contacts = contactsResponse.data as ContactSelect[];
 
-    const embeds = await createContactEmbeds(contacts, !!fullprofile);
+    const member = await guild.members.fetch({ user });
+    const adminRoleResponse = await getRole("admin", guild);
+
+    let isAdmin = false;
+
+    if (!adminRoleResponse.error) {
+      const adminRole = adminRoleResponse.data[0] as Role;
+      isAdmin = !!member.roles.cache.find((r) => r === adminRole);
+    }
+
+    const embeds = await createContactEmbeds(contacts, !!fullprofile, isAdmin);
 
     await sendBulkEmbeds(interaction, embeds);
     return;
