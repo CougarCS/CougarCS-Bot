@@ -1,7 +1,18 @@
-import { PermissionFlagsBits, SlashCommandBuilder, User } from "discord.js";
+import {
+  Guild,
+  PermissionFlagsBits,
+  Role,
+  SlashCommandBuilder,
+  User,
+} from "discord.js";
 import { Command } from "../../interfaces/Command";
 import { createEmbeded } from "../../utils/embeded";
-import { getBalance, getContact, isMember } from "../../utils/supabase";
+import {
+  getBalance,
+  getContact,
+  getRole,
+  isMember,
+} from "../../utils/supabase";
 import { commandLog, sendError } from "../../utils/logs";
 import { ContactSelect } from "../../utils/types";
 import { fullContactFields } from "../../utils/embedFields";
@@ -18,7 +29,9 @@ export const whois: Command = {
         .setRequired(true)
     ),
   run: async (interaction) => {
-    await interaction.deferReply({ ephemeral: false });
+    await interaction.deferReply({ ephemeral: true });
+    const { user } = interaction;
+    const guild = interaction.guild as Guild;
 
     const whoUserOption = interaction.options.get("user", true);
     const whoUser = whoUserOption.user as User;
@@ -51,9 +64,19 @@ export const whois: Command = {
 
     const balance = balanceResponse.data[0];
 
+    const member = await guild.members.fetch({ user });
+    const adminRoleResponse = await getRole("admin", guild);
+
+    let isAdmin = false;
+
+    if (!adminRoleResponse.error) {
+      const adminRole = adminRoleResponse.data[0] as Role;
+      isAdmin = !!member.roles.cache.find((r) => r === adminRole);
+    }
+
     const returnMessage = createEmbeded("👤 Contact Found!", " ")
       .setColor("Blue")
-      .addFields(...fullContactFields(contact, balance, activeMember))
+      .addFields(...fullContactFields(contact, balance, activeMember, isAdmin))
       .setThumbnail(whoUser.displayAvatarURL());
 
     await interaction.editReply({ embeds: [returnMessage] });

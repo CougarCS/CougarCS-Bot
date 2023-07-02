@@ -70,7 +70,8 @@ export const contactFields = (
 export const fullContactFields = (
   contact: ContactSelect,
   balance: number,
-  activeMember: boolean
+  activeMember: boolean,
+  isAdmin?: boolean
 ): RestOrArray<APIEmbedField> => {
   const {
     contact_id,
@@ -124,7 +125,7 @@ export const fullContactFields = (
     },
     {
       name: "Phone Number",
-      value: `${phone_number}`,
+      value: `${isAdmin ? phone_number : "\\*\\*\\*\\*\\*\\*\\*\\*\\*\\*"}`,
       inline: true,
     },
     {
