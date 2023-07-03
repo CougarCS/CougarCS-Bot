@@ -101,6 +101,14 @@ export const find: Command = {
     )
     .addBooleanOption((option) =>
       option
+        .setName("reveal")
+        .setDescription(
+          "Indicate if you would like thsi command to be non-ephemeral"
+        )
+        .setRequired(false)
+    )
+    .addBooleanOption((option) =>
+      option
         .setName("seefullcontact")
         .setDescription(
           "Indicate if you would like the entire contact's details!"
@@ -108,7 +116,10 @@ export const find: Command = {
         .setRequired(false)
     ),
   run: async (interaction) => {
-    await interaction.deferReply({ ephemeral: true });
+    const ephemeral = !interaction.options.get("reveal", false)?.value as
+      | boolean;
+
+    await interaction.deferReply({ ephemeral });
     const { user } = interaction;
     const guild = interaction.guild as Guild;
 
