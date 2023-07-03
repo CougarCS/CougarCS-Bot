@@ -27,9 +27,20 @@ export const whois: Command = {
         .setName("user")
         .setDescription("User you wish to look for")
         .setRequired(true)
+    )
+    .addBooleanOption((option) =>
+      option
+        .setName("reveal")
+        .setDescription(
+          "Indicate if you would like thsi command to be non-ephemeral"
+        )
+        .setRequired(false)
     ),
   run: async (interaction) => {
-    await interaction.deferReply({ ephemeral: true });
+    const ephemeral = !interaction.options.get("reveal", false)?.value as
+      | boolean;
+
+    await interaction.deferReply({ ephemeral });
     const { user } = interaction;
     const guild = interaction.guild as Guild;
 

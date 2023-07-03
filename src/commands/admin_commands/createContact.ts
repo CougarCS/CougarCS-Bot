@@ -58,9 +58,20 @@ export const createcontact: Command = {
         .setName("shirtsize")
         .setDescription("The contact's shirt size!")
         .setRequired(false);
-    }),
+    })
+    .addBooleanOption((option) =>
+      option
+        .setName("reveal")
+        .setDescription(
+          "Indicate if you would like thsi command to be non-ephemeral"
+        )
+        .setRequired(false)
+    ),
   run: async (interaction) => {
-    await interaction.deferReply({ ephemeral: false });
+    const ephemeral = !interaction.options.get("reveal", false)?.value as
+      | boolean;
+
+    await interaction.deferReply({ ephemeral });
 
     const create: ContactInsert = {
       uh_id: interaction.options.get("psid", true).value as number,

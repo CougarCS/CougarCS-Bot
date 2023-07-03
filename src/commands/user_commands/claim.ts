@@ -118,7 +118,7 @@ export const claim: Command = {
     let updateResponse = { error: false };
 
     if (!contact.discord_snowflake) {
-      updateResponse = await updateContact({ contact_id }, discord_snowflake);
+      updateResponse = await updateContact({ discord_snowflake }, contact_id);
     }
 
     if (updateResponse.error) {
