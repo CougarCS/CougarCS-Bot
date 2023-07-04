@@ -5,6 +5,7 @@ import { CommandList } from "../utils/_Commandlists";
 import config from "../config/config.json";
 import "dotenv/config";
 import { log } from "../utils/logs";
+import heartbeat from "../utils/heartbeat";
 
 export const onReady = async (client: Client) => {
   const rest = new REST({ version: "10" }).setToken(
@@ -55,4 +56,7 @@ export const onReady = async (client: Client) => {
       guild
     );
   });
+
+  heartbeat();
+  console.log("📈 Heartbeat started");
 };
