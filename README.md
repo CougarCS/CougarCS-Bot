@@ -14,6 +14,7 @@
   CLIENT_ID = <Owner_ID>
   SUPABASE_URL = <Supabase_Project_URL>
   SUPABASE_KEY = <Supabase_Service_Key>
+  HEARTBEAT_URL = <Heartbeat_URL>
   ```
   3. Run the bot with build scripts
 - #### Build Scripts
