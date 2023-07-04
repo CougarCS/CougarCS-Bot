@@ -19,5 +19,10 @@ export const validateEnv = () => {
     return false;
   }
 
+  if (!process.env.HEARTBEAT_URL) {
+    console.warn("Missing Heartbeat URL.");
+    return false;
+  }
+
   return true;
 };
