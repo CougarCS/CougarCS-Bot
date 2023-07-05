@@ -25,7 +25,7 @@ const getExpiredMembers = async (members: Collection<string, GuildMember>) => {
     const discord_snowflake = member.id;
     const memberResponse = await isMember({ discord_snowflake });
 
-    if (memberResponse.error || !memberResponse.data[0]) {
+    if (memberResponse.error || !memberResponse.data) {
       removedMembers.push(member);
     }
   }
@@ -72,7 +72,7 @@ export const prunemembers: Command = {
       return;
     }
 
-    const memberRole = roleResponse.data[0] as Role;
+    const memberRole = roleResponse.data;
 
     if (!memberRole) {
       await sendError(errorTitle, "Member role not found!", interaction);

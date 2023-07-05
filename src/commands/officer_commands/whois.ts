@@ -1,7 +1,6 @@
 import {
   Guild,
   PermissionFlagsBits,
-  Role,
   SlashCommandBuilder,
   User,
 } from "discord.js";
@@ -14,7 +13,6 @@ import {
   isMember,
 } from "../../utils/supabase";
 import { commandLog, sendError } from "../../utils/logs";
-import { ContactSelect } from "../../utils/types";
 import { fullContactFields } from "../../utils/embedFields";
 
 export const whois: Command = {
@@ -61,11 +59,11 @@ export const whois: Command = {
       return;
     }
 
-    const contact: ContactSelect = contactResponse.data[0];
+    const contact = contactResponse.data;
     const { contact_id } = contact;
     const memberResponse = await isMember({ contact_id });
 
-    const activeMember = memberResponse.data[0];
+    const activeMember = !memberResponse.error && memberResponse.data;
     const balanceResponse = await getBalance({ contact_id });
 
     if (balanceResponse.error) {
@@ -73,7 +71,7 @@ export const whois: Command = {
       return;
     }
 
-    const balance = balanceResponse.data[0];
+    const balance = balanceResponse.data;
 
     const member = await guild.members.fetch({ user });
     const adminRoleResponse = await getRole("admin", guild);
@@ -81,7 +79,7 @@ export const whois: Command = {
     let isAdmin = false;
 
     if (!adminRoleResponse.error) {
-      const adminRole = adminRoleResponse.data[0] as Role;
+      const adminRole = adminRoleResponse.data;
       isAdmin = !!member.roles.cache.find((r) => r === adminRole);
     }
 

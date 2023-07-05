@@ -5,15 +5,24 @@ import {
   ContactInsert,
   ContactKey,
   ContactQuery,
+  ContactSelect,
   ContactUpdate,
   EventAttendanceInsert,
+  EventAttendanceSelect,
+  EventSelect,
+  GuildSelect,
   GuildUpdate,
+  MemberPointReasonSelect,
+  MembershipCodeSelect,
+  MembershipSelect,
+  ShirtSizeSelect,
   SupabaseResponse,
   TransactionInsert,
+  TransactionSelect,
   UniqueContactQuery,
 } from "./types";
 import { Database } from "./schema";
-import { Guild } from "discord.js";
+import { Guild, Role, TextChannel } from "discord.js";
 require("dotenv").config();
 
 const supabaseUrl = process.env.SUPABASE_URL as string;
@@ -35,17 +44,18 @@ const addQueryFilters = (query: any, queryData: ContactQuery) => {
   });
 };
 
-export const pingSB = async (): Promise<SupabaseResponse> => {
-  const { data, error } = await supabase.from("contacts").select("*").limit(1);
+export const pingSB = async (): Promise<SupabaseResponse<boolean>> => {
+  const { error } = await supabase.from("contacts").select("*").limit(1);
+
   if (error) {
     return {
-      data: [],
       error: true,
       message: error.message,
     };
   }
+
   return {
-    data,
+    data: true,
     error: false,
     message: "Supabase responded with no errors!",
   };
@@ -53,8 +63,8 @@ export const pingSB = async (): Promise<SupabaseResponse> => {
 
 export const getContacts = async (
   queryData: ContactQuery
-): Promise<SupabaseResponse> => {
-  const query = supabase.from("contacts").select("*");
+): Promise<SupabaseResponse<ContactSelect[]>> => {
+  const query = supabase.from("contacts").select();
 
   addQueryFilters(query, queryData);
 
@@ -62,7 +72,6 @@ export const getContacts = async (
 
   if (response.error) {
     return {
-      data: [],
       error: true,
       message: "There was an error fetching contacts!",
     };
@@ -70,7 +79,6 @@ export const getContacts = async (
 
   if (response.data.length === 0) {
     return {
-      data: [],
       error: true,
       message: "No contacts were found!",
     };
@@ -85,22 +93,25 @@ export const getContacts = async (
 
 export const getContact = async (
   queryData: UniqueContactQuery
-): Promise<SupabaseResponse> => {
+): Promise<SupabaseResponse<ContactSelect>> => {
   const contactRequest = await getContacts(queryData);
 
   if (contactRequest.error) {
     return contactRequest;
   }
 
-  return contactRequest;
+  return {
+    ...contactRequest,
+    data: contactRequest.data[0],
+  };
 };
 
 export const getContactId = async (
   queryData: UniqueContactQuery
-): Promise<SupabaseResponse> => {
+): Promise<SupabaseResponse<string>> => {
   if (queryData.contact_id) {
     return {
-      data: [queryData.contact_id],
+      data: queryData.contact_id,
       error: false,
       message: "Contact ID already exists!",
     };
@@ -112,10 +123,10 @@ export const getContactId = async (
     return contactResponse;
   }
 
-  const contact = contactResponse.data[0];
+  const { contact_id } = contactResponse.data;
 
   return {
-    data: [contact.contact_id],
+    data: contact_id,
     error: false,
     message: "Successfully fetched Contact ID!",
   };
@@ -123,14 +134,14 @@ export const getContactId = async (
 
 export const getMemberships = async (
   queryData: UniqueContactQuery
-): Promise<SupabaseResponse> => {
+): Promise<SupabaseResponse<MembershipSelect[]>> => {
   const contactIdResponse = await getContactId(queryData);
 
   if (contactIdResponse.error) {
     return contactIdResponse;
   }
 
-  const contact_id = contactIdResponse.data[0];
+  const contact_id = contactIdResponse.data;
 
   const membershipResponse = await supabase
     .from("membership")
@@ -140,7 +151,6 @@ export const getMemberships = async (
 
   if (membershipResponse.error) {
     return {
-      data: [],
       error: true,
       message: "There was an error fetching memberships!",
     };
@@ -148,7 +158,6 @@ export const getMemberships = async (
 
   if (membershipResponse.data.length === 0) {
     return {
-      data: [],
       error: true,
       message: "No memberships were found!",
     };
@@ -163,7 +172,7 @@ export const getMemberships = async (
 
 export const isMember = async (
   queryData: UniqueContactQuery
-): Promise<SupabaseResponse> => {
+): Promise<SupabaseResponse<boolean>> => {
   const membershipResponse = await getMemberships(queryData);
 
   if (membershipResponse.error) {
@@ -174,7 +183,7 @@ export const isMember = async (
   const activeMember = new Date(end_date).getTime() > new Date().getTime();
 
   return {
-    data: [activeMember],
+    data: activeMember,
     error: false,
     message: "Successfully determined current membership!",
   };
@@ -182,19 +191,19 @@ export const isMember = async (
 
 export const getBalance = async (
   queryData: UniqueContactQuery
-): Promise<SupabaseResponse> => {
+): Promise<SupabaseResponse<number>> => {
   const contactIdResponse = await getContactId(queryData);
 
   if (contactIdResponse.error) {
     return contactIdResponse;
   }
 
-  const contact_id = contactIdResponse.data[0];
+  const contact_id = contactIdResponse.data;
   const balanceResponse = await supabase.rpc("balance", { contact_id });
 
   if (balanceResponse.error) {
+    console.log(balanceResponse.error);
     return {
-      data: [0],
       error: true,
       message: "There was an error fetching CougarCoin balance!",
     };
@@ -203,7 +212,7 @@ export const getBalance = async (
   const balance = balanceResponse.data || 0;
 
   return {
-    data: [balance],
+    data: balance,
     error: false,
     message: "Successfully fetched balance!",
   };
@@ -211,14 +220,13 @@ export const getBalance = async (
 
 export const getLeaderboard = async (
   maxSlots: number
-): Promise<SupabaseResponse> => {
+): Promise<SupabaseResponse<string[]>> => {
   const transactionsResponse = await supabase
     .from("member_point_transaction")
     .select("contact_id");
 
   if (transactionsResponse.error) {
     return {
-      data: [],
       error: true,
       message: "There was an error fetching transactions!",
     };
@@ -237,7 +245,7 @@ export const getLeaderboard = async (
       return balanceResponse;
     }
 
-    const balance = balanceResponse.data[0];
+    const balance = balanceResponse.data;
     uniqueBalancePairs.push({ contact_id, balance });
   }
 
@@ -253,7 +261,7 @@ export const getLeaderboard = async (
     }
 
     const { discord_snowflake, first_name, last_name } =
-      identifierResponse.data[0];
+      identifierResponse.data;
     const identifier = discord_snowflake
       ? `<@${discord_snowflake}>`
       : `${first_name} ${last_name}`;
@@ -272,14 +280,14 @@ export const getLeaderboard = async (
 export const updateDiscordSnowflake = async (
   queryData: UniqueContactQuery,
   discord_snowflake: string
-): Promise<SupabaseResponse> => {
+): Promise<SupabaseResponse<ContactSelect>> => {
   const contactIdResponse = await getContactId(queryData);
 
   if (contactIdResponse.error) {
     return contactIdResponse;
   }
 
-  const contact_id = contactIdResponse.data[0];
+  const contact_id = contactIdResponse.data;
   const updateResponse = await supabase
     .from("contacts")
     .update({ discord_snowflake })
@@ -288,14 +296,13 @@ export const updateDiscordSnowflake = async (
 
   if (updateResponse.error) {
     return {
-      data: [],
       error: true,
       message: "There was an error updating the contact!",
     };
   }
 
   return {
-    data: updateResponse.data,
+    data: updateResponse.data[0],
     error: false,
     message: "Successfully updated contact!",
   };
@@ -303,7 +310,7 @@ export const updateDiscordSnowflake = async (
 
 export const insertTransaction = async (
   transactionInfo: TransactionInsert
-): Promise<SupabaseResponse> => {
+): Promise<SupabaseResponse<TransactionSelect>> => {
   const { queryData, point_value, reason_id } = transactionInfo;
 
   const contactIdResponse = await getContactId(queryData);
@@ -312,7 +319,7 @@ export const insertTransaction = async (
     return contactIdResponse;
   }
 
-  const contact_id = contactIdResponse.data[0];
+  const contact_id = contactIdResponse.data;
 
   const insertResponse = await supabase
     .from("member_point_transaction")
@@ -320,19 +327,18 @@ export const insertTransaction = async (
       contact_id,
       point_value,
       member_point_transaction_reason_id: reason_id,
-    });
+    })
+    .select();
 
   if (insertResponse.error) {
-    console.error(insertResponse.error);
     return {
-      data: [],
       error: true,
       message: "There was an error inserting the transaction!",
     };
   }
 
   return {
-    data: [],
+    data: insertResponse.data[0],
     error: false,
     message: "Successfully inserted transaction!",
   };
@@ -342,14 +348,14 @@ export const insertMembership = async (
   queryData: UniqueContactQuery,
   length: string,
   reason_id: string
-): Promise<SupabaseResponse> => {
+): Promise<SupabaseResponse<MembershipSelect>> => {
   const contactIdResponse = await getContactId(queryData);
 
   if (contactIdResponse.error) {
     return contactIdResponse;
   }
 
-  const contact_id = contactIdResponse.data[0];
+  const contact_id = contactIdResponse.data;
 
   const today = new Date();
   const start_year = today.getFullYear();
@@ -360,24 +366,26 @@ export const insertMembership = async (
   const end_month = spring_start !== semester ? "1" : "7";
   const end_date = `${end_year}-${end_month}-1 06:00:00`;
 
-  const insertResponse = await supabase.from("membership").insert({
-    contact_id,
-    start_date,
-    end_date,
-    membership_code_id: reason_id,
-    semesters: semester ? 1 : 2,
-  });
+  const insertResponse = await supabase
+    .from("membership")
+    .insert({
+      contact_id,
+      start_date,
+      end_date,
+      membership_code_id: reason_id,
+      semesters: semester ? 1 : 2,
+    })
+    .select();
 
   if (insertResponse.error) {
     return {
-      data: [],
       error: true,
       message: "There was an error inserting the membership!",
     };
   }
 
   return {
-    data: [],
+    data: insertResponse.data[0],
     error: false,
     message: "Successfully inserted transaction!",
   };
@@ -385,31 +393,31 @@ export const insertMembership = async (
 
 export const cancelMembership = async (
   queryData: UniqueContactQuery
-): Promise<SupabaseResponse> => {
+): Promise<SupabaseResponse<MembershipSelect>> => {
   const contactIdResponse = await getContactId(queryData);
 
   if (contactIdResponse.error) {
     return contactIdResponse;
   }
 
-  const contact_id = contactIdResponse.data[0];
+  const contact_id = contactIdResponse.data;
 
   const membershipResponse = await supabase
     .from("membership")
     .update({ end_date: new Date().toISOString() })
     .eq("contact_id", contact_id)
-    .order("end_date", { ascending: false });
+    .order("end_date", { ascending: false })
+    .select();
 
   if (membershipResponse.error) {
     return {
-      data: [],
       error: true,
       message: "There was an error updating the membership!",
     };
   }
 
   return {
-    data: [],
+    data: membershipResponse.data[0],
     error: false,
     message: "Successfully updated the membership",
   };
@@ -417,22 +425,21 @@ export const cancelMembership = async (
 
 export const insertContact = async (
   newData: ContactInsert
-): Promise<SupabaseResponse> => {
+): Promise<SupabaseResponse<ContactSelect>> => {
   const contactResponse = await supabase
     .from("contacts")
     .insert(newData)
-    .select("*");
+    .select();
 
   if (contactResponse.error) {
     return {
-      data: [],
       error: true,
       message: "There was an error inserting the contact!",
     };
   }
 
   return {
-    data: contactResponse.data,
+    data: contactResponse.data[0],
     error: false,
     message: "Successfully inserted contact data!",
   };
@@ -441,36 +448,36 @@ export const insertContact = async (
 export const updateContact = async (
   newData: ContactUpdate,
   contact_id: string
-): Promise<SupabaseResponse> => {
+): Promise<SupabaseResponse<ContactSelect>> => {
   const contactResponse = await supabase
     .from("contacts")
     .update(newData)
     .eq("contact_id", contact_id)
-    .select("*");
+    .select();
 
   if (contactResponse.error) {
     return {
-      data: [],
       error: true,
       message: "There was an error updating the contact!",
     };
   }
 
   return {
-    data: contactResponse.data,
+    data: contactResponse.data[0],
     error: false,
     message: "Successfully updated contact data!",
   };
 };
 
-export const getMembershipCodes = async (): Promise<SupabaseResponse> => {
+export const getMembershipCodes = async (): Promise<
+  SupabaseResponse<MembershipCodeSelect[]>
+> => {
   const membershipCodeResponse = await supabase
     .from("membership_code")
-    .select("*");
+    .select();
 
   if (membershipCodeResponse.error) {
     return {
-      data: [],
       error: true,
       message: "There was an error fetching the membership codes!",
     };
@@ -478,7 +485,6 @@ export const getMembershipCodes = async (): Promise<SupabaseResponse> => {
 
   if (membershipCodeResponse.data.length === 0) {
     return {
-      data: [],
       error: true,
       message: "No membership codes were found!",
     };
@@ -491,12 +497,13 @@ export const getMembershipCodes = async (): Promise<SupabaseResponse> => {
   };
 };
 
-export const getShirtSizes = async (): Promise<SupabaseResponse> => {
+export const getShirtSizes = async (): Promise<
+  SupabaseResponse<ShirtSizeSelect[]>
+> => {
   const shirtSizeResponse = await supabase.from("shirt_size").select("*");
 
   if (shirtSizeResponse.error) {
     return {
-      data: [],
       error: true,
       message: "There was an error fetching the shirt sizes!",
     };
@@ -504,7 +511,6 @@ export const getShirtSizes = async (): Promise<SupabaseResponse> => {
 
   if (shirtSizeResponse.data.length === 0) {
     return {
-      data: [],
       error: true,
       message: "No shirt sizes were found!",
     };
@@ -517,14 +523,15 @@ export const getShirtSizes = async (): Promise<SupabaseResponse> => {
   };
 };
 
-export const getMemberPointReasons = async (): Promise<SupabaseResponse> => {
+export const getMemberPointReasons = async (): Promise<
+  SupabaseResponse<MemberPointReasonSelect[]>
+> => {
   const pointReasonResponse = await supabase
     .from("member_point_transaction_reason")
-    .select("*");
+    .select();
 
   if (pointReasonResponse.error) {
     return {
-      data: [],
       error: true,
       message:
         "There was an error fetching the member point transaction reasons!",
@@ -533,7 +540,6 @@ export const getMemberPointReasons = async (): Promise<SupabaseResponse> => {
 
   if (pointReasonResponse.data.length === 0) {
     return {
-      data: [],
       error: true,
       message: "No member point transaction reasons were found!",
     };
@@ -546,12 +552,11 @@ export const getMemberPointReasons = async (): Promise<SupabaseResponse> => {
   };
 };
 
-export const getEvents = async (): Promise<SupabaseResponse> => {
+export const getEvents = async (): Promise<SupabaseResponse<EventSelect[]>> => {
   const eventResponse = await supabase.from("event").select("*");
 
   if (eventResponse.error) {
     return {
-      data: [],
       error: true,
       message: "There was an error fetching the events!",
     };
@@ -559,7 +564,6 @@ export const getEvents = async (): Promise<SupabaseResponse> => {
 
   if (eventResponse.data.length === 0) {
     return {
-      data: [],
       error: true,
       message: "No events were found!",
     };
@@ -574,22 +578,21 @@ export const getEvents = async (): Promise<SupabaseResponse> => {
 
 export const insertEventAttendance = async (
   attendance: EventAttendanceInsert
-): Promise<SupabaseResponse> => {
+): Promise<SupabaseResponse<EventAttendanceSelect>> => {
   const attendanceResponse = await supabase
     .from("event_attendance")
     .insert(attendance)
-    .select("*");
+    .select();
 
   if (attendanceResponse.error) {
     return {
-      data: [],
       error: true,
       message: "There was an error inserting the event attendance data!",
     };
   }
 
   return {
-    data: attendanceResponse.data,
+    data: attendanceResponse.data[0],
     error: false,
     message: "Successfully inserted the event attendance data!",
   };
@@ -597,14 +600,14 @@ export const insertEventAttendance = async (
 
 export const getEventAttendance = async (
   queryData: UniqueContactQuery
-): Promise<SupabaseResponse> => {
+): Promise<SupabaseResponse<EventAttendanceSelect[]>> => {
   const contactIdResponse = await getContactId(queryData);
 
   if (contactIdResponse.error) {
     return contactIdResponse;
   }
 
-  const contact_id = contactIdResponse.data[0];
+  const contact_id = contactIdResponse.data;
 
   const attendanceResponse = await supabase
     .from("event_attendance")
@@ -614,7 +617,6 @@ export const getEventAttendance = async (
 
   if (attendanceResponse.error) {
     return {
-      data: [],
       error: true,
       message: "There was an error fetching event attendance data!",
     };
@@ -622,7 +624,6 @@ export const getEventAttendance = async (
 
   if (attendanceResponse.data.length === 0) {
     return {
-      data: [],
       error: true,
       message: "No event attendance data was found!",
     };
@@ -635,15 +636,16 @@ export const getEventAttendance = async (
   };
 };
 
-export const getEvent = async (event_id: string): Promise<SupabaseResponse> => {
+export const getEvent = async (
+  event_id: string
+): Promise<SupabaseResponse<EventSelect>> => {
   const eventResponse = await supabase
     .from("event")
-    .select("*")
+    .select()
     .eq("event_id", event_id);
 
   if (eventResponse.error) {
     return {
-      data: [],
       error: true,
       message: "There was an error fetching this event!",
     };
@@ -651,14 +653,13 @@ export const getEvent = async (event_id: string): Promise<SupabaseResponse> => {
 
   if (eventResponse.data.length === 0) {
     return {
-      data: [],
       error: true,
       message: "No event could be found!",
     };
   }
 
   return {
-    data: eventResponse.data,
+    data: eventResponse.data[0],
     error: false,
     message: "Successfully fetched this event!",
   };
@@ -666,7 +667,7 @@ export const getEvent = async (event_id: string): Promise<SupabaseResponse> => {
 
 export const getMembershipReason = async (
   membership_code_id: string
-): Promise<SupabaseResponse> => {
+): Promise<SupabaseResponse<string>> => {
   const membershipReasonResponse = await supabase
     .from("membership_code")
     .select("message")
@@ -674,7 +675,6 @@ export const getMembershipReason = async (
 
   if (membershipReasonResponse.error) {
     return {
-      data: [],
       error: true,
       message: "There was an error fetching the membership reason!",
     };
@@ -682,14 +682,13 @@ export const getMembershipReason = async (
 
   if (membershipReasonResponse.data.length === 0) {
     return {
-      data: [],
       error: true,
       message: "No membership reasons could be found!",
     };
   }
 
   return {
-    data: membershipReasonResponse.data,
+    data: membershipReasonResponse.data[0].message,
     error: false,
     message: "Successfully fetched the membership reason!",
   };
@@ -697,25 +696,24 @@ export const getMembershipReason = async (
 
 export const insertGuildData = async (
   guild: Guild
-): Promise<SupabaseResponse> => {
+): Promise<SupabaseResponse<GuildSelect>> => {
   const guild_id = guild.id;
   const { name } = guild;
 
   const guildResponse = await supabase
     .from("discord_guilds")
     .insert({ guild_id, name })
-    .select("*");
+    .select();
 
   if (guildResponse.error) {
     return {
-      data: [],
       error: true,
       message: "There was an error inserting the guild data!",
     };
   }
 
   return {
-    data: guildResponse.data,
+    data: guildResponse.data[0],
     error: false,
     message: "Successfully inserted the guild data!",
   };
@@ -724,29 +722,30 @@ export const insertGuildData = async (
 export const updateGuildData = async (
   newData: GuildUpdate,
   guild: Guild
-): Promise<SupabaseResponse> => {
+): Promise<SupabaseResponse<GuildSelect>> => {
   const guildResponse = await supabase
     .from("discord_guilds")
     .update(newData)
     .eq("guild_id", guild.id)
-    .select("*");
+    .select();
 
   if (guildResponse.error) {
     return {
-      data: [],
       error: true,
       message: "There was an error updating the guild data!",
     };
   }
 
   return {
-    data: guildResponse.data,
+    data: guildResponse.data[0],
     error: false,
     message: "Successfully updated the guild data!",
   };
 };
 
-export const getGuildData = async (guild: Guild): Promise<SupabaseResponse> => {
+export const getGuildData = async (
+  guild: Guild
+): Promise<SupabaseResponse<GuildSelect>> => {
   const guildResponse = await supabase
     .from("discord_guilds")
     .select("*")
@@ -754,7 +753,6 @@ export const getGuildData = async (guild: Guild): Promise<SupabaseResponse> => {
 
   if (guildResponse.error) {
     return {
-      data: [],
       error: true,
       message: "There was an error fetching the guild data!",
     };
@@ -762,14 +760,13 @@ export const getGuildData = async (guild: Guild): Promise<SupabaseResponse> => {
 
   if (guildResponse.data.length === 0) {
     return {
-      data: [],
       error: true,
       message: "No guild data was found!",
     };
   }
 
   return {
-    data: guildResponse.data,
+    data: guildResponse.data[0],
     error: false,
     message: "Successfully fetched the guild data!",
   };
@@ -778,18 +775,17 @@ export const getGuildData = async (guild: Guild): Promise<SupabaseResponse> => {
 export const getRole = async (
   roleName: "member" | "officer" | "admin",
   guild: Guild
-): Promise<SupabaseResponse> => {
+): Promise<SupabaseResponse<Role>> => {
   const guildResponse = await getGuildData(guild);
 
   if (guildResponse.error) {
     return guildResponse;
   }
 
-  const roleId = guildResponse.data[0][`${roleName}_role_id`];
+  const roleId = guildResponse.data[`${roleName}_role_id`];
 
   if (!roleId) {
     return {
-      data: [],
       error: true,
       message: "There was an error fetching the role!",
     };
@@ -799,14 +795,13 @@ export const getRole = async (
 
   if (!role) {
     return {
-      data: [],
       error: true,
       message: "There was an error fetching the role!",
     };
   }
 
   return {
-    data: [role],
+    data: role,
     error: false,
     message: "Successfully fetched the role!",
   };
@@ -815,18 +810,17 @@ export const getRole = async (
 export const getChannel = async (
   channelName: "log" | "report",
   guild: Guild
-): Promise<SupabaseResponse> => {
+): Promise<SupabaseResponse<TextChannel>> => {
   const guildResponse = await getGuildData(guild);
 
   if (guildResponse.error) {
     return guildResponse;
   }
 
-  const channelId = guildResponse.data[0][`${channelName}_channel_id`];
+  const channelId = guildResponse.data[`${channelName}_channel_id`];
 
   if (!channelId) {
     return {
-      data: [],
       error: true,
       message: "There was an error fetching the channel!",
     };
@@ -836,14 +830,13 @@ export const getChannel = async (
 
   if (!channel) {
     return {
-      data: [],
       error: true,
       message: "There was an error fetching the channel!",
     };
   }
 
   return {
-    data: [channel],
+    data: channel as TextChannel,
     error: false,
     message: "Successfully fetched the channel!",
   };

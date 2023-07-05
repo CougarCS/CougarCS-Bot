@@ -1,4 +1,4 @@
-import { Guild, Role, SlashCommandBuilder } from "discord.js";
+import { Guild, SlashCommandBuilder } from "discord.js";
 import { Command } from "../../interfaces/Command";
 import { createEmbeded } from "../../utils/embeded";
 import { commandLog, sendError } from "../../utils/logs";
@@ -8,7 +8,7 @@ import {
   isMember,
   updateContact,
 } from "../../utils/supabase";
-import { SupabaseResponse } from "src/utils/types";
+import { ContactSelect, SupabaseResponse } from "src/utils/types";
 
 export const claim: Command = {
   data: new SlashCommandBuilder()
@@ -60,7 +60,7 @@ export const claim: Command = {
       return;
     }
 
-    const memberRole = roleResponse.data[0] as Role;
+    const memberRole = roleResponse.data;
 
     const haveMemberRole = !!member.roles.cache.find((r) => r === memberRole);
 
@@ -74,7 +74,7 @@ export const claim: Command = {
     }
 
     const discord_snowflake = user.id;
-    let contactResponse: SupabaseResponse;
+    let contactResponse: SupabaseResponse<ContactSelect>;
 
     if (uh_id && email) {
       contactResponse = await getContact({ uh_id, email });
@@ -91,7 +91,7 @@ export const claim: Command = {
       return;
     }
 
-    const contact = contactResponse.data[0];
+    const contact = contactResponse.data;
     const { contact_id } = contact;
     const memberResponse = await isMember({ contact_id });
 
@@ -104,7 +104,7 @@ export const claim: Command = {
       return;
     }
 
-    const activeMember = memberResponse.data[0];
+    const activeMember = memberResponse.data;
 
     if (!activeMember) {
       await sendError(

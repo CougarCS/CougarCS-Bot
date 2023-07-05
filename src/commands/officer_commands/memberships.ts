@@ -39,7 +39,7 @@ const formatMembership = async (
   let reason = "General Membership";
 
   if (!membershipReasonResponse.error) {
-    reason = membershipReasonResponse.data[0].message;
+    reason = membershipReasonResponse.data;
   }
 
   return createEmbeded(

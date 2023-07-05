@@ -83,7 +83,7 @@ export const grant: Command = {
     let balance = 0;
 
     if (!balanceResponse.error) {
-      balance = balanceResponse.data[0];
+      balance = balanceResponse.data;
     }
 
     const returnMessage = createEmbeded(

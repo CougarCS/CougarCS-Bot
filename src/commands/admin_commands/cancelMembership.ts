@@ -1,7 +1,6 @@
 import {
   Guild,
   PermissionFlagsBits,
-  Role,
   SlashCommandBuilder,
   User,
 } from "discord.js";
@@ -54,7 +53,7 @@ export const cancelmembership: Command = {
       return;
     }
 
-    const memberRole = roleResponse.data[0] as Role;
+    const memberRole = roleResponse.data;
 
     const member = await guild.members.fetch({ user: selectedUser });
 
