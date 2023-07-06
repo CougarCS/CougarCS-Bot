@@ -773,7 +773,7 @@ export const getGuildData = async (
 };
 
 export const getRole = async (
-  roleName: "member" | "officer" | "admin",
+  roleName: "member" | "officer" | "admin" | "tutor",
   guild: Guild
 ): Promise<SupabaseResponse<Role>> => {
   const guildResponse = await getGuildData(guild);

@@ -11,7 +11,7 @@ import { cancelMembership, getRole } from "../../utils/supabase";
 
 export const cancelmembership: Command = {
   data: new SlashCommandBuilder()
-    .setName("cancelmembership")
+    .setName("cancel-membership")
     .setDescription("Cancel a user's CougarCS membership!")
     .setDefaultMemberPermissions(PermissionFlagsBits.Administrator)
     .addUserOption((option) =>

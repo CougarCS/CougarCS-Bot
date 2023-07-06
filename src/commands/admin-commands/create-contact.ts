@@ -9,7 +9,7 @@ import { contactFields } from "../../utils/embedFields";
 
 export const createcontact: Command = {
   data: new SlashCommandBuilder()
-    .setName("createcontact")
+    .setName("create-contact")
     .setDescription("Add a contact to the database!")
     .setDefaultMemberPermissions(PermissionFlagsBits.Administrator)
     .addNumberOption((option) =>

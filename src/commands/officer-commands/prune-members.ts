@@ -50,7 +50,7 @@ const removeExpiredMembers = async (
 
 export const prunemembers: Command = {
   data: new SlashCommandBuilder()
-    .setName("prunemembers")
+    .setName("prune-members")
     .setDescription(
       "Prune the server of people with invalid/expired memberships!"
     )

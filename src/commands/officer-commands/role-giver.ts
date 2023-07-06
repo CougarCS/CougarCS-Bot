@@ -37,7 +37,7 @@ const parseSplit = (
 
 export const rolegiver: Command = {
   data: new SlashCommandBuilder()
-    .setName("rolegiver")
+    .setName("role-giver")
     .setDescription("Send a message for people to get roles!")
     .addStringOption((option) =>
       option

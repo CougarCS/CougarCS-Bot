@@ -42,7 +42,7 @@ const createUpdateEmbeds = (
 
 export const setguildconfig: Command = {
   data: new SlashCommandBuilder()
-    .setName("setguildconfig")
+    .setName("set-guild-config")
     .setDescription("Set the custom guild data!")
     .setDefaultMemberPermissions(PermissionFlagsBits.ManageChannels)
     .addRoleOption((option) =>

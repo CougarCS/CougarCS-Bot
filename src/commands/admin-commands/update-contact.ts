@@ -35,7 +35,7 @@ const createUpdateEmbeds = (
 
 export const updatecontact: Command = {
   data: new SlashCommandBuilder()
-    .setName("updatecontact")
+    .setName("update-contact")
     .setDescription("Update a contact in the database!")
     .setDefaultMemberPermissions(PermissionFlagsBits.Administrator)
     .addNumberOption((option) =>
