@@ -174,3 +174,17 @@ export type EventAttendanceSelect = {
   swag: boolean;
   timestamp: string;
 };
+
+export type TutorSignupFormData = {
+  name: string;
+  psid: string;
+  email: string;
+  phoneNumber: string;
+  reason: string;
+  pronouns: string[];
+  classification: string;
+  isCSMajor: string;
+  lessThanBMinus: string;
+  tutorType: string[];
+  coursesTutoring: string[];
+};
