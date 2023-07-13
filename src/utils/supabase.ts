@@ -19,6 +19,8 @@ import {
   SupabaseResponse,
   TransactionInsert,
   TransactionSelect,
+  TutorLogInsert,
+  TutorLogSelect,
   UniqueContactQuery,
 } from "./types";
 import { Database } from "./schema";
@@ -827,7 +829,6 @@ export const getChannel = async (
   }
 
   const channel = await guild.channels.fetch(channelId);
-
   if (!channel) {
     return {
       error: true,
@@ -841,3 +842,28 @@ export const getChannel = async (
     message: "Successfully fetched the channel!",
   };
 };
+
+
+export const insertTutorLog = async (
+  tutorLogInfo: TutorLogInsert
+): Promise<SupabaseResponse<TutorLogSelect>> => {
+
+  const tutorLogResponse = await supabase
+    .from("tutor_logs")
+    .insert(tutorLogInfo)
+    .select();
+
+  if (tutorLogResponse.error) {
+    return {
+      error: true,
+      message: "There was an error inserting the tutor log !",
+    };
+  }
+
+  return {
+    data: tutorLogResponse.data[0],
+    error: false,
+    message: "Successfully inserted tutor log data!",
+  };
+};
+
