@@ -188,3 +188,24 @@ export type TutorSignupFormData = {
   tutorType: string[];
   coursesTutoring: string[];
 };
+
+// TODO: ask Ben which is mandatory?
+export type TutorLogInsert = {
+    tutor_log_id?: string;
+    tutor_id?: string;
+    hours: number;
+    tutoring_type_id: string;
+    tutored_user: string;
+    description: string;
+    timestamp: string;
+};
+export type TutorLogSelect = {
+    tutor_log_id: string;
+    tutor_id: string;
+    hours: number;
+    tutoring_type_id: string;
+    tutored_user: string;
+    description: string;
+    timestamp: string;
+}
+
