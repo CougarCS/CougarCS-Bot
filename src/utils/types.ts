@@ -190,22 +190,25 @@ export type TutorSignupFormData = {
 };
 
 // TODO: ask Ben which is mandatory?
+
+//Type 'TutorLogInsert' is not assignable to 
+//type '{ description?: string | null | undefined; hours: number; timestamp?: string | undefined;
+// tutor_id: string; tutor_log_id: string; tutored_user: string; tutoring_type_id: string; }'.
+
+
 export type TutorLogInsert = {
     tutor_log_id?: string;
     tutor_id?: string;
-    hours: number;
-    tutoring_type_id: string;
-    tutored_user: string;
-    description: string;
-    timestamp: string;
+    hours?: number;
+    tutoring_type_id : string ;
+    tutored_user?: string;
+    description?: string | null | undefined;
 };
 export type TutorLogSelect = {
     tutor_log_id: string;
     tutor_id: string;
     hours: number;
-    tutoring_type_id: string;
+    tutoring_type_id : string;
     tutored_user: string;
-    description: string;
-    timestamp: string;
+    description?: string | null | undefined;
 }
-

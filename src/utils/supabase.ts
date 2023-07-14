@@ -845,8 +845,8 @@ export const getChannel = async (
 
 
 export const insertTutorLog = async (
-  tutorLogInfo: TutorLogInsert
-): Promise<SupabaseResponse<TutorLogSelect>> => {
+  tutorLogInfo: any
+): Promise<any> => {
 
   const tutorLogResponse = await supabase
     .from("tutor_logs")

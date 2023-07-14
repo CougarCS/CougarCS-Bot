@@ -1,3 +1,4 @@
+
 import { Command } from "src/interfaces/Command";
 import { commandLog } from "../../utils/logs";
 import { SlashCommandBuilder } from "discord.js";
@@ -51,13 +52,22 @@ export const tutorlog: Command = {
             tutoring_type_id: interaction.options.get("tutoring-type", true).value as string,
             tutored_user: interaction.options.get("tutored-user", true).value as string,
             description: interaction.options.get("description", true).value as string,
+            // tutor_log_id?: string;
+            // tutor_id?: string;
+            // hours?: number;
+            // tutoring_type_id : string ;
+            // tutored_user?: string;
+            // description?: string | null | undefined;
         }
-        commandLog(interaction, "/tutor-log", "Orange");
+        commandLog(interaction, "/tutor-log", "Orange", []);
 
-        const tutorLogResponse = {}
+        //const tutorLogResponse = await insertTutorLog (create);
+
+       // console.log(tutorLogResponse);
         
-        */
+        
     }
     
 
 };
+
