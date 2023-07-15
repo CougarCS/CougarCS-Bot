@@ -21,7 +21,10 @@ import {
   TransactionSelect,
   TutorLogInsert,
   TutorLogSelect,
+  TutorQuery,
+  TutorSelect,
   UniqueContactQuery,
+  UniqueTutorQuery,
 } from "./types";
 import { Database } from "./schema";
 import { Guild, Role, TextChannel } from "discord.js";
@@ -71,7 +74,7 @@ export const getContacts = async (
   addQueryFilters(query, queryData);
 
   const response = await query;
-
+  console.log(response);
   if (response.error) {
     return {
       error: true,
@@ -843,20 +846,81 @@ export const getChannel = async (
   };
 };
 
+export const getTutors = async (
+  query: TutorQuery
+): Promise<SupabaseResponse<TutorSelect[]>> => {
+  const tutorsResponse = await supabase
+  .from("tutors")
+  .select("*")
+  .eq("contact_id", query.contact_id);
 
-export const getTutor = async(
-  query: any
-): Promise<any> => {
-    const contactResponse = await getContact(query.discord_snowflake);
-    console.log(contactResponse);
-}
+  if (tutorsResponse.error) {
+    return {
+      error: true,
+      message: "There was an error fetching tutors!"
+    };
+  }
 
+  if (tutorsResponse.data.length == 0) {
+    return {
+      error: true,
+      message: "No tutors were found!"
+    };
+  }
 
+  console.log(tutorsResponse);
+
+  return {
+    data: tutorsResponse.data,
+    error: false,
+    message: "Successfully fetched tutors!"
+  };
+};
+
+export const getTutor = async (
+  queryData: UniqueTutorQuery
+): Promise<SupabaseResponse<TutorSelect>> => {
+  const tutorResponse = await getTutors(queryData);
+
+  if (tutorResponse.error) {
+    return tutorResponse;
+  }
+
+  return {
+    ...tutorResponse,
+    data: tutorResponse.data[0],
+  };
+};
+
+export const getTutorId = async (
+  queryData: UniqueTutorQuery
+): Promise<SupabaseResponse<string>> => {
+  if (queryData.tutor_id) {
+    return {
+      data: queryData.tutor_id,
+      error: false,
+      message: "Tutor ID already exists!",
+    };
+  }
+
+  const tutorResponse = await getTutor(queryData);
+
+  if (tutorResponse.error) {
+    return tutorResponse;
+  }
+
+  const { tutor_id } = tutorResponse.data;
+
+  return {
+    data: tutor_id,
+    error: false,
+    message: "Successfully fetched Tutor ID!",
+  };
+};
 
 export const insertTutorLog = async (
   tutorLogInfo: any
 ): Promise<any> => {
-
   const tutorLogResponse = await supabase
     .from("tutor_logs")
     .insert(tutorLogInfo)
