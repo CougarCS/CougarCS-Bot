@@ -50,7 +50,8 @@ export const tutorlog: Command = {
     run: async (interaction) => {
         await interaction.deferReply({ ephemeral: false });
 
-        const discord_snowflake = interaction.user.id;
+        const discord_snowflake = interaction.user?.id as string;
+
 
         const tutor_id = getTutor({discord_snowflake});
 
@@ -74,10 +75,10 @@ export const tutorlog: Command = {
 
         const tutorLogResponse = await insertTutorLog (create);
         
-        // if (tutorLogResponse.error) {
-        //   await sendError(errorTitle, tutorLogResponse.message, interaction);
-        //   return;
-        // }
+        if (tutorLogResponse.error) {
+          await sendError(errorTitle, tutorLogResponse.message, interaction);
+          return;
+        }
     
         console.log(tutorLogResponse);
         return;
