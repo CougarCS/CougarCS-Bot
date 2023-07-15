@@ -5,6 +5,7 @@ import { SlashCommandBuilder } from "discord.js";
 import { reportOptions } from "../../utils/options";
 import { TutorLogInsert } from "../../utils/types";
 import { insertTutorLog } from "../../utils/supabase";
+import { getTutor } from "../../utils/supabase";
 
 
 export const tutorlog: Command = {
@@ -51,6 +52,8 @@ export const tutorlog: Command = {
 
         const discord_snowflake = interaction.user.id;
 
+        const tutor_id = getTutor({discord_snowflake});
+
         const create: TutorLogInsert = {
             hours: interaction.options.get("hours", true).value as number,
             tutoring_type_id: interaction.options.get("tutoring-type", true).value as string,
@@ -62,23 +65,22 @@ export const tutorlog: Command = {
             // tutoring_type_id : string ;
             // tutored_user?: string;
             // description?: string | null | undefined;
-      //   }
+        };
+        commandLog(interaction, "/tutor-log", "Orange", [
+          // {name: "tutor-log", value: `${create.hours}`} 
+        ]);
+          
+        const errorTitle = "❌ Insert Failed!";
 
-      commandLog(interaction, "/tutor-log", "Orange", [
-        // {name: "tutor-log", value: `${create.hours}`} 
-      ]);
+        const tutorLogResponse = await insertTutorLog (create);
         
-      const errorTitle = "❌ Insert Failed!";
-
-      const tutorLogResponse = await insertTutorLog (create);
-      
-      if (tutorLogResponse.error) {
-        await sendError(errorTitle, tutorLogResponse.message, interaction);
+        // if (tutorLogResponse.error) {
+        //   await sendError(errorTitle, tutorLogResponse.message, interaction);
+        //   return;
+        // }
+    
+        console.log(tutorLogResponse);
         return;
-      }
-  
-      console.log(tutorLogResponse);
-      return;
     }
 };
 
