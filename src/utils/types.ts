@@ -189,26 +189,40 @@ export type TutorSignupFormData = {
   coursesTutoring: string[];
 };
 
-// TODO: ask Ben which is mandatory?
-
-//Type 'TutorLogInsert' is not assignable to 
-//type '{ description?: string | null | undefined; hours: number; timestamp?: string | undefined;
-// tutor_id: string; tutor_log_id: string; tutored_user: string; tutoring_type_id: string; }'.
-
-
-export type TutorLogInsert = {
-    //tutor_log_id?: string | null;
-    //tutor_id?: string | null;
-    hours?: number | null;
-    tutoring_type_id? : string | null;
-    tutored_user?: string | null;
-    description?: string | null | undefined;
-};
-export type TutorLogSelect = {
-    // tutor_log_id: string;
-    // tutor_id: string;
-    hours: number | null;
-    tutoring_type_id : string | null;
-    tutored_user: string | null;
-    description: string | null | undefined;
+export type TutorSelect = {
+  contact_id: string,
+  end_date: string,
+  start_date: string,
+  tutor_id: string,
 }
+
+export type UniqueTutorQuery = {
+  contact_id?: string,
+  tutor_id?: string,
+}
+
+export type TutorQuery = {
+  contact_id?: string
+  end_date?: string
+  start_date?: string
+  tutor_id?: string
+}
+
+// export type TutorLogInsert = {
+//     description?: string | null;
+//     hours: number;
+//     timestamp?: string;
+//     tutor_id: string;
+//     tutor_log_id: string;
+//     tutored_user: string;
+//     tutoring_type_id: string;
+// };
+
+// export type TutorLogSelect = {
+//     // tutor_log_id: string;
+//     // tutor_id: string;
+//     hours: number | null;
+//     tutoring_type_id : string | null;
+//     tutored_user: string | null;
+//     description: string | null | undefined;
+// }
