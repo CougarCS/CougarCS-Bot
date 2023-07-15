@@ -208,21 +208,22 @@ export type TutorQuery = {
   tutor_id?: string
 }
 
-// export type TutorLogInsert = {
-//     description?: string | null;
-//     hours: number;
-//     timestamp?: string;
-//     tutor_id: string;
-//     tutor_log_id: string;
-//     tutored_user: string;
-//     tutoring_type_id: string;
-// };
+export type TutorLogInsert = {
+  description?: string | null;
+  hours: number;
+  timestamp?: string;
+  tutor_id: string;
+  tutor_log_id: string;
+  tutored_user: string;
+  tutoring_type_id: string;
+};
 
-// export type TutorLogSelect = {
-//     // tutor_log_id: string;
-//     // tutor_id: string;
-//     hours: number | null;
-//     tutoring_type_id : string | null;
-//     tutored_user: string | null;
-//     description: string | null | undefined;
-// }
+export type TutorLogSelect = {
+  description: string | null;
+  hours: number;
+  timestamp: string;
+  tutor_id: string;
+  tutor_log_id: string;
+  tutored_user: string;
+  tutoring_type_id: string;
+}
