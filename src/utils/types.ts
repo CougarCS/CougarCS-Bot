@@ -197,18 +197,18 @@ export type TutorSignupFormData = {
 
 
 export type TutorLogInsert = {
-    tutor_log_id?: string;
-    tutor_id?: string;
-    hours?: number;
-    tutoring_type_id : string ;
-    tutored_user?: string;
+    //tutor_log_id?: string | null;
+    //tutor_id?: string | null;
+    hours?: number | null;
+    tutoring_type_id? : string | null;
+    tutored_user?: string | null;
     description?: string | null | undefined;
 };
 export type TutorLogSelect = {
-    tutor_log_id: string;
-    tutor_id: string;
-    hours: number;
-    tutoring_type_id : string;
-    tutored_user: string;
-    description?: string | null | undefined;
+    // tutor_log_id: string;
+    // tutor_id: string;
+    hours: number | null;
+    tutoring_type_id : string | null;
+    tutored_user: string | null;
+    description: string | null | undefined;
 }

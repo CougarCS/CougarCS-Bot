@@ -844,6 +844,15 @@ export const getChannel = async (
 };
 
 
+export const getTutor = async(
+  query: any
+): Promise<any> => {
+    const contactResponse = await getContact(query.discord_snowflake);
+    console.log(contactResponse);
+}
+
+
+
 export const insertTutorLog = async (
   tutorLogInfo: any
 ): Promise<any> => {
@@ -856,7 +865,7 @@ export const insertTutorLog = async (
   if (tutorLogResponse.error) {
     return {
       error: true,
-      message: "There was an error inserting the tutor log !",
+      message: tutorLogResponse.error,
     };
   }
 
