@@ -4,8 +4,10 @@ import { commandLog, sendError } from "../../utils/logs";
 import { SlashCommandBuilder } from "discord.js";
 import { reportOptions } from "../../utils/options";
 import { TutorLogInsert } from "../../utils/types";
-import { insertTutorLog } from "../../utils/supabase";
+import { getContactId, getContacts, getTutorId, insertTutorLog } from "../../utils/supabase";
 import { getTutor } from "../../utils/supabase";
+import { getContact } from "../../utils/supabase";
+import { send } from "process";
 
 
 export const tutorlog: Command = {
@@ -53,7 +55,27 @@ export const tutorlog: Command = {
         const discord_snowflake = interaction.user?.id as string;
 
 
-        const tutor_id = getTutor({discord_snowflake});
+        const contactIdResponse = await  getContactId({discord_snowflake});
+
+        const errorTitle = "❌ Tutor log Failed!";
+        
+        if (contactIdResponse.error){
+          await sendError(errorTitle, contactIdResponse.message, interaction);
+          return;
+        }
+
+        const contact_id = contactIdResponse.data;
+
+        const tutorIdResponse = await getTutorId({contact_id});
+
+        if (tutorIdResponse.error){
+          await sendError(errorTitle, tutorIdResponse.message, interaction);
+          return;
+        }
+
+        const tutor_id = tutorIdResponse.data;
+
+        console.log(tutor_id)
 
         const create: TutorLogInsert = {
             hours: interaction.options.get("hours", true).value as number,
@@ -61,7 +83,7 @@ export const tutorlog: Command = {
             tutored_user: interaction.options.get("tutored-user", true).value as string,
             description: interaction.options.get("description", true).value as string,
             // tutor_log_id?: string;
-            // tutor_id?: string;
+            tutor_id: tutor_id as string,
             // hours?: number;
             // tutoring_type_id : string ;
             // tutored_user?: string;
@@ -71,17 +93,7 @@ export const tutorlog: Command = {
           // {name: "tutor-log", value: `${create.hours}`} 
         ]);
           
-        const errorTitle = "❌ Insert Failed!";
-
-        const tutorLogResponse = await insertTutorLog (create);
-        
-        if (tutorLogResponse.error) {
-          await sendError(errorTitle, tutorLogResponse.message, interaction);
-          return;
-        }
-    
-        console.log(tutorLogResponse);
-        return;
+        return;  
     }
 };
 
