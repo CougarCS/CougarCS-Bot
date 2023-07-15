@@ -20,7 +20,7 @@ import { attendance } from "../commands/officer-commands/attendance";
 import { createcontact } from "../commands/admin-commands/create-contact";
 import { setguildconfig } from "../commands/officer-commands/set-guild-config";
 import { tutorsignup } from "../commands/user-commands/tutor-signup";
-import { tutorlog } from "src/commands/user-commands/tutor-log";
+import { tutorlog } from "../commands/user-commands/tutor-log";
 
 export const CommandList: Command[] = [
   attendance,
