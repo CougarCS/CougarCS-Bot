@@ -1,26 +1,20 @@
 
-import { Command } from "src/interfaces/Command";
-import { commandLog } from "../../utils/logs";
+import { Command } from "../../interfaces/Command";
+import { commandLog, sendError } from "../../utils/logs";
 import { SlashCommandBuilder } from "discord.js";
-import { reportOptions } from "src/utils/options";
-import { TutorLogInsert } from "src/utils/types";
-import { insertTutorLog } from "src/utils/supabase";
-
+import { reportOptions } from "../../utils/options";
+import { TutorLogInsert } from "../../utils/types";
+import { insertTutorLog } from "../../utils/supabase";
 
 
 export const tutorlog: Command = {
+
+  
     data : new  SlashCommandBuilder()
-    .setName("tutor-log")
-    .addNumberOption((option) =>
+      .setName("tutor-log")
+      .setDescription("Log your tutor hours")
+      .addStringOption((option) =>
       option
-        .setName("hours")
-        .setDescription("How many hours did you tutor?")
-        .setMaxValue(5)
-        .setMinValue(1)
-        .setRequired(false)
-    )
-    .addStringOption((option) =>
-    option
       .setName("tutoring-type")
       .setDescription("Online or in-person?")
       .addChoices(
@@ -30,11 +24,19 @@ export const tutorlog: Command = {
         )
       .setRequired(true)
   )
-    .addStringOption((option) =>
-    option
-        .setName("tutored_user")
-        .setDescription("Name of the student you tutored")
-        .setRequired(true)
+  .addStringOption((option) =>
+  option
+      .setName("tutored-user")
+      .setDescription("Name of the student you tutored")
+      .setRequired(true)
+  )
+    .addNumberOption((option) =>
+      option
+        .setName("hours")
+        .setDescription("How many hours did you tutor?")
+        .setMaxValue(5)
+        .setMinValue(1)
+        .setRequired(false)
     )
     .addStringOption((option) =>
     option
@@ -46,7 +48,9 @@ export const tutorlog: Command = {
   ,
     run: async (interaction) => {
         await interaction.deferReply({ ephemeral: false });
-        
+
+        const discord_snowflake = interaction.user.id;
+
         const create: TutorLogInsert = {
             hours: interaction.options.get("hours", true).value as number,
             tutoring_type_id: interaction.options.get("tutoring-type", true).value as string,
@@ -58,16 +62,23 @@ export const tutorlog: Command = {
             // tutoring_type_id : string ;
             // tutored_user?: string;
             // description?: string | null | undefined;
-        }
-        commandLog(interaction, "/tutor-log", "Orange", []);
+      //   }
 
-        //const tutorLogResponse = await insertTutorLog (create);
+      commandLog(interaction, "/tutor-log", "Orange", [
+        // {name: "tutor-log", value: `${create.hours}`} 
+      ]);
+        
+      const errorTitle = "❌ Insert Failed!";
 
-       // console.log(tutorLogResponse);
-        
-        
+      const tutorLogResponse = await insertTutorLog (create);
+      
+      if (tutorLogResponse.error) {
+        await sendError(errorTitle, tutorLogResponse.message, interaction);
+        return;
+      }
+  
+      console.log(tutorLogResponse);
+      return;
     }
-    
-
 };
 
