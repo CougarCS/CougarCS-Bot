@@ -77,11 +77,11 @@ export const tutorlog: Command = {
         const tutor_id = tutorIdResponse.data;
 
         const create: TutorLogInsert = {
-          description: interaction.options.get("description", false)?.value as | string | null,
-          hours: interaction.options.get("hours", true).value as number,
           tutor_id: tutor_id as string,
-          tutored_user: interaction.options.get("tutored-user", true).value as string,
           tutoring_type_id: interaction.options.get("tutoring-type", true).value as string,
+          tutored_user: interaction.options.get("tutored-user", true).value as string,
+          hours: interaction.options.get("hours", true).value as number,
+          description: interaction.options.get("description", false)?.value as | string | null,
         };
 
         const tutorLogResponse = await insertTutorLog(create);
@@ -99,7 +99,11 @@ export const tutorlog: Command = {
         await interaction.editReply({ embeds: [returnMessage] });
         
         commandLog(interaction, "/tutor-log", "Orange", [
-          // {name: "tutor-log", value: `${create.hours}`} 
+          { name: "tutor-log", value: `${create.tutor_log_id}`},
+          { name: "tutoring-type", value: `${create.tutoring_type_id}`},
+          { name: "tutored-user", value: `${create.tutored_user}`},
+          { name: "hours", value: `${create.hours}`},
+          { name: "description", value: `${create.description}`}
         ]);
           
         return;  
