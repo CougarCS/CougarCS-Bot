@@ -213,7 +213,7 @@ export type TutorLogInsert = {
   hours: number;
   timestamp?: string;
   tutor_id: string;
-  tutor_log_id: string;
+  tutor_log_id?: string;
   tutored_user: string;
   tutoring_type_id: string;
 };
