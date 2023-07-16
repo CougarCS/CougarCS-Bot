@@ -919,8 +919,8 @@ export const getTutorId = async (
 };
 
 export const insertTutorLog = async (
-  tutorLogInfo: any
-): Promise<any> => {
+  tutorLogInfo: TutorLogInsert
+): Promise<SupabaseResponse<TutorLogSelect>> => {
   const tutorLogResponse = await supabase
     .from("tutor_logs")
     .insert(tutorLogInfo)
