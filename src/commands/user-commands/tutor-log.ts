@@ -4,10 +4,7 @@ import { commandLog, sendError } from "../../utils/logs";
 import { SlashCommandBuilder } from "discord.js";
 import { reportOptions } from "../../utils/options";
 import { TutorLogInsert } from "../../utils/types";
-import { getContactId, getContacts, getTutorId, insertTutorLog } from "../../utils/supabase";
-import { getTutor } from "../../utils/supabase";
-import { getContact } from "../../utils/supabase";
-import { send } from "process";
+import { getContactId, getTutorId, insertTutorLog } from "../../utils/supabase";
 import { createEmbeded } from "../../utils/embeded";
 
 
