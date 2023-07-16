@@ -1,4 +1,3 @@
-
 import { Command } from "../../interfaces/Command";
 import { commandLog, sendError } from "../../utils/logs";
 import { SlashCommandBuilder } from "discord.js";
@@ -9,7 +8,6 @@ import { createEmbeded } from "../../utils/embeded";
 
 
 export const tutorlog: Command = {
-
   
     data : new  SlashCommandBuilder()
       .setName("tutor-log")
@@ -35,15 +33,12 @@ export const tutorlog: Command = {
       option
         .setName("hours")
         .setDescription("How many hours did you tutor?")
-        .setMaxValue(5)
-        .setMinValue(1)
         .setRequired(true)
     )
     .addStringOption((option) =>
     option
     .setName("description")
     .setDescription("Optional description of the tutoring session")
-    .setChoices(...reportOptions())
     .setRequired(false)
     )
   ,
@@ -51,7 +46,6 @@ export const tutorlog: Command = {
         await interaction.deferReply({ ephemeral: false });
 
         const discord_snowflake = interaction.user?.id as string;
-
 
         const contactIdResponse = await  getContactId({discord_snowflake});
 
