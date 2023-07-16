@@ -8,6 +8,7 @@ import { getContactId, getContacts, getTutorId, insertTutorLog } from "../../uti
 import { getTutor } from "../../utils/supabase";
 import { getContact } from "../../utils/supabase";
 import { send } from "process";
+import { createEmbeded } from "../../utils/embeded";
 
 
 export const tutorlog: Command = {
@@ -39,7 +40,7 @@ export const tutorlog: Command = {
         .setDescription("How many hours did you tutor?")
         .setMaxValue(5)
         .setMinValue(1)
-        .setRequired(false)
+        .setRequired(true)
     )
     .addStringOption((option) =>
     option
@@ -57,7 +58,7 @@ export const tutorlog: Command = {
 
         const contactIdResponse = await  getContactId({discord_snowflake});
 
-        const errorTitle = "❌ Tutor log Failed!";
+        const errorTitle = "❌ Tutor Log Failed!";
         
         if (contactIdResponse.error){
           await sendError(errorTitle, contactIdResponse.message, interaction);
@@ -75,20 +76,28 @@ export const tutorlog: Command = {
 
         const tutor_id = tutorIdResponse.data;
 
-        console.log(tutor_id)
-
         const create: TutorLogInsert = {
-            hours: interaction.options.get("hours", true).value as number,
-            tutoring_type_id: interaction.options.get("tutoring-type", true).value as string,
-            tutored_user: interaction.options.get("tutored-user", true).value as string,
-            description: interaction.options.get("description", true).value as string,
-            // tutor_log_id?: string;
-            tutor_id: tutor_id as string,
-            // hours?: number;
-            // tutoring_type_id : string ;
-            // tutored_user?: string;
-            // description?: string | null | undefined;
+          description: interaction.options.get("description", false)?.value as | string | null,
+          hours: interaction.options.get("hours", true).value as number,
+          tutor_id: tutor_id as string,
+          tutored_user: interaction.options.get("tutored-user", true).value as string,
+          tutoring_type_id: interaction.options.get("tutoring-type", true).value as string,
         };
+
+        const tutorLogResponse = await insertTutorLog(create);
+
+        if (tutorLogResponse.error){
+          await sendError(errorTitle, tutorLogResponse.message, interaction);
+          return;
+        }
+
+        const returnMessage = createEmbeded(
+          "📝 Tutor Log Submitted!",
+          "Your tutoring hours have been submitted!"
+        ).setColor("Green");
+          
+        await interaction.editReply({ embeds: [returnMessage] });
+        
         commandLog(interaction, "/tutor-log", "Orange", [
           // {name: "tutor-log", value: `${create.hours}`} 
         ]);
