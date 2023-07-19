@@ -74,7 +74,7 @@ export const getContacts = async (
   addQueryFilters(query, queryData);
 
   const response = await query;
-  console.log(response);
+
   if (response.error) {
     return {
       error: true,
@@ -867,8 +867,6 @@ export const getTutors = async (
       message: "No tutors were found!"
     };
   }
-
-  console.log(tutorsResponse);
 
   return {
     data: tutorsResponse.data,
