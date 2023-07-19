@@ -861,7 +861,7 @@ export const getTutors = async (
     };
   }
 
-  if (tutorsResponse.data.length == 0) {
+  if (tutorsResponse.data.length === 0) {
     return {
       error: true,
       message: "No tutors were found!"
