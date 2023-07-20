@@ -5,15 +5,14 @@ import { TutorLogInsert } from "../../utils/types";
 import { getContactId, getTutorId, insertTutorLog } from "../../utils/supabase";
 import { createEmbeded } from "../../utils/embeded";
 
-
 export const tutorlog: Command = {
   data : new  SlashCommandBuilder()
     .setName("tutor-log")
     .setDescription("Log your tutor hours")
-    .addStringOption((option) =>
+    .addStringOption((option) => 
       option
         .setName("tutoring-type")
-        .setDescription("Online or in-person?")
+        .setDescription("Type of tutoring session you engaged in!")
         .addChoices(
           {name: 'In Person', value: 't-ip'},
           {name: 'Online Voice Chat', value: 't-ov'},
@@ -24,7 +23,7 @@ export const tutorlog: Command = {
     .addStringOption((option) =>
       option
         .setName("tutored-user")
-        .setDescription("Name of the student you tutored")
+        .setDescription("Name(s) of the student you tutored")
         .setRequired(true)
     )
     .addNumberOption((option) =>
@@ -36,11 +35,11 @@ export const tutorlog: Command = {
     .addStringOption((option) =>
       option
       .setName("description")
-      .setDescription("Optional description of the tutoring session")
+      .setDescription("Description of the tutoring session")
       .setRequired(false)
     ),
   run: async (interaction) => {
-    await interaction.deferReply({ ephemeral: false });
+    await interaction.deferReply({ ephemeral: true });
 
     const discord_snowflake = interaction.user?.id as string;
 
