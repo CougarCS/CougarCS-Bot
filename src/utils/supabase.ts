@@ -40,7 +40,7 @@ const addQueryFilters = (query: any, queryData: ContactQuery) => {
 
     if (!queryData[contactKey]) return;
 
-    if (contactKey === "uh_id" || contactKey === "contact_id") {
+    if (contactKey.match(/_id$/)) {
       query = query.eq(contactKey, queryData[contactKey]);
     } else {
       const stringSearch = `%${queryData[contactKey]}%`;
@@ -847,12 +847,13 @@ export const getChannel = async (
 };
 
 export const getTutors = async (
-  query: TutorQuery
+  queryData: TutorQuery
 ): Promise<SupabaseResponse<TutorSelect[]>> => {
-  const tutorsResponse = await supabase
-  .from("tutors")
-  .select("*")
-  .eq("contact_id", query.contact_id);
+  const query = supabase.from("tutors").select("*");
+
+  addQueryFilters(query, queryData);
+
+  const tutorsResponse = await query;
 
   if (tutorsResponse.error) {
     return {
