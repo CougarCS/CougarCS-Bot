@@ -928,7 +928,7 @@ export const insertTutorLog = async (
   if (tutorLogResponse.error) {
     return {
       error: true,
-      message: tutorLogResponse.error,
+      message: "There was an error inserting the tutor log!",
     };
   }
 
