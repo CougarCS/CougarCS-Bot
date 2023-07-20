@@ -112,6 +112,8 @@ export type GuildUpdate = {
   name?: string;
   officer_role_id?: string | null;
   report_channel_id?: string | null;
+  tutor_role_id?: string | null;
+  tutoring_director_id?: string | null;
 };
 
 export type GuildSelect = {

@@ -6,7 +6,8 @@ import {
   ChatInputCommandInteraction,
   Client,
   ComponentType,
-  Message,
+  Guild,
+  Interaction,
   ModalBuilder,
   ModalSubmitInteraction,
   StringSelectMenuBuilder,
@@ -17,6 +18,8 @@ import {
 } from "discord.js";
 import { TutorSignupFormData } from "../utils/types";
 import { createEmbeded } from "../utils/embeded";
+import { getChannel, getGuildData, getRole } from "../utils/supabase";
+import { sendError } from "../utils/logs";
 
 export default class TutorSignupForm {
   private formData: TutorSignupFormData = {
@@ -33,61 +36,121 @@ export default class TutorSignupForm {
     coursesTutoring: [],
   };
 
-  private lastMessage: Message | undefined;
+  private modalSubmitted = false;
+
+  private submitted = false;
+
+  private guild: Guild;
+
+  private interactionListener = async (interaction: Interaction) => {
+    const isModalButton =
+      interaction.isButton() &&
+      this.modalButton.data.style === ButtonStyle.Primary &&
+      interaction.customId === this.modalButton.data.custom_id;
+
+    const isModalSubmit =
+      interaction.isModalSubmit() &&
+      interaction.customId === this.modal.data.custom_id;
+
+    const isSelectMenu = interaction.isStringSelectMenu() && interaction;
+
+    const isSubmitButton =
+      interaction.isButton() &&
+      this.formSubmitButton.data.style === ButtonStyle.Primary &&
+      interaction.customId === this.formSubmitButton.data.custom_id;
+
+    const isAcceptButton =
+      interaction.isButton() &&
+      this.acceptTutorButton.data.style === ButtonStyle.Primary &&
+      interaction.customId === this.acceptTutorButton.data.custom_id;
+
+    const isRejectButton =
+      interaction.isButton() &&
+      this.rejectTutorButton.data.style === ButtonStyle.Danger &&
+      interaction.customId === this.rejectTutorButton.data.custom_id;
+
+    if (isModalButton) {
+      await this.onModalButton(interaction);
+      console.log(this.formData);
+      return;
+    }
+
+    if (isModalSubmit) {
+      await this.onModalSubmit(interaction);
+      console.log(this.formData);
+      return;
+    }
+
+    if (isSelectMenu) {
+      await this.onDropdownSubmit(interaction);
+      console.log(this.formData);
+      return;
+    }
+
+    if (isSubmitButton) {
+      console.log(this.formData);
+      await this.onFormSubmit(interaction);
+    }
+
+    if (isAcceptButton) {
+      console.log(this.formData);
+      await this.onAcceptTutor(interaction);
+    }
+
+    if (isRejectButton) {
+      console.log(this.formData);
+      await this.onRejectTutor(interaction);
+    }
+  };
+
+  private removeInteractionListener = () =>
+    this.client.off("interactionCreate", this.interactionListener);
 
   constructor(
     private commandInteraction: ChatInputCommandInteraction,
     private client: Client
   ) {
-    const {
-      modalButton,
-      modal,
-      formSubmitButton,
-      onModalButton,
-      onModalSubmit,
-      onDropdownSubmit,
-    } = this;
+    this.guild = commandInteraction.guild as Guild;
+    client.on("interactionCreate", this.interactionListener);
 
-    client.on("interactionCreate", async (interaction) => {
-      const isModalButton =
-        interaction.isButton() &&
-        modalButton.data.style === ButtonStyle.Primary &&
-        interaction.customId === modalButton.data.custom_id;
-
-      const isModalSubmit =
-        interaction.isModalSubmit() &&
-        interaction.customId === modal.data.custom_id;
-
-      const isSelectMenu = interaction.isStringSelectMenu() && interaction;
-
-      const isSubmitButton =
-        interaction.isButton() &&
-        formSubmitButton.data.style === ButtonStyle.Primary &&
-        interaction.customId === formSubmitButton.data.custom_id;
-
-      console.log(this.formData);
-
-      if (isModalButton) {
-        return await onModalButton(interaction);
+    const oneDayInMs = 1000 * 60 * 60 * 24;
+    setTimeout(() => {
+      if (!this.submitted) {
+        this.removeInteractionListener();
       }
-
-      if (isModalSubmit) {
-        return await onModalSubmit(interaction);
-      }
-
-      if (isSelectMenu) {
-        await onDropdownSubmit(interaction);
-        return;
-      }
-
-      if (isSubmitButton) {
-        // await onFormSubmit()
-      }
-    });
+    }, oneDayInMs);
   }
 
   public sendForm = async () => {
     const { commandInteraction, wrapButtonActionRow, modalButton } = this;
+
+    await commandInteraction.deferReply({
+      ephemeral: true,
+    });
+
+    const { user } = commandInteraction;
+
+    const member = await this.guild.members.fetch({ user });
+
+    const tutorRoleResponse = await getRole("tutor", this.guild);
+
+    if (!tutorRoleResponse.error) {
+      const tutorRole = tutorRoleResponse.data;
+      if (member.roles.cache.find((r) => r === tutorRole)) {
+        const returnMessage = createEmbeded(
+          "❌ Tutor Signup Failed!",
+          "You are already a tutor!"
+        );
+
+        await commandInteraction.editReply({
+          embeds: [returnMessage],
+        });
+
+        this.removeInteractionListener();
+
+        return;
+      }
+    }
 
     const startMessageEmbed = createEmbeded(
       "CougarCS Tutor Application!",
@@ -96,12 +159,19 @@ export default class TutorSignupForm {
 
     const modalButtonRow = wrapButtonActionRow(modalButton);
 
-    await commandInteraction.reply({
-      ephemeral: true,
+    await commandInteraction.editReply({
       embeds: [startMessageEmbed],
       components: [modalButtonRow],
     });
   };
+
+  private isReadyToSubmit = () =>
+    !!(
+      this.formData.classification &&
+      this.formData.isCSMajor &&
+      this.formData.tutorType.length > 0 &&
+      this.formData.coursesTutoring.length > 0
+    );
 
   private uniqueId = (baseId: string) => `${baseId}${new Date().getTime()}`;
 
@@ -115,7 +185,7 @@ export default class TutorSignupForm {
   };
 
   private wrapButtonActionRow = (
-    input: ButtonBuilder
+    ...input: ButtonBuilder[]
   ): ActionRowBuilder<ButtonBuilder> =>
     new ActionRowBuilder<ButtonBuilder>().addComponents(input);
 
@@ -226,7 +296,7 @@ export default class TutorSignupForm {
     )
     .setMinValues(1)
     .setMaxValues(1)
-    .setPlaceholder("What is your classification?");
+    .setPlaceholder("What is your classification? *");
 
   private isCSMajor = new StringSelectMenuBuilder()
     .setCustomId(this.dropdownIds.isCSMajor)
@@ -246,7 +316,7 @@ export default class TutorSignupForm {
     )
     .setMinValues(1)
     .setMaxValues(1)
-    .setPlaceholder("Are you pursuing a CS degree?");
+    .setPlaceholder("Are you pursuing a CS degree? *");
 
   private lessThanBMinus = new StringSelectMenuBuilder()
     .setCustomId(this.dropdownIds.lessThanBMinus)
@@ -262,9 +332,7 @@ export default class TutorSignupForm {
     )
     .setMinValues(0)
     .setMaxValues(1)
-    .setPlaceholder(
-      "If so, did you receive less then a B- in one of your CS classes last semester?"
-    );
+    .setPlaceholder("Yes/No");
 
   private tutorType = new StringSelectMenuBuilder()
     .setCustomId(this.dropdownIds.tutorType)
@@ -280,7 +348,7 @@ export default class TutorSignupForm {
     )
     .setMinValues(1)
     .setMaxValues(2)
-    .setPlaceholder("What type of tutor would you want to be?");
+    .setPlaceholder("What type of tutor would you want to be? *");
 
   private coursesTutoring = new StringSelectMenuBuilder()
     .setCustomId(this.dropdownIds.coursesTutoring)
@@ -320,7 +388,7 @@ export default class TutorSignupForm {
     )
     .setMinValues(1)
     .setMaxValues(8)
-    .setPlaceholder("What course(s) are you interested in tutoring in?");
+    .setPlaceholder("What course(s) are you interested in tutoring in? *");
 
   private formSubmitButton = new ButtonBuilder()
     .setCustomId(this.uniqueId("form-submit"))
@@ -328,16 +396,24 @@ export default class TutorSignupForm {
     .setStyle(ButtonStyle.Primary);
 
   private additionalQuestions = [
+    this.pronouns,
     this.classification,
     this.tutorType,
     this.coursesTutoring,
     this.isCSMajor,
     this.lessThanBMinus,
-    this.pronouns,
   ].map(this.wrapDropwdownActionRow);
 
   private onModalButton = async (interaction: ButtonInteraction) => {
-    const { modal } = this;
+    const { formData, modal, setInputValue } = this;
+
+    if (formData.name) {
+      setInputValue(0, formData.name);
+      setInputValue(1, formData.psid);
+      setInputValue(2, formData.email);
+      setInputValue(3, formData.phoneNumber);
+      setInputValue(4, formData.reason);
+    }
 
     await interaction.showModal(modal);
   };
@@ -353,9 +429,27 @@ export default class TutorSignupForm {
       formSubmitButton,
     } = this;
 
+    formData.name = getInputValue(interaction, 0);
+    formData.psid = getInputValue(interaction, 1);
+    formData.email = getInputValue(interaction, 2);
+    formData.phoneNumber = getInputValue(interaction, 3);
+    formData.reason = getInputValue(interaction, 4);
+
+    if (this.modalSubmitted) {
+      await interaction.deferUpdate();
+      return;
+    }
+
+    this.modalSubmitted = true;
+
     const additionalQuestionsEmbed = createEmbeded(
       "Additional Questions",
       "Please answer these additional questions to submit your tutoring application! If you need to change your previous responses, you can click the edit button above!"
+    );
+
+    const lessThanBMinusEmbed = createEmbeded(
+      " ",
+      "If you answered 'yes' to the previous question, did you receive less than a B- in one of your CS classes last semester?"
     );
 
     const additionalQuestionsComponents = [
@@ -363,8 +457,8 @@ export default class TutorSignupForm {
       wrapButtonActionRow(formSubmitButton),
     ];
 
-    const aqcSplitA = additionalQuestionsComponents.slice(0, 4);
-    const aqcSplitB = additionalQuestionsComponents.slice(4);
+    const aqcSplitA = additionalQuestionsComponents.slice(0, 5);
+    const aqcSplitB = additionalQuestionsComponents.slice(5);
 
     await interaction.reply({
       ephemeral: true,
@@ -372,16 +466,11 @@ export default class TutorSignupForm {
       components: aqcSplitA,
     });
 
-    this.lastMessage = await interaction.followUp({
+    await interaction.followUp({
       ephemeral: true,
+      embeds: [lessThanBMinusEmbed],
       components: aqcSplitB,
     });
-
-    formData.name = getInputValue(interaction, 0);
-    formData.psid = getInputValue(interaction, 1);
-    formData.email = getInputValue(interaction, 2);
-    formData.phoneNumber = getInputValue(interaction, 3);
-    formData.reason = getInputValue(interaction, 4);
 
     modalButton.setLabel("Edit");
 
@@ -393,7 +482,7 @@ export default class TutorSignupForm {
   private onDropdownSubmit = async (
     interaction: StringSelectMenuInteraction
   ) => {
-    const { dropdownIds, formData, formSubmitButton } = this;
+    const { dropdownIds, formData } = this;
 
     await interaction.deferUpdate();
 
@@ -416,23 +505,25 @@ export default class TutorSignupForm {
       case dropdownIds.coursesTutoring:
         formData.coursesTutoring = interaction.values;
     }
+  };
 
-    const { classification, isCSMajor, tutorType, coursesTutoring } = formData;
+  private onFormSubmit = async (interaction: ButtonInteraction) => {
+    if (this.submitted || !this.isReadyToSubmit()) {
+      await interaction.deferUpdate();
+      return;
+    }
 
-    const readyToSubmit = !!(
-      classification &&
-      isCSMajor &&
-      tutorType.length > 0 &&
-      coursesTutoring.length > 0
+    this.submitted = true;
+
+    const completionEmbed = createEmbeded(
+      "Application Submitted!",
+      "Thank you for applying to be a CougarCS Tutor. Your application is currently in review!"
     );
 
-    console.log(`Ready: ${readyToSubmit}`);
+    await this.sendApplicationToDirector();
 
-    if (readyToSubmit) {
-      formSubmitButton.setDisabled(false);
-    } else {
-      formSubmitButton.setDisabled(true);
-    }
+    await interaction.reply({ ephemeral: true, embeds: [completionEmbed] });
+    return;
   };
 
   private getInputValue = (
@@ -446,5 +537,187 @@ export default class TutorSignupForm {
     }
 
     return "";
+  };
+
+  private setInputValue = (index: number, value: string) => {
+    const { modal } = this;
+
+    modal.components[index].components[0].setValue(value);
+  };
+
+  private sendApplicationToDirector = async () => {
+    const { user } = this.commandInteraction;
+
+    const applicationEmbed = createEmbeded(
+      "Tutor Application",
+      `Submitted by: ${user}`
+    )
+      .addFields(
+        ...[
+          {
+            name: "Name",
+            value: this.formData.name,
+            inline: true,
+          },
+          {
+            name: "Pronouns",
+            value: this.formData.pronouns.join(", ") || " ",
+            inline: true,
+          },
+          {
+            name: "PSID",
+            value: this.formData.psid,
+            inline: true,
+          },
+          {
+            name: "Email",
+            value: this.formData.email,
+            inline: true,
+          },
+          {
+            name: "Phone Number",
+            value: this.formData.phoneNumber,
+            inline: true,
+          },
+          {
+            name: "Major",
+            value:
+              {
+                yes: "Computer Science",
+                no: "Non-CS",
+              }[this.formData.isCSMajor] || "Undecided",
+            inline: true,
+          },
+          {
+            name: "B- or Less",
+            value:
+              {
+                yes: "Yes",
+                no: "No",
+              }[this.formData.lessThanBMinus] || "N/A",
+            inline: true,
+          },
+          {
+            name: "Location Preference",
+            value: this.formData.tutorType
+              .map((loc) => {
+                return (
+                  {
+                    "in person tutor": "In Person",
+                  }[loc] || "Online"
+                );
+              })
+              .join(" & "),
+            inline: true,
+          },
+          {
+            name: "Tutoring Courses",
+            value: this.formData.coursesTutoring.join(", ") || " ",
+            inline: true,
+          },
+          {
+            name: "Reason",
+            value: this.formData.reason || " ",
+            inline: true,
+          },
+        ]
+      )
+      .setColor("Orange")
+      .setThumbnail(user.displayAvatarURL());
+
+    if (!this.commandInteraction.guild) return;
+
+    const { guild } = this.commandInteraction;
+
+    const guildDataResponse = await getGuildData(guild);
+
+    if (guildDataResponse.error) return;
+
+    const guildData = guildDataResponse.data;
+
+    const reportChannelResponse = await getChannel("report", guild);
+
+    if (reportChannelResponse.error) {
+      return;
+    }
+
+    const reportChannel = reportChannelResponse.data;
+
+    const components = [
+      this.wrapButtonActionRow(this.acceptTutorButton, this.rejectTutorButton),
+    ];
+
+    await reportChannel.send({
+      content: `<@${guildData.tutoring_director_id}>`,
+      embeds: [applicationEmbed],
+      components,
+    });
+  };
+
+  private acceptTutorButton = new ButtonBuilder()
+    .setCustomId(this.uniqueId("accept-button"))
+    .setStyle(ButtonStyle.Primary)
+    .setLabel("Accept");
+
+  private rejectTutorButton = new ButtonBuilder()
+    .setCustomId(this.uniqueId("reject-button"))
+    .setStyle(ButtonStyle.Danger)
+    .setLabel("Reject");
+
+  private onAcceptTutor = async (interaction: ButtonInteraction) => {
+    await interaction.deferReply();
+
+    const tutorRoleResponse = await getRole("tutor", this.guild);
+
+    if (tutorRoleResponse.error) {
+      await sendError(
+        "❌ Accept Tutor Failed!",
+        tutorRoleResponse.message,
+        interaction
+      );
+      return;
+    }
+
+    const tutorRole = tutorRoleResponse.data;
+
+    const { user } = this.commandInteraction;
+
+    const member = await this.guild.members.fetch({ user });
+
+    await member.roles.add(tutorRole);
+
+    await this.commandInteraction.followUp({
+      ephemeral: true,
+      content: `${user} Your tutoring application has been accepted!`,
+    });
+
+    const returnMessage = createEmbeded(
+      "✅ Tutor Accepted!",
+      `${user} has been successfully added as a tutor!`
+    );
+
+    await interaction.editReply({ embeds: [returnMessage] });
+
+    this.removeInteractionListener();
+  };
+
+  private onRejectTutor = async (interaction: ButtonInteraction) => {
+    await interaction.deferReply();
+
+    const { user } = this.commandInteraction;
+
+    await this.commandInteraction.followUp({
+      ephemeral: true,
+      content: `${user} Your tutoring application has been denied!`,
+    });
+
+    const returnMessage = createEmbeded(
+      "✅ Tutor Rejected!",
+      `${user} has been rejected as a Tutor!`
+    );
+
+    await interaction.editReply({ embeds: [returnMessage] });
+
+    this.removeInteractionListener();
   };
 }
