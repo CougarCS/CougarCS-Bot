@@ -11,14 +11,14 @@ export const tutorlog: Command = {
     .setDescription("Log your tutor hours")
     .addStringOption((option) => 
       option
-        .setName("tutoring-type")
-        .setDescription("Type of tutoring session you engaged in!")
-        .addChoices(
-          {name: 'In Person', value: 't-ip'},
-          {name: 'Online Voice Chat', value: 't-ov'},
-          {name: 'Online Text Chat', value: 't-ot'}
-        )
-        .setRequired(true)
+        // .setName("tutoring-type")
+        // .setDescription("Type of tutoring session you engaged in!")
+        // .addChoices(
+        //   {name: 'In Person', value: 't-ip'},
+        //   {name: 'Online Voice Chat', value: 't-ov'},
+        //   {name: 'Online Text Chat', value: 't-ot'}
+        // )
+        // .setRequired(true)
     )
     .addStringOption((option) =>
       option
@@ -41,12 +41,24 @@ export const tutorlog: Command = {
   run: async (interaction) => {
     await interaction.deferReply({ ephemeral: true });
 
+    const tutoring_type_id = interaction.options.get("tutoring-type", true).value as string
+    const tutored_user =  interaction.options.get("tutored-user", true).value as string 
+    const hours = interaction.options.get("hours", true).value as number
+    const description = interaction.options.get("description", false)?.value as | string | null 
+    
+    commandLog(interaction, "/tutor-log", "Orange", [
+      { name: "tutoring-type", value: `${tutoring_type_id}`},
+      { name: "tutored-user", value: `${tutored_user}`},
+      { name: "hours", value: `${hours}`},
+      { name: "description", value: `${description}`}
+    ]);
+
     const discord_snowflake = interaction.user?.id as string;
 
     const contactIdResponse = await getContactId({discord_snowflake});
-
-    const errorTitle = "❌ Tutor Log Failed!";
     
+    const errorTitle = "❌ Tutor Log Failed!";
+
     if (contactIdResponse.error){
       await sendError(errorTitle, contactIdResponse.message, interaction);
       return;
@@ -60,18 +72,14 @@ export const tutorlog: Command = {
       await sendError(errorTitle, tutorIdResponse.message, interaction);
       return;
     }
-
+    
     const tutor_id = tutorIdResponse.data;
 
-    const create: TutorLogInsert = {
-      tutor_id: tutor_id as string,
-      tutoring_type_id: interaction.options.get("tutoring-type", true).value as string,
-      tutored_user: interaction.options.get("tutored-user", true).value as string,
-      hours: interaction.options.get("hours", true).value as number,
-      description: interaction.options.get("description", false)?.value as | string | null,
+    const tutorLog: TutorLogInsert = {
+      tutor_id, tutoring_type_id, tutored_user, hours, description
     };
 
-    const tutorLogResponse = await insertTutorLog(create);
+    const tutorLogResponse = await insertTutorLog(tutorLog);
 
     if (tutorLogResponse.error){
       await sendError(errorTitle, tutorLogResponse.message, interaction);
@@ -84,15 +92,6 @@ export const tutorlog: Command = {
     ).setColor("Green");
           
     await interaction.editReply({ embeds: [returnMessage] });
-    
-    commandLog(interaction, "/tutor-log", "Orange", [
-      { name: "tutor-log", value: `${create.tutor_log_id}`},
-      { name: "tutoring-type", value: `${create.tutoring_type_id}`},
-      { name: "tutored-user", value: `${create.tutored_user}`},
-      { name: "hours", value: `${create.hours}`},
-      { name: "description", value: `${create.description}`}
-    ]);
-      
     return;  
   },
 };
