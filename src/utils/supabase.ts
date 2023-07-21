@@ -23,6 +23,7 @@ import {
   TutorLogSelect,
   TutorQuery,
   TutorSelect,
+  TutoringTypeSelect,
   UniqueContactQuery,
   UniqueTutorQuery,
 } from "./types";
@@ -939,3 +940,28 @@ export const insertTutorLog = async (
   };
 };
 
+export const getTutoringTypes = async (): Promise<
+  SupabaseResponse<TutoringTypeSelect[]>
+> => {
+  const tutoringTypeResponse = await supabase.from("tutoring_types").select("*");
+
+  if (tutoringTypeResponse.error) {
+    return {
+      error: true,
+      message: "There was an error fetching the tutoring types!"
+    };
+  }
+
+  if (tutoringTypeResponse.data.length === 0) {
+    return {
+      error: true,
+      message: "No tutoring types were found!"
+    }
+  }
+
+  return {
+    data: tutoringTypeResponse.data,
+    error: false,
+    message: "Successfully fetched tutoring types!",
+  };
+};
