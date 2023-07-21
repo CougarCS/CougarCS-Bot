@@ -4,22 +4,19 @@ import { SlashCommandBuilder } from "discord.js";
 import { TutorLogInsert } from "../../utils/types";
 import { getContactId, getTutorId, insertTutorLog } from "../../utils/supabase";
 import { createEmbeded } from "../../utils/embeded";
+import { tutoringTypeOptions } from "../../utils/options";
 
 export const tutorlog: Command = {
   data : new  SlashCommandBuilder()
     .setName("tutor-log")
     .setDescription("Log your tutor hours")
-    .addStringOption((option) => 
-      option
-        // .setName("tutoring-type")
-        // .setDescription("Type of tutoring session you engaged in!")
-        // .addChoices(
-        //   {name: 'In Person', value: 't-ip'},
-        //   {name: 'Online Voice Chat', value: 't-ov'},
-        //   {name: 'Online Text Chat', value: 't-ot'}
-        // )
-        // .setRequired(true)
-    )
+    .addStringOption((option) => {
+      tutoringTypeOptions().then((types) => option.setChoices(...types));
+      return option
+        .setName("tutoring-type")
+        .setDescription("Type of tutoring!")
+        .setRequired(true)
+    })
     .addStringOption((option) =>
       option
         .setName("tutored-user")
