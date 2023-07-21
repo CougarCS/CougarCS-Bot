@@ -227,3 +227,8 @@ export type TutorLogSelect = {
   tutored_user: string;
   tutoring_type_id: string;
 }
+
+export type TutoringTypeSelect = {
+  message: string;
+  tutoring_type_id: string;
+}
