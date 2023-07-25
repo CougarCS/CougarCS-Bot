@@ -20,6 +20,11 @@ import {
   TransactionInsert,
   TransactionSelect,
   UniqueContactQuery,
+  TutorSelect,
+  UniqueTutorQuery,
+  TutorQuery,
+  TutorLogQuery,
+  TutorLogSelect
 } from "./types";
 import { Database } from "./schema";
 import { Guild, Role, TextChannel } from "discord.js";
@@ -839,5 +844,106 @@ export const getChannel = async (
     data: channel as TextChannel,
     error: false,
     message: "Successfully fetched the channel!",
+  };
+};
+
+export const getTutors = async (
+  queryData: TutorQuery
+): Promise<SupabaseResponse<TutorSelect[]>> => {
+  const query = supabase.from("tutors").select("*");
+
+  addQueryFilters(query, queryData);
+
+  const tutorsResponse = await query;
+
+  if (tutorsResponse.error) {
+    return {
+      error: true,
+      message: "There was an error fetching tutors!"
+    };
+  }
+
+  if (tutorsResponse.data.length === 0) {
+    return {
+      error: true,
+      message: "No tutors were found!"
+    };
+  }
+
+  return {
+    data: tutorsResponse.data,
+    error: false,
+    message: "Successfully fetched tutors!"
+  };
+};
+
+export const getTutor = async (
+  queryData: UniqueTutorQuery
+): Promise<SupabaseResponse<TutorSelect>> => {
+  const tutorResponse = await getTutors(queryData);
+
+  if (tutorResponse.error) {
+    return tutorResponse;
+  }
+
+  return {
+    ...tutorResponse,
+    data: tutorResponse.data[0],
+  };
+};
+
+export const getTutorId = async (
+  queryData: UniqueTutorQuery
+): Promise<SupabaseResponse<string>> => {
+  if (queryData.tutor_id) {
+    return {
+      data: queryData.tutor_id,
+      error: false,
+      message: "Tutor ID already exists!",
+    };
+  }
+
+  const tutorResponse = await getTutor(queryData);
+
+  if (tutorResponse.error) {
+    return tutorResponse;
+  }
+
+  const { tutor_id } = tutorResponse.data;
+
+  return {
+    data: tutor_id,
+    error: false,
+    message: "Successfully fetched Tutor ID!",
+  };
+};
+
+export const getTutorLogs = async (
+  queryData : TutorLogQuery
+): Promise<SupabaseResponse<TutorLogSelect[]>> => {
+  const query = supabase.from("tutor_logs").select("*");
+
+  addQueryFilters(query, queryData);
+
+  const tutorLogsResponse = await query;
+
+  if (tutorLogsResponse.error) {
+    return {
+      error: true,
+      message: "There was an error fetching tutor logs!"
+    };
+  }
+
+  if (tutorLogsResponse.data.length === 0) {
+    return {
+      error: true,
+      message: "No tutor logs were found!"
+    };
+  }
+
+  return {
+    data: tutorLogsResponse.data,
+    error: false,
+    message: "Successfully fetched tutor logs!"
   };
 };
