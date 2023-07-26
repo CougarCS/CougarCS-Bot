@@ -40,7 +40,7 @@ const addQueryFilters = (query: any, queryData: ContactQuery) => {
 
     if (!queryData[contactKey]) return;
 
-    if (contactKey === "uh_id" || contactKey === "contact_id") {
+    if (contactKey.match(/_id$/)) {
       query = query.eq(contactKey, queryData[contactKey]);
     } else {
       const stringSearch = `%${queryData[contactKey]}%`;
