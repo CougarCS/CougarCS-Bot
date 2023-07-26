@@ -9,22 +9,28 @@ export const tutorstats: Command = {
   data : new SlashCommandBuilder()
       .setName("tutor-stats")
       .setDescription("Check your tutor stats!")
+      .addBooleanOption((option) =>
+          option
+              .setName("detail")
+              .setDescription("Indicate if you would like a week by week breakdown of your tutoring sessions!")
+              .setRequired(true)
+      )
       .addStringOption((option) =>
           option 
               .setName("semester")
               .setDescription("Type of semester!")
+              .addChoices(
+                  {name: 'Fall', value: 'Fall'}, // TODO: figure out values
+                  {name: 'Spring', value: 'Spring'}
+                )
               .setRequired(false)
       )
       .addNumberOption((option) => 
           option
               .setName("year")
               .setDescription("Year of when you tutored!")
-              .setRequired(false)
-      )
-      .addBooleanOption((option) =>
-          option
-              .setName("detail")
-              .setDescription("Indicate if you would like a week by week breakdown of your tutoring sessions!")
+              .setMaxValue(3000)
+              .setMinValue(2023)
               .setRequired(false)
       ),
   run: async (interaction) => {
@@ -56,13 +62,14 @@ export const tutorstats: Command = {
         tutor_id : tutor_id,
     };
 
-    const tutorLogResponse = await getTutorLogs (tutorLog);
+    const tutorLogResponse = await getTutorLogs(tutorLog);
 
     if (tutorLogResponse.error) {
       await sendError(errorTitle, tutorLogResponse.message, interaction);
       return;
     }
 
+   
     const returnMessage = createEmbeded(
         "Tutor Stats Retrieved!",
         `test`
