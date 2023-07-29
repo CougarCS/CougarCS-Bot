@@ -83,13 +83,15 @@ export const tutorlog: Command = {
       return;
     }
 
+    const descriptionMessage = description ? `description: ${description}` : "";
+
     const returnMessage = createEmbeded (
       "📝 Tutor Log Submitted!",
       `You submitted 
       tutoring type: ${tutoring_type_id},
       person(s) tutored: ${tutored_user} 
       hours: ${hours}
-      description: ${description} `,      
+      ${descriptionMessage}`,      
     ).setColor("Green");
           
     await interaction.editReply({ embeds: [returnMessage] });
