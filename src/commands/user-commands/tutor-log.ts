@@ -1,8 +1,8 @@
 import { Command } from "../../interfaces/Command";
 import { commandLog, sendError } from "../../utils/logs";
 import { SlashCommandBuilder } from "discord.js";
-import { TutorLogInsert } from "../../utils/types";
-import { getContactId, getTutorId, insertTutorLog } from "../../utils/supabase";
+import { TutorLogInsert} from "../../utils/types";
+import { getContactId, getTutorId, insertTutorLog, getTutoringType } from "../../utils/supabase";
 import { createEmbeded } from "../../utils/embeded";
 import { tutoringTypeOptions } from "../../utils/options";
 
@@ -85,10 +85,19 @@ export const tutorlog: Command = {
 
     const descriptionMessage = description ? `description: ${description}` : "";
 
+    const tutoringTypeResponse =  await getTutoringType(tutoring_type_id);
+
+    if (tutoringTypeResponse.error) {
+      await sendError(errorTitle, tutoringTypeResponse.message, interaction);
+      return;
+    }
+
+    const tutoringTypeName = tutoringTypeResponse.data.message
+
     const returnMessage = createEmbeded (
       "📝 Tutor Log Submitted!",
       `You submitted 
-      tutoring type: ${tutoring_type_id},
+      tutoring type: ${tutoringTypeName},
       person(s) tutored: ${tutored_user} 
       hours: ${hours}
       ${descriptionMessage}`,      
