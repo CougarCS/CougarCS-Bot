@@ -24,8 +24,8 @@ import {
   TutorQuery,
   TutorSelect,
   TutoringTypeSelect,
-  UniqueContactQuery,
   UniqueTutorQuery,
+  UniqueContactQuery,
 } from "./types";
 import { Database } from "./schema";
 import { Guild, Role, TextChannel } from "discord.js";
@@ -35,17 +35,16 @@ const supabaseUrl = process.env.SUPABASE_URL as string;
 const supabaseKey = process.env.SUPABASE_KEY as string;
 const supabase = createClient<Database>(supabaseUrl, supabaseKey);
 
-const addQueryFilters = (query: any, queryData: ContactQuery) => {
-  Object.keys(queryData).forEach((key) => {
-    const contactKey = key as ContactKey;
+const addQueryFilters = (query: any, queryData: any) => {
+  Object.keys(queryData).forEach((key) => { 
 
-    if (!queryData[contactKey]) return;
+    if (!queryData[key]) return;
 
-    if (contactKey.match(/_id$/)) {
-      query = query.eq(contactKey, queryData[contactKey]);
+    if (key.match(/_id$/)) { 
+        query = query.eq(key, queryData[key]);
     } else {
-      const stringSearch = `%${queryData[contactKey]}%`;
-      query = query.ilike(contactKey, stringSearch);
+    const stringSearch = `%${queryData[key]}%`;
+    query = query.ilike(key, stringSearch);
     }
   });
 };
@@ -940,10 +939,11 @@ export const insertTutorLog = async (
   };
 };
 
-export const getTutoringTypes = async (): Promise<
-  SupabaseResponse<TutoringTypeSelect[]>
-> => {
-  const tutoringTypeResponse = await supabase.from("tutoring_types").select("*");
+export const getTutoringTypes = async (
+): Promise<SupabaseResponse<TutoringTypeSelect[]>> => {
+  const query = supabase.from("tutoring_types").select("*");
+
+  const tutoringTypeResponse = await query;
 
   if (tutoringTypeResponse.error) {
     return {
@@ -963,5 +963,34 @@ export const getTutoringTypes = async (): Promise<
     data: tutoringTypeResponse.data,
     error: false,
     message: "Successfully fetched tutoring types!",
+  };
+};
+
+export const getTutoringType = async (
+  tutoring_type_id: string
+): Promise<SupabaseResponse<TutoringTypeSelect>> => {
+  const tutoringTypeResponse = await supabase
+    .from("tutoring_types")
+    .select()
+    .eq("tutoring_type_id", tutoring_type_id);
+
+  if (tutoringTypeResponse.error) {
+    return {
+      error: true,
+      message: "There was an error fetching the tutoring type!",
+    };
+  }
+
+  if (tutoringTypeResponse.data.length === 0) {
+    return {
+      error: true,
+      message: "No tutoring types could be found!",
+    };
+  }
+
+  return {
+    data: tutoringTypeResponse.data[0],
+    error: false,
+    message: "Successfully fetched this tutoring type!",
   };
 };
