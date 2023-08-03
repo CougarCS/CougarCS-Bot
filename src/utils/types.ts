@@ -195,7 +195,6 @@ export type TutorQuery = {
 }
 
 export type TutorLogQuery = {
-  contact_id?: string, //ask Ben regarding addQueryFilter type error
   description?: string | null,
   hours?: number,
   timestamp?: string,
