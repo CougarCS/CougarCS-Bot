@@ -34,10 +34,11 @@ const supabaseUrl = process.env.SUPABASE_URL as string;
 const supabaseKey = process.env.SUPABASE_KEY as string;
 const supabase = createClient<Database>(supabaseUrl, supabaseKey);
 
-const addQueryFilters = (query: any, queryData: ContactQuery) => {
+const addQueryFilters = (query: any, queryData: any) => {
   Object.keys(queryData).forEach((key) => {
-    const contactKey = key as ContactKey;
-
+    const contactKey = key as any;
+    //   console.log("query", query)
+    // console.log(queryData[contactKey])
     if (!queryData[contactKey]) return;
 
     if (contactKey.match(/_id$/)) {
@@ -855,7 +856,7 @@ export const getTutors = async (
   addQueryFilters(query, queryData);
 
   const tutorsResponse = await query;
-
+ 
   if (tutorsResponse.error) {
     return {
       error: true,
@@ -919,14 +920,22 @@ export const getTutorId = async (
 };
 
 export const getTutorLogs = async (
-  queryData : TutorLogQuery
+  queryData : TutorLogQuery,
+  semester: string,
+  year: number
 ): Promise<SupabaseResponse<TutorLogSelect[]>> => {
-  const query = supabase.from("tutor_logs").select("*");
+  const start = new Date()
+  start.setFullYear(year, semester === "Spring" ? 0 : 7, 1);
+ 
+  const end = new Date();
+  end.setFullYear(year, semester === "Fall" ? 0 : 7, 1);
+
+  const query = supabase.from("tutor_logs").select("*").gte("timestamp", start.toISOString()).lte("timestamp", end.toISOString());
 
   addQueryFilters(query, queryData);
 
   const tutorLogsResponse = await query;
-
+ 
   if (tutorLogsResponse.error) {
     return {
       error: true,

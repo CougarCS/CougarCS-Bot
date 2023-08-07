@@ -11,31 +11,30 @@ export const tutorstats: Command = {
       .setDescription("Check your tutor stats!")
       .addBooleanOption((option) =>
           option
-              .setName("detail")
-              .setDescription("Indicate if you would like a week by week breakdown of your tutoring sessions!")
-              .setRequired(true)
+            .setName("detail")
+            .setDescription("Indicate if you would like a week by week breakdown of your tutoring sessions!")
+            .setRequired(true)
       )
       .addStringOption((option) =>
           option 
+          // make it a dropdown
               .setName("semester")
               .setDescription("Type of semester!")
-              .addChoices(
-                  {name: 'Fall', value: 'Fall'}, // TODO: figure out values
-                  {name: 'Spring', value: 'Spring'}
-                )
               .setRequired(false)
       )
       .addNumberOption((option) => 
           option
               .setName("year")
               .setDescription("Year of when you tutored!")
-              .setMaxValue(3000)
-              .setMinValue(2023)
               .setRequired(false)
       ),
   run: async (interaction) => {
     await interaction.deferReply({ ephemeral: true });
-    
+
+    const semester = interaction.options.get("semester", false)?.value as string | null ;
+
+    const year = interaction.options.get("year", false)?.value as number | null;
+
     const discord_snowflake = interaction.user?.id as string;
     
     const contactIdResponse = await getContactId({discord_snowflake});
@@ -61,17 +60,62 @@ export const tutorstats: Command = {
     const tutorLog : TutorLogQuery = {
         tutor_id : tutor_id,
     };
+    
+    if (semester && year) {
+      const tutorLogResponse = await getTutorLogs(tutorLog, semester, year);
+      console.log(tutorLogResponse)
 
-    const tutorLogResponse = await getTutorLogs(tutorLog);
-
-    if (tutorLogResponse.error) {
-      await sendError(errorTitle, tutorLogResponse.message, interaction);
-      return;
+      if (tutorLogResponse.error) {
+        await sendError(errorTitle, tutorLogResponse.message, interaction);
+        return;
+      }
     }
 
-   
+    if (semester && !year) {
+      const years = [2023, new Date().getFullYear()];
+
+      for (let i = 0; i < years.length; i++) {
+        const tutorLogResponse = await getTutorLogs(tutorLog, semester, years[i]);
+        console.log(tutorLogResponse)
+
+        if (tutorLogResponse.error) {
+          await sendError(errorTitle, tutorLogResponse.message, interaction);
+          return;
+        }
+      }
+    }
+
+    if (!semester && year) {
+      const semesters = ["Spring", "Fall"];
+      for (let i = 0; i < semesters.length; i++) {
+        const tutorLogResponse = await getTutorLogs(tutorLog, semesters[i], year)
+        console.log(tutorLogResponse)
+        if (tutorLogResponse.error) {
+          await sendError(errorTitle, tutorLogResponse.message, interaction);
+          return;
+        }
+      }
+    }
+
+    if (!semester && !year) {
+      const semesters = ["Spring", "Fall"];
+
+      // JS doesn't have range()
+      const years = [2023, new Date().getFullYear()]
+
+      for (let i = 0; i < years.length; i++) {
+        const tutorLogResponse = await getTutorLogs(tutorLog, semesters[i], years[i])
+        console.log(tutorLogResponse)
+
+        if (tutorLogResponse.error) {
+          await sendError(errorTitle, tutorLogResponse.message, interaction);
+          return;
+        }
+      }
+    }
+
     const returnMessage = createEmbeded(
-        "Tutor Stats Retrieved!",
+        "✅ Tutor Stats Retrieved!",
         `test`
     ).setColor("Green");
       
