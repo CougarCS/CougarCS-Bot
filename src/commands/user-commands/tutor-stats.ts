@@ -1,5 +1,5 @@
 import { Command } from "../../interfaces/Command";
-import { sendError } from "../../utils/logs";
+import { commandLog, sendError } from "../../utils/logs";
 import {  EmbedBuilder, SlashCommandBuilder } from "discord.js";
 import { getContactId, getTutorId, getTutorLogs} from "../../utils/supabase";
 import { createEmbeded, sendBulkEmbeds } from "../../utils/embeded";
@@ -51,7 +51,9 @@ export const tutorstats: Command = {
   run: async (interaction) => {
     await interaction.deferReply({ ephemeral: true });
 
-    const semester = interaction.options.get("semester", false)?.value as string | null ;
+    const detail = interaction.options.get("detail", true).value as boolean;
+
+    const semester = interaction.options.get("semester", false)?.value as string | null;
 
     const year = interaction.options.get("year", false)?.value as number | null;
 
@@ -60,6 +62,12 @@ export const tutorstats: Command = {
     const contactIdResponse = await getContactId({discord_snowflake});
 
     const errorTitle = "❌ Tutor Stats Failed!";
+
+    commandLog(interaction, "/tutor-stats", "Orange", [
+      { name: "detail", value: `${detail}` },
+      { name: "semester", value: `${semester}` },
+      { name: "year", value: `${year}` },
+    ]);
 
     if (contactIdResponse.error){
       await sendError(errorTitle, contactIdResponse.message, interaction);
