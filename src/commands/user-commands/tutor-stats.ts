@@ -4,9 +4,8 @@ import {  EmbedBuilder, SlashCommandBuilder } from "discord.js";
 import { getContactId, getTutorId, getTutorLogs} from "../../utils/supabase";
 import { createEmbeded, sendBulkEmbeds } from "../../utils/embeded";
 import { TutorLogQuery, TutorLogSelect } from "src/utils/types";
+import { tutorStatsLengthOptions} from "../../utils/options";
 
-
-// TUTOR EMBEDS
 const formatTutorStats = async (
   log: TutorLogSelect
   ): Promise<EmbedBuilder> => {
@@ -37,10 +36,10 @@ export const tutorstats: Command = {
       )
       .addStringOption((option) =>
           option 
-          // make it a dropdown
               .setName("semester")
               .setDescription("Type of semester!")
               .setRequired(false)
+              .setChoices(...tutorStatsLengthOptions)
       )
       .addNumberOption((option) => 
           option
