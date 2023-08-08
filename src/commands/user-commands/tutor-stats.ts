@@ -12,15 +12,14 @@ const formatTutorStats = async (
   ): Promise<EmbedBuilder> => {
     const tutored_user  = log.tutored_user;
     const hours = log.hours;
-    const description = log.description;
+    const descriptionMessage = log.description ? `\ndescription: ${log.description}` : "";
     const timestamp = log.timestamp;
     const tutoringType = 'xxx' //todo 
     
     return createEmbeded(
       `Tutor Stats`,
       `tutored user: ${tutored_user},
-      hours: ${hours}
-      description: ${description}
+      hours: ${hours}${descriptionMessage}
       timestamp: ${timestamp}
       tutoringType: `
       ).setColor("Green");
