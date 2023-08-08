@@ -1,9 +1,30 @@
 import { Command } from "../../interfaces/Command";
 import { sendError } from "../../utils/logs";
-import { SlashCommandBuilder } from "discord.js";
+import {  EmbedBuilder, SlashCommandBuilder } from "discord.js";
 import { getContactId, getTutorId, getTutorLogs} from "../../utils/supabase";
-import { createEmbeded } from "../../utils/embeded";
-import { TutorLogQuery } from "src/utils/types";
+import { createEmbeded, sendBulkEmbeds } from "../../utils/embeded";
+import { TutorLogQuery, TutorLogSelect } from "src/utils/types";
+
+
+// TUTOR EMBEDS
+const formatTutorStats = async (
+  log: TutorLogSelect
+  ): Promise<EmbedBuilder> => {
+    const tutored_user  = log.tutored_user;
+    const hours = log.hours;
+    const description = log.description;
+    const timestamp = log.timestamp;
+    const tutoringType = 'xxx' //todo 
+    
+    return createEmbeded(
+      `Tutor Stats`,
+      `tutored user: ${tutored_user},
+      hours: ${hours}
+      description: ${description}
+      timestamp: ${timestamp}
+      tutoringType: `
+      ).setColor("Green");
+  };
 
 export const tutorstats: Command = {
   data : new SlashCommandBuilder()
@@ -58,9 +79,11 @@ export const tutorstats: Command = {
     const tutor_id = tutorIdResponse.data;
 
     const tutorLog : TutorLogQuery = {
-        tutor_id : tutor_id,
+        tutor_id : tutor_id
     };
     
+    const tutorStatsEmbeds: EmbedBuilder[] = []; 
+   
     if (semester && year) {
       const tutorLogResponse = await getTutorLogs(tutorLog, semester, year);
       console.log(tutorLogResponse)
@@ -69,7 +92,13 @@ export const tutorstats: Command = {
         await sendError(errorTitle, tutorLogResponse.message, interaction);
         return;
       }
-    }
+
+      const tutorLogs = tutorLogResponse.data;
+   
+      for (const log of tutorLogs) {
+        tutorStatsEmbeds.push(await formatTutorStats(log));
+      }
+    };
 
     if (semester && !year) {
       const years = [2023, new Date().getFullYear()];
@@ -82,8 +111,13 @@ export const tutorstats: Command = {
           await sendError(errorTitle, tutorLogResponse.message, interaction);
           return;
         }
+        const tutorLogs = tutorLogResponse.data;
+
+        for (const log of tutorLogs) {
+          tutorStatsEmbeds.push(await formatTutorStats(log));
+        }
       }
-    }
+    };
 
     if (!semester && year) {
       const semesters = ["Spring", "Fall"];
@@ -94,8 +128,14 @@ export const tutorstats: Command = {
           await sendError(errorTitle, tutorLogResponse.message, interaction);
           return;
         }
+
+        const tutorLogs = tutorLogResponse.data;
+
+        for (const log of tutorLogs) {
+          tutorStatsEmbeds.push(await formatTutorStats(log));
+        }
       }
-    }
+    };
 
     if (!semester && !year) {
       const semesters = ["Spring", "Fall"];
@@ -111,15 +151,16 @@ export const tutorstats: Command = {
           await sendError(errorTitle, tutorLogResponse.message, interaction);
           return;
         }
-      }
-    }
 
-    const returnMessage = createEmbeded(
-        "✅ Tutor Stats Retrieved!",
-        `test`
-    ).setColor("Green");
-      
-    await interaction.editReply({ embeds: [returnMessage] });
+        const tutorLogs = tutorLogResponse.data;
+
+        for (const log of tutorLogs) {
+          tutorStatsEmbeds.push(await formatTutorStats(log));
+        }
+      }
+    };
+
+    await sendBulkEmbeds(interaction, tutorStatsEmbeds);
     return;  
   },
 };
