@@ -1,6 +1,6 @@
 import { Command } from "../../interfaces/Command";
 import { commandLog, sendError } from "../../utils/logs";
-import {  EmbedBuilder, SlashCommandBuilder } from "discord.js";
+import { EmbedBuilder, SlashCommandBuilder } from "discord.js";
 import { getContactId, getTutorId, getTutorLogs} from "../../utils/supabase";
 import { createEmbeded, sendBulkEmbeds } from "../../utils/embeded";
 import { TutorLogQuery, TutorLogSelect } from "src/utils/types";
@@ -46,6 +46,8 @@ export const tutorstats: Command = {
               .setName("year")
               .setDescription("Year of when you tutored!")
               .setRequired(false)
+              .setMinValue(2023)
+              .setMaxValue(new Date().getFullYear())
       ),
   run: async (interaction) => {
     await interaction.deferReply({ ephemeral: true });
@@ -85,7 +87,7 @@ export const tutorstats: Command = {
     const tutor_id = tutorIdResponse.data;
 
     const tutorLog : TutorLogQuery = {
-        tutor_id : tutor_id
+      tutor_id : tutor_id
     };
     
     const tutorStatsEmbeds: EmbedBuilder[] = []; 
@@ -146,7 +148,7 @@ export const tutorstats: Command = {
     if (!semester && !year) {
       const semesters = ["Spring", "Fall"];
 
-      // JS doesn't have range()
+      // for loop
       const years = [2023, new Date().getFullYear()]
 
       for (let i = 0; i < years.length; i++) {
@@ -166,7 +168,7 @@ export const tutorstats: Command = {
       }
     };
 
-    await sendBulkEmbeds(interaction, tutorStatsEmbeds);
+    await sendBulkEmbeds(interaction, tutorStatsEmbeds, true);
     return;  
   },
 };
