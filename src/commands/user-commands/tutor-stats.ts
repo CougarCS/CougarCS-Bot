@@ -91,10 +91,14 @@ export const tutorstats: Command = {
     };
     
     const tutorStatsEmbeds: EmbedBuilder[] = []; 
-   
+  
+    let yearArray = [2023];
+    for (let year = 2023; year < new Date().getFullYear(); year++) {
+      yearArray.push(year++)
+    };
+  
     if (semester && year) {
       const tutorLogResponse = await getTutorLogs(tutorLog, semester, year);
-      console.log(tutorLogResponse)
 
       if (tutorLogResponse.error) {
         await sendError(errorTitle, tutorLogResponse.message, interaction);
@@ -109,16 +113,14 @@ export const tutorstats: Command = {
     };
 
     if (semester && !year) {
-      const years = [2023, new Date().getFullYear()];
-
-      for (let i = 0; i < years.length; i++) {
-        const tutorLogResponse = await getTutorLogs(tutorLog, semester, years[i]);
-        console.log(tutorLogResponse)
+      for (let i = 0; i < yearArray.length; i++) {
+        const tutorLogResponse = await getTutorLogs(tutorLog, semester, yearArray[i]);
 
         if (tutorLogResponse.error) {
           await sendError(errorTitle, tutorLogResponse.message, interaction);
           return;
         }
+
         const tutorLogs = tutorLogResponse.data;
 
         for (const log of tutorLogs) {
@@ -131,7 +133,7 @@ export const tutorstats: Command = {
       const semesters = ["Spring", "Fall"];
       for (let i = 0; i < semesters.length; i++) {
         const tutorLogResponse = await getTutorLogs(tutorLog, semesters[i], year)
-        console.log(tutorLogResponse)
+
         if (tutorLogResponse.error) {
           await sendError(errorTitle, tutorLogResponse.message, interaction);
           return;
@@ -148,10 +150,9 @@ export const tutorstats: Command = {
     if (!semester && !year) {
       const semesters = ["Spring", "Fall"];
 
-      // for loop
       const years = [2023, new Date().getFullYear()]
 
-      for (let i = 0; i < years.length; i++) {
+      for (let i = 0; i < yearArray.length; i++) {
         const tutorLogResponse = await getTutorLogs(tutorLog, semesters[i], years[i])
         console.log(tutorLogResponse)
 
