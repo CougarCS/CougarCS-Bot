@@ -83,30 +83,30 @@ export const tutorStatsFields = (
       hours
     } = log;
 
+    iter +=1;
+
     const currentDate = new Date(timestamp);
     const startDate  = new Date(currentDate.getFullYear(), 0, 1);
     const days = Math.floor(( currentDate.getTime() - startDate.getTime() )/ (24 * 60 * 60 * 1000));
 
     // TODO: assuming Fall Semesters start in week 34, subtract 33
     week = Math.ceil(days / 7) - 28; 
-    iter +=1;
-   
+    
     if (prevWeek == 0) {
       prevWeek = week;
       weeklyHours += hours;
-    } 
-    else if (week == prevWeek) {
+    } else if (week == prevWeek) {
         weeklyHours += hours;
     } else {
-      embeds.push (
-        {
-          name: `Week ${prevWeek}`,
-          value: `Hours: ${weeklyHours}`,
-          inline: true,
-        }
-      )
-      weeklyHours = hours  // reset hours for the next week
-      prevWeek = week
+        embeds.push (
+          {
+            name: `Week ${prevWeek}`,
+            value: `Hours: ${weeklyHours}`,
+            inline: true,
+          }
+        )
+        weeklyHours = hours  // reset hours for the next week
+        prevWeek = week
     }
     
     // reach end of array
