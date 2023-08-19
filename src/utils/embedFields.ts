@@ -69,10 +69,12 @@ export const contactFields = (
 };
 
 export const tutorStatsFields = (
-  tutor: TutorLogSelect[]
+  tutor: TutorLogSelect[],
+  detail: Boolean,
 ): RestOrArray<APIEmbedField> => {
   var prevWeek = " ";
   var weeklyHours = 0;
+  var totalHours = 0;
   var iter = 0;
   var embeds = [];
   
@@ -88,31 +90,44 @@ export const tutorStatsFields = (
     const firstDayOfWeek = Math.abs(currentDate.getDay() - currentDate.getDate());
     const weekDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), firstDayOfWeek ).toLocaleDateString();
 
-    if (prevWeek == " ") {
-      prevWeek = weekDate;
-      weeklyHours += hours;
-    } else if (weekDate == prevWeek) {
+    if (detail) {
+      if (prevWeek == " ") {
+        prevWeek = weekDate;
         weeklyHours += hours;
-    } else {
+      } else if (weekDate == prevWeek) {
+          weeklyHours += hours;
+      } else {
+          embeds.push (
+            {
+              name: `Week of ${prevWeek}`,
+              value: `Hours: ${weeklyHours}`,
+              inline: true,
+            }
+          )
+          weeklyHours = hours;  // reset hours for the next week
+          prevWeek = weekDate;
+      };
+      // reach end of array
+      if (iter == (tutor.length)) {
         embeds.push (
           {
-            name: `Week of ${prevWeek}`,
+            name: `Week ${prevWeek}`,
             value: `Hours: ${weeklyHours}`,
             inline: true,
           }
+        );
+      };
+  } else {
+      totalHours += hours;
+      if (iter == (tutor.length)) {
+        embeds.push ( 
+          {
+            name: " ",
+            value: `Hours: ${totalHours}`,
+            inline: true,
+          }
         )
-        weeklyHours = hours;  // reset hours for the next week
-        prevWeek = weekDate;
-    }
-    // reach end of array
-    if (iter == (tutor.length)) {
-      embeds.push (
-        {
-          name: `Week ${[prevWeek]}`,
-          value: `Hours: ${weeklyHours}`,
-          inline: true,
-        }
-      );
+      };
     };
   };
 return embeds

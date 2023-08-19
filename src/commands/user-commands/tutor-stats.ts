@@ -6,21 +6,21 @@ import { createEmbeded } from "../../utils/embeded";
 import { TutorLogQuery, TutorLogSelect } from "src/utils/types";
 import { tutorStatsLengthOptions} from "../../utils/options";
 import { tutorStatsFields } from "../../utils/embedFields";
-import { setMaxListeners } from "events";
 
 const createTutorStatsEmbeds = (
   tutorLogs: TutorLogSelect[], 
   embeds: EmbedBuilder[],
   semesterCount: Number,
   semester: String,
-  year: Number
+  year: Number,
+  detail: Boolean
 ): EmbedBuilder[] => {
   const suffix = semesterCount === 1 ? "" : "s";
   const startMessage = createEmbeded(`🔎 Found ${semesterCount} result${suffix}:`, " ")
   .setColor("Orange")
   const returnMessage = createEmbeded(`📊 ${semester} ${year}!`, " ")
   .setColor("Green")
-  .addFields(...tutorStatsFields(tutorLogs))
+  .addFields(...tutorStatsFields(tutorLogs, detail))
   embeds.push(startMessage);
   embeds.push(returnMessage);
   return embeds;
@@ -98,7 +98,7 @@ export const tutorstats: Command = {
     for (let year = 2023; year < new Date().getFullYear(); year++) {
       yearArray.push(year++)
     };
-  
+
     if (semester && year) {
       const tutorLogResponse = await getTutorLogs(tutorLog, semester, year);
       var results = 0;
@@ -111,7 +111,7 @@ export const tutorstats: Command = {
       results += 1
       const tutorLogs = tutorLogResponse.data;
    
-      createTutorStatsEmbeds(tutorLogs, tutorStatsEmbeds, results, semester,year)
+      createTutorStatsEmbeds(tutorLogs, tutorStatsEmbeds, results, semester,year, detail)
     };
 
     if (semester && !year) {
@@ -131,7 +131,7 @@ export const tutorstats: Command = {
         results += 1
         const tutorLogs = tutorLogResponse.data;
 
-        createTutorStatsEmbeds(tutorLogs, tutorStatsEmbeds, results, semester,yearArray[i])
+        createTutorStatsEmbeds(tutorLogs, tutorStatsEmbeds, results, semester,yearArray[i], detail)
       }
     };
 
@@ -153,7 +153,7 @@ export const tutorstats: Command = {
         results += 1
         const tutorLogs = tutorLogResponse.data;
 
-        createTutorStatsEmbeds(tutorLogs, tutorStatsEmbeds, results, semesters[i],year)
+        createTutorStatsEmbeds(tutorLogs, tutorStatsEmbeds, results, semesters[i],year, detail)
         await interaction.editReply({ embeds: tutorStatsEmbeds });
       }
     };
@@ -177,7 +177,7 @@ export const tutorstats: Command = {
         results += 1
         const tutorLogs = tutorLogResponse.data;
 
-        createTutorStatsEmbeds(tutorLogs, tutorStatsEmbeds, results, semesters[i],yearArray[i])
+        createTutorStatsEmbeds(tutorLogs, tutorStatsEmbeds, results, semesters[i],yearArray[i], detail)
       }
     };
 
