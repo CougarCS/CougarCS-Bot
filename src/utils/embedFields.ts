@@ -71,8 +71,7 @@ export const contactFields = (
 export const tutorStatsFields = (
   tutor: TutorLogSelect[]
 ): RestOrArray<APIEmbedField> => {
-  var week = 0;
-  var prevWeek = 0;
+  var prevWeek = " ";
   var weeklyHours = 0;
   var iter = 0;
   var embeds = [];
@@ -86,40 +85,36 @@ export const tutorStatsFields = (
     iter +=1;
 
     const currentDate = new Date(timestamp);
-    const startDate  = new Date(currentDate.getFullYear(), 0, 1);
-    const days = Math.floor(( currentDate.getTime() - startDate.getTime() )/ (24 * 60 * 60 * 1000));
+    const firstDayOfWeek = Math.abs(currentDate.getDay() - currentDate.getDate());
+    const weekDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), firstDayOfWeek ).toLocaleDateString();
 
-    // TODO: assuming Fall Semesters start in week 34, subtract 33
-    week = Math.ceil(days / 7) - 28; 
-    
-    if (prevWeek == 0) {
-      prevWeek = week;
+    if (prevWeek == " ") {
+      prevWeek = weekDate;
       weeklyHours += hours;
-    } else if (week == prevWeek) {
+    } else if (weekDate == prevWeek) {
         weeklyHours += hours;
     } else {
         embeds.push (
           {
-            name: `Week ${prevWeek}`,
+            name: `Week of ${prevWeek}`,
             value: `Hours: ${weeklyHours}`,
             inline: true,
           }
         )
-        weeklyHours = hours  // reset hours for the next week
-        prevWeek = week
+        weeklyHours = hours;  // reset hours for the next week
+        prevWeek = weekDate;
     }
-    
     // reach end of array
     if (iter == (tutor.length)) {
       embeds.push (
         {
-          name: `Week ${prevWeek}`,
+          name: `Week ${[prevWeek]}`,
           value: `Hours: ${weeklyHours}`,
           inline: true,
         }
-      )
-    }
-  }
+      );
+    };
+  };
 return embeds
 };
 
