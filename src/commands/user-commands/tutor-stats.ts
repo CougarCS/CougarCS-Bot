@@ -6,6 +6,7 @@ import { createEmbeded } from "../../utils/embeded";
 import { TutorLogQuery, TutorLogSelect } from "src/utils/types";
 import { tutorStatsLengthOptions} from "../../utils/options";
 import { tutorStatsFields } from "../../utils/embedFields";
+import { setMaxListeners } from "events";
 
 const createTutorStatsEmbeds = (
   tutorLogs: TutorLogSelect[], 
@@ -114,12 +115,16 @@ export const tutorstats: Command = {
     };
 
     if (semester && !year) {
+      var errorCount = 0;
       for (let i = 0; i < yearArray.length; i++) {
         const tutorLogResponse = await getTutorLogs(tutorLog, semester, yearArray[i]);
         var results = 0;
 
         if (tutorLogResponse.error) {
-          await sendError(errorTitle, tutorLogResponse.message, interaction);
+          errorCount += 1;
+          if (tutorLogResponse.message != "No tutor logs were found!" || errorCount == yearArray.length) {
+            await sendError(errorTitle, tutorLogResponse.message, interaction);
+          }
           return;
         }
 
@@ -132,12 +137,16 @@ export const tutorstats: Command = {
 
     if (!semester && year) {
       const semesters = ["Spring", "Fall"];
+      var errorCount = 0;
       for (let i = 0; i < semesters.length; i++) {
         const tutorLogResponse = await getTutorLogs(tutorLog, semesters[i], year)
         var results = 0;
 
         if (tutorLogResponse.error) {
-          await sendError(errorTitle, tutorLogResponse.message, interaction, true);
+          errorCount += 1;
+          if (tutorLogResponse.message != "No tutor logs were found!" || errorCount == (semesters.length * yearArray.length)) {
+            await sendError(errorTitle, tutorLogResponse.message, interaction);
+          }
           return;
         }
 
@@ -151,14 +160,17 @@ export const tutorstats: Command = {
     
     if (!semester && !year) {
       const semesters = ["Spring", "Fall"];
-
+      var errorCount = 0;
       var results = 0;
 
       for (let i = 0; i < yearArray.length; i++) {
         const tutorLogResponse = await getTutorLogs(tutorLog, semesters[i], yearArray[i])
 
         if (tutorLogResponse.error) {
-          await sendError(errorTitle, tutorLogResponse.message, interaction);
+          errorCount += 1;
+          if (tutorLogResponse.message != "No tutor logs were found!" || errorCount == (semesters.length * yearArray.length)) {
+            await sendError(errorTitle, tutorLogResponse.message, interaction);
+          }
           return;
         }
 

@@ -946,7 +946,7 @@ export const getTutorLogs = async (
   if (tutorLogsResponse.data.length === 0) {
     return {
       error: true,
-      message: `No tutor logs were found for **${semester}**!`
+      message: "No tutor logs were found!"
     };
   }
 

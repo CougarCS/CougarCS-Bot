@@ -105,8 +105,7 @@ export const sendError = async (
   errorTitle: string,
   errorMessage: string,
   interaction: CommandInteraction,
-  ephemeral?: boolean
 ) => {
   const errorEmbed = createEmbeded(errorTitle, errorMessage).setColor("Red");
-  await interaction.followUp({ ephemeral, embeds: [errorEmbed] });
+  await interaction.editReply({ embeds: [errorEmbed] });
 };
