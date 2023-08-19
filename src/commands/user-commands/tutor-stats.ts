@@ -10,14 +10,15 @@ import { tutorStatsFields } from "../../utils/embedFields";
 const createTutorStatsEmbeds = (
   tutorLogs: TutorLogSelect[], 
   embeds: EmbedBuilder[],
-  semesterCount: Number 
+  semesterCount: Number,
+  semester: string 
 ): EmbedBuilder[] => {
-  const returnMessage = createEmbeded("📊 Tutor Stats!", " ")
-  .setColor("Green")
-  .addFields(...tutorStatsFields(tutorLogs))
   const suffix = semesterCount === 1 ? "" : "s";
   const startMessage = createEmbeded(`🔎 Found ${semesterCount} result${suffix}:`, " ")
   .setColor("Orange")
+  const returnMessage = createEmbeded(`📊 Tutor Stats!`, `Weekly hours for **${semester}**!`)
+  .setColor("Green")
+  .addFields(...tutorStatsFields(tutorLogs))
   embeds.push(startMessage);
   embeds.push(returnMessage);
   return embeds;
@@ -98,29 +99,33 @@ export const tutorstats: Command = {
   
     if (semester && year) {
       const tutorLogResponse = await getTutorLogs(tutorLog, semester, year);
+      var results = 0;
 
       if (tutorLogResponse.error) {
         await sendError(errorTitle, tutorLogResponse.message, interaction);
         return;
       }
 
+      results += 1
       const tutorLogs = tutorLogResponse.data;
    
-      createTutorStatsEmbeds(tutorLogs, tutorStatsEmbeds, 1)
+      createTutorStatsEmbeds(tutorLogs, tutorStatsEmbeds, results, semester)
     };
 
     if (semester && !year) {
       for (let i = 0; i < yearArray.length; i++) {
         const tutorLogResponse = await getTutorLogs(tutorLog, semester, yearArray[i]);
+        var results = 0;
 
         if (tutorLogResponse.error) {
           await sendError(errorTitle, tutorLogResponse.message, interaction);
           return;
         }
 
+        results += 1
         const tutorLogs = tutorLogResponse.data;
 
-        createTutorStatsEmbeds(tutorLogs, tutorStatsEmbeds, 1)
+        createTutorStatsEmbeds(tutorLogs, tutorStatsEmbeds, results, semester)
       }
     };
 
@@ -128,21 +133,26 @@ export const tutorstats: Command = {
       const semesters = ["Spring", "Fall"];
       for (let i = 0; i < semesters.length; i++) {
         const tutorLogResponse = await getTutorLogs(tutorLog, semesters[i], year)
+        var results = 0;
 
         if (tutorLogResponse.error) {
-          await sendError(errorTitle, tutorLogResponse.message, interaction);
+          await sendError(errorTitle, tutorLogResponse.message, interaction, true);
           return;
         }
 
+        results += 1
         const tutorLogs = tutorLogResponse.data;
-       
-        createTutorStatsEmbeds(tutorLogs, tutorStatsEmbeds, 2)
+
+        createTutorStatsEmbeds(tutorLogs, tutorStatsEmbeds, results, semesters[i])
+        await interaction.editReply({ embeds: tutorStatsEmbeds });
       }
     };
     if (!semester && !year) {
       const semesters = ["Spring", "Fall"];
 
       const years = [2023, new Date().getFullYear()]
+
+      var results = 0;
 
       for (let i = 0; i < yearArray.length; i++) {
         const tutorLogResponse = await getTutorLogs(tutorLog, semesters[i], years[i])
@@ -152,11 +162,13 @@ export const tutorstats: Command = {
           return;
         }
 
+        results += 1
         const tutorLogs = tutorLogResponse.data;
 
-        createTutorStatsEmbeds(tutorLogs, tutorStatsEmbeds, 2)
+        createTutorStatsEmbeds(tutorLogs, tutorStatsEmbeds, results, semesters[i])
       }
     };
+
     await interaction.editReply({ embeds: tutorStatsEmbeds });
 
     return;  
