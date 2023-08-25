@@ -189,4 +189,7 @@ export type TutorSignupFormData = {
   lessThanBMinus: string;
   tutorType: string[];
   coursesTutoring: string[];
+  threeCourseHours: string;
+  passedCourses: string;
+  tosAgreement: string;
 };

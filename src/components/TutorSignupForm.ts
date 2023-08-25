@@ -19,7 +19,6 @@ import {
 import { TutorSignupFormData } from "../utils/types";
 import { createEmbeded } from "../utils/embeded";
 import { getChannel, getGuildData, getRole } from "../utils/supabase";
-import { sendError } from "../utils/logs";
 
 export default class TutorSignupForm {
   private formData: TutorSignupFormData = {
@@ -34,6 +33,9 @@ export default class TutorSignupForm {
     lessThanBMinus: "",
     tutorType: [],
     coursesTutoring: [],
+    threeCourseHours: "",
+    passedCourses: "",
+    tosAgreement: "",
   };
 
   private modalSubmitted = false;
@@ -41,6 +43,8 @@ export default class TutorSignupForm {
   private submitted = false;
 
   private guild: Guild;
+
+  private submitButtonOffered = false;
 
   private interactionListener = async (interaction: Interaction) => {
     const isModalButton =
@@ -170,7 +174,10 @@ export default class TutorSignupForm {
       this.formData.classification &&
       this.formData.isCSMajor &&
       this.formData.tutorType.length > 0 &&
-      this.formData.coursesTutoring.length > 0
+      this.formData.coursesTutoring.length > 0 &&
+      this.formData.threeCourseHours &&
+      this.formData.passedCourses &&
+      this.formData.tosAgreement
     );
 
   private uniqueId = (baseId: string) => `${baseId}${new Date().getTime()}`;
@@ -182,6 +189,9 @@ export default class TutorSignupForm {
     lessThanBMinus: this.uniqueId("b-minus"),
     tutorType: this.uniqueId("tutor-type"),
     coursesTutoring: this.uniqueId("courses"),
+    threeCourseHours: this.uniqueId("three-hours"),
+    passedCourses: this.uniqueId("passed"),
+    tosAgreement: this.uniqueId("tos"),
   };
 
   private wrapButtonActionRow = (
@@ -242,7 +252,9 @@ export default class TutorSignupForm {
           .setMaxLength(20),
         new TextInputBuilder()
           .setCustomId(this.uniqueId("reason"))
-          .setPlaceholder("I want to be a tutor because...")
+          .setPlaceholder(
+            "(mentioning past experience, grades, and/or club participation may help you stand out)"
+          )
           .setLabel("Reason For Application")
           .setRequired(true)
           .setStyle(TextInputStyle.Paragraph)
@@ -390,6 +402,52 @@ export default class TutorSignupForm {
     .setMaxValues(8)
     .setPlaceholder("What course(s) are you interested in tutoring in? *");
 
+  private threeCourseHours = new StringSelectMenuBuilder()
+    .setCustomId(this.dropdownIds.threeCourseHours)
+    .setOptions(
+      new StringSelectMenuOptionBuilder()
+        .setLabel("I have completed 3+ hours of CS credit")
+        .setEmoji("✅")
+        .setValue("3+ Hours"),
+      new StringSelectMenuOptionBuilder()
+        .setLabel("I have not completed 3 hours of CS credit")
+        .setEmoji("❌")
+        .setValue("< 3 Hours")
+    )
+    .setPlaceholder(
+      "Have you completed 3 or more hours of CS course credit? *"
+    );
+
+  private passedCourses = new StringSelectMenuBuilder()
+    .setCustomId(this.dropdownIds.passedCourses)
+    .setOptions(
+      new StringSelectMenuOptionBuilder()
+        .setLabel("I've passed the course(s) I applied to tutor for")
+        .setEmoji("✅")
+        .setValue("Passed"),
+      new StringSelectMenuOptionBuilder()
+        .setLabel("I haven't passed the course(s) I applied to tutor for")
+        .setEmoji("❌")
+        .setValue("Not Passed")
+    )
+    .setPlaceholder(
+      "Have you passed all the courses that you've applied for? *"
+    );
+
+  private tosAgreement = new StringSelectMenuBuilder()
+    .setCustomId(this.dropdownIds.tosAgreement)
+    .setOptions(
+      new StringSelectMenuOptionBuilder()
+        .setLabel("I will abide to the CougarCS TOS and Code of Conduct")
+        .setEmoji("✅")
+        .setValue("Passed")
+    )
+    .setMinValues(1)
+    .setMaxValues(1)
+    .setPlaceholder(
+      "By submitting, you agree to abide by the CougarCS TOS and Code of Conduct. *"
+    );
+
   private formSubmitButton = new ButtonBuilder()
     .setCustomId(this.uniqueId("form-submit"))
     .setLabel("Submit")
@@ -402,6 +460,9 @@ export default class TutorSignupForm {
     this.coursesTutoring,
     this.isCSMajor,
     this.lessThanBMinus,
+    this.threeCourseHours,
+    this.passedCourses,
+    this.tosAgreement,
   ].map(this.wrapDropwdownActionRow);
 
   private onModalButton = async (interaction: ButtonInteraction) => {
@@ -426,7 +487,6 @@ export default class TutorSignupForm {
       formData,
       getInputValue,
       additionalQuestions,
-      formSubmitButton,
     } = this;
 
     formData.name = getInputValue(interaction, 0);
@@ -452,10 +512,7 @@ export default class TutorSignupForm {
       "If you answered 'yes' to the previous question, did you receive less than a B- in one of your CS classes last semester?"
     );
 
-    const additionalQuestionsComponents = [
-      ...additionalQuestions,
-      wrapButtonActionRow(formSubmitButton),
-    ];
+    const additionalQuestionsComponents = [...additionalQuestions];
 
     const aqcSplitA = additionalQuestionsComponents.slice(0, 5);
     const aqcSplitB = additionalQuestionsComponents.slice(5);
@@ -497,13 +554,39 @@ export default class TutorSignupForm {
         formData.isCSMajor = interaction.values[0];
         break;
       case dropdownIds.lessThanBMinus:
-        formData.lessThanBMinus = interaction.values[0] || "";
+        formData.lessThanBMinus =
+          interaction.values[0] || formData.lessThanBMinus;
         break;
       case dropdownIds.tutorType:
         formData.tutorType = interaction.values;
         break;
       case dropdownIds.coursesTutoring:
         formData.coursesTutoring = interaction.values;
+        break;
+      case dropdownIds.threeCourseHours:
+        formData.threeCourseHours =
+          interaction.values[0] || formData.threeCourseHours;
+        break;
+      case dropdownIds.passedCourses:
+        formData.passedCourses =
+          interaction.values[0] || formData.passedCourses;
+        break;
+      case dropdownIds.tosAgreement:
+        formData.tosAgreement = interaction.values[0] || formData.tosAgreement;
+    }
+
+    if (this.isReadyToSubmit() && !this.submitButtonOffered) {
+      this.submitButtonOffered = true;
+      this.commandInteraction.followUp({
+        ephemeral: true,
+        embeds: [
+          createEmbeded(
+            " ",
+            "Please review your application and click submit when you are ready."
+          ),
+        ],
+        components: [this.wrapButtonActionRow(this.formSubmitButton)],
+      });
     }
   };
 
@@ -657,7 +740,7 @@ export default class TutorSignupForm {
   private acceptTutorButton = new ButtonBuilder()
     .setCustomId(this.uniqueId("accept-button"))
     .setStyle(ButtonStyle.Primary)
-    .setLabel("Accept");
+    .setLabel("Offer Interview");
 
   private rejectTutorButton = new ButtonBuilder()
     .setCustomId(this.uniqueId("reject-button"))
@@ -667,33 +750,16 @@ export default class TutorSignupForm {
   private onAcceptTutor = async (interaction: ButtonInteraction) => {
     await interaction.deferReply();
 
-    const tutorRoleResponse = await getRole("tutor", this.guild);
-
-    if (tutorRoleResponse.error) {
-      await sendError(
-        "❌ Accept Tutor Failed!",
-        tutorRoleResponse.message,
-        interaction
-      );
-      return;
-    }
-
-    const tutorRole = tutorRoleResponse.data;
-
     const { user } = this.commandInteraction;
-
-    const member = await this.guild.members.fetch({ user });
-
-    await member.roles.add(tutorRole);
 
     await this.commandInteraction.followUp({
       ephemeral: true,
-      content: `${user} Your tutoring application has been accepted!`,
+      content: `${user} Your tutoring application has been approved for an interview! Please schedule one here: https://calendly.com/cougarcs-tutoring/tutor-interview`,
     });
 
     const returnMessage = createEmbeded(
-      "✅ Tutor Accepted!",
-      `${user} has been successfully added as a tutor!`
+      "✅ Offer Sent!",
+      `${user} has been successfully offered the opportunity to interview!`
     );
 
     await interaction.editReply({ embeds: [returnMessage] });

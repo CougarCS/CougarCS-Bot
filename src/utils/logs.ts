@@ -92,8 +92,6 @@ export const log = async (
 
   const channelResponse = await getChannel("log", guild);
 
-  console.log(`${guild.name}: ${channelResponse.message}`);
-
   if (channelResponse.error) return;
 
   const logChannel = channelResponse.data;
