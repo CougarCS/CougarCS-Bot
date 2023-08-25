@@ -75,34 +75,28 @@ export default class TutorSignupForm {
 
     if (isModalButton) {
       await this.onModalButton(interaction);
-      console.log(this.formData);
       return;
     }
 
     if (isModalSubmit) {
       await this.onModalSubmit(interaction);
-      console.log(this.formData);
       return;
     }
 
     if (isSelectMenu) {
       await this.onDropdownSubmit(interaction);
-      console.log(this.formData);
       return;
     }
 
     if (isSubmitButton) {
-      console.log(this.formData);
       await this.onFormSubmit(interaction);
     }
 
     if (isAcceptButton) {
-      console.log(this.formData);
       await this.onAcceptTutor(interaction);
     }
 
     if (isRejectButton) {
-      console.log(this.formData);
       await this.onRejectTutor(interaction);
     }
   };
@@ -414,9 +408,7 @@ export default class TutorSignupForm {
         .setEmoji("❌")
         .setValue("< 3 Hours")
     )
-    .setPlaceholder(
-      "Have you completed 3 or more hours of CS course credit? *"
-    );
+    .setPlaceholder("CS credit hours completed *");
 
   private passedCourses = new StringSelectMenuBuilder()
     .setCustomId(this.dropdownIds.passedCourses)
@@ -430,9 +422,7 @@ export default class TutorSignupForm {
         .setEmoji("❌")
         .setValue("Not Passed")
     )
-    .setPlaceholder(
-      "Have you passed all the courses that you've applied for? *"
-    );
+    .setPlaceholder("Selected courses passed *");
 
   private tosAgreement = new StringSelectMenuBuilder()
     .setCustomId(this.dropdownIds.tosAgreement)
@@ -440,13 +430,11 @@ export default class TutorSignupForm {
       new StringSelectMenuOptionBuilder()
         .setLabel("I will abide to the CougarCS TOS and Code of Conduct")
         .setEmoji("✅")
-        .setValue("Passed")
+        .setValue("Agreed")
     )
     .setMinValues(1)
     .setMaxValues(1)
-    .setPlaceholder(
-      "By submitting, you agree to abide by the CougarCS TOS and Code of Conduct. *"
-    );
+    .setPlaceholder("CougarCS TOS agreement *");
 
   private formSubmitButton = new ButtonBuilder()
     .setCustomId(this.uniqueId("form-submit"))
@@ -696,6 +684,21 @@ export default class TutorSignupForm {
           {
             name: "Tutoring Courses",
             value: this.formData.coursesTutoring.join(", ") || " ",
+            inline: true,
+          },
+          {
+            name: "Passed Courses",
+            value: this.formData.passedCourses || " ",
+            inline: true,
+          },
+          {
+            name: "CS Hours",
+            value: this.formData.threeCourseHours || " ",
+            inline: true,
+          },
+          {
+            name: "TOS",
+            value: this.formData.tosAgreement || " ",
             inline: true,
           },
           {
