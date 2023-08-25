@@ -9,7 +9,7 @@ import { contactFields } from "../../utils/embedFields";
 
 export const createcontact: Command = {
   data: new SlashCommandBuilder()
-    .setName("createcontact")
+    .setName("create-contact")
     .setDescription("Add a contact to the database!")
     .setDefaultMemberPermissions(PermissionFlagsBits.Administrator)
     .addNumberOption((option) =>
@@ -115,7 +115,7 @@ export const createcontact: Command = {
       "The contact has been inserted in the database!"
     ).setColor("Green");
 
-    const newContact = contactResponse.data[0];
+    const newContact = contactResponse.data;
     const newContactMessage = createEmbeded("👤 New Contact!", " ")
       .setColor("Yellow")
       .addFields(...contactFields(newContact));

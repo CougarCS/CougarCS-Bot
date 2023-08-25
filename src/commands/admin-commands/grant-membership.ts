@@ -1,7 +1,6 @@
 import {
   Guild,
   PermissionFlagsBits,
-  Role,
   SlashCommandBuilder,
   User,
 } from "discord.js";
@@ -21,7 +20,7 @@ import {
 
 export const grantmembership: Command = {
   data: new SlashCommandBuilder()
-    .setName("grantmembership")
+    .setName("grant-membership")
     .setDescription("Grant CougarCS membership to a user!")
     .setDefaultMemberPermissions(PermissionFlagsBits.Administrator)
     .addUserOption((option) =>
@@ -74,11 +73,11 @@ export const grantmembership: Command = {
       return;
     }
 
-    const { contact_id } = contactResponse.data[0];
+    const { contact_id } = contactResponse.data;
 
     const isMemberResponse = await isMember({ contact_id });
 
-    if (!isMemberResponse.error && isMemberResponse.data[0]) {
+    if (!isMemberResponse.error && isMemberResponse.data) {
       await sendError(
         errorTitle,
         `<@${discord_snowflake}> has already received a membership!`,
@@ -117,7 +116,7 @@ export const grantmembership: Command = {
       return;
     }
 
-    const memberRole = roleResponse.data[0] as Role;
+    const memberRole = roleResponse.data;
 
     await member.roles.add(memberRole);
 

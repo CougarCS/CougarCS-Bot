@@ -32,7 +32,7 @@ const createUpdateEmbeds = (
     .addFields(...guildConfigFields(oldGuildData));
   embeds.push(oldConfigMessage);
 
-  const newConfigMessage = createEmbeded("⌛ New Contact!", " ")
+  const newConfigMessage = createEmbeded("⌛ New Config!", " ")
     .setColor("Blue")
     .addFields(...guildConfigFields(newGuildData));
 
@@ -42,36 +42,48 @@ const createUpdateEmbeds = (
 
 export const setguildconfig: Command = {
   data: new SlashCommandBuilder()
-    .setName("setguildconfig")
+    .setName("set-guild-config")
     .setDescription("Set the custom guild data!")
     .setDefaultMemberPermissions(PermissionFlagsBits.ManageChannels)
     .addRoleOption((option) =>
       option
-        .setName("memberrole")
+        .setName("member-role")
         .setDescription("The CougarCS Member Role!")
         .setRequired(false)
     )
     .addRoleOption((option) =>
       option
-        .setName("officerrole")
+        .setName("officer-role")
         .setDescription("The CougarCS Officer Role!")
         .setRequired(false)
     )
     .addRoleOption((option) =>
       option
-        .setName("adminrole")
+        .setName("admin-role")
         .setDescription("The CougarCS Admin Role!")
+        .setRequired(false)
+    )
+    .addRoleOption((option) =>
+      option
+        .setName("tutor-role")
+        .setDescription("The CougarCS Tutor Role!")
+        .setRequired(false)
+    )
+    .addUserOption((option) =>
+      option
+        .setName("tutoring-director")
+        .setDescription("The CougarCS Tutoring Director!")
         .setRequired(false)
     )
     .addChannelOption((option) =>
       option
-        .setName("logchannel")
+        .setName("log-channel")
         .setDescription("The CougarCS Log Channel!")
         .setRequired(false)
     )
     .addChannelOption((option) =>
       option
-        .setName("reportchannel")
+        .setName("report-channel")
         .setDescription("The CougarCS Report Channel!")
         .setRequired(false)
     ),
@@ -79,28 +91,35 @@ export const setguildconfig: Command = {
     await interaction.deferReply({ ephemeral: false });
 
     const update: GuildUpdate = {
-      member_role_id: interaction.options.get("memberrole", false)?.value as
+      member_role_id: interaction.options.get("member-role", false)?.value as
         | string
         | undefined,
-      officer_role_id: interaction.options.get("officerrole", false)?.value as
+      officer_role_id: interaction.options.get("officer-role", false)?.value as
         | string
         | undefined,
-      admin_role_id: interaction.options.get("adminrole", false)?.value as
+      admin_role_id: interaction.options.get("admin-role", false)?.value as
         | string
         | undefined,
-      log_channel_id: interaction.options.get("logchannel", false)?.value as
+      tutor_role_id: interaction.options.get("tutor-role", false)?.value as
         | string
         | undefined,
-      report_channel_id: interaction.options.get("reportchannel", false)
+      log_channel_id: interaction.options.get("log-channel", false)?.value as
+        | string
+        | undefined,
+      report_channel_id: interaction.options.get("report-channel", false)
+        ?.value as string | undefined,
+      tutoring_director_id: interaction.options.get("tutoring-director", false)
         ?.value as string | undefined,
     };
 
-    commandLog(interaction, "/ping", "Green", [
-      { name: "memberrole", value: `<@&${update.member_role_id}>` },
-      { name: "officerrole", value: `<@&${update.officer_role_id}>` },
-      { name: "adminrole", value: `<@&${update.admin_role_id}>` },
-      { name: "logchannel", value: `<#${update.log_channel_id}>` },
-      { name: "reportchannel", value: `<#${update.report_channel_id}>` },
+    commandLog(interaction, "/set-guild-config", "Green", [
+      { name: "member-role", value: `<@&${update.member_role_id}>` },
+      { name: "officer-role", value: `<@&${update.officer_role_id}>` },
+      { name: "admin-role", value: `<@&${update.admin_role_id}>` },
+      { name: "tutor-role", value: `<@&${update.tutor_role_id}>` },
+      { name: "tutoring-director", value: `<@${update.tutoring_director_id}>` },
+      { name: "log-channel", value: `<#${update.log_channel_id}>` },
+      { name: "report-channel", value: `<#${update.report_channel_id}>` },
     ]);
 
     const errorTitle = "❌ Config Canceled!";
@@ -109,8 +128,10 @@ export const setguildconfig: Command = {
       update.admin_role_id ||
       update.officer_role_id ||
       update.member_role_id ||
+      update.tutor_role_id ||
       update.log_channel_id ||
-      update.report_channel_id
+      update.report_channel_id ||
+      update.tutoring_director_id
     );
 
     if (noParams) {
@@ -135,7 +156,7 @@ export const setguildconfig: Command = {
       return;
     }
 
-    const oldGuildData = guildResponse.data[0] as GuildSelect;
+    const oldGuildData = guildResponse.data;
 
     const updateResponse = await updateGuildData(update, guild);
 
@@ -144,7 +165,7 @@ export const setguildconfig: Command = {
       return;
     }
 
-    const newGuildData = updateResponse.data[0] as GuildSelect;
+    const newGuildData = updateResponse.data;
 
     const embeds = createUpdateEmbeds(oldGuildData, newGuildData);
 

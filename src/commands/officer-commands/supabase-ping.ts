@@ -6,7 +6,7 @@ import { commandLog, sendError } from "../../utils/logs";
 
 export const supabaseping: Command = {
   data: new SlashCommandBuilder()
-    .setName("supabaseping")
+    .setName("supabase-ping")
     .setDescription("Ping the Supabase Backend.")
     .setDefaultMemberPermissions(PermissionFlagsBits.ManageChannels),
   run: async (interaction) => {

@@ -1,9 +1,4 @@
-import {
-  Guild,
-  PermissionFlagsBits,
-  Role,
-  SlashCommandBuilder,
-} from "discord.js";
+import { Guild, PermissionFlagsBits, SlashCommandBuilder } from "discord.js";
 import { Command } from "../../interfaces/Command";
 import { createEmbeded, sendBulkEmbeds } from "../../utils/embeded";
 import { commandLog, sendError } from "../../utils/logs";
@@ -36,7 +31,7 @@ const createContactEmbeds = async (
     const contact = contacts[i];
     const { contact_id } = contact;
     const memberResponse = await isMember({ contact_id });
-    const activeMember = !memberResponse.error && memberResponse.data[0];
+    const activeMember = !memberResponse.error && memberResponse.data;
 
     if (!fullprofile) {
       const embed = createEmbeded(
@@ -51,7 +46,7 @@ const createContactEmbeds = async (
     let balance = 0;
 
     if (!balanceResponse.error) {
-      balance = balanceResponse.data[0];
+      balance = balanceResponse.data;
     }
 
     const embed = createEmbeded(" ", " ").addFields(
@@ -192,7 +187,7 @@ export const find: Command = {
     let isAdmin = false;
 
     if (!adminRoleResponse.error) {
-      const adminRole = adminRoleResponse.data[0] as Role;
+      const adminRole = adminRoleResponse.data;
       isAdmin = !!member.roles.cache.find((r) => r === adminRole);
     }
 

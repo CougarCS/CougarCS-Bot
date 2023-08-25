@@ -1,4 +1,8 @@
-import { ColorResolvable, CommandInteraction } from "discord.js";
+import {
+  ButtonInteraction,
+  ColorResolvable,
+  CommandInteraction,
+} from "discord.js";
 import { Guild } from "discord.js";
 import { createEmbeded } from "./embeded";
 import { getChannel, getRole } from "./supabase";
@@ -14,7 +18,7 @@ export const commandLog = async (
 
   if (channelResponse.error) return;
 
-  const logChannel = channelResponse.data[0];
+  const logChannel = channelResponse.data;
 
   let fullCommand = commandName;
   params.forEach((p) => {
@@ -32,7 +36,11 @@ export const commandLog = async (
       value: `${fullCommand}`,
     });
 
-  logChannel.send({ embeds: [message] });
+  try {
+    logChannel.send({ embeds: [message] });
+  } catch (error) {
+    console.log(error);
+  }
 };
 
 export const report = async (
@@ -45,7 +53,7 @@ export const report = async (
 
   if (channelResponse.error) return;
 
-  const reportChannel = channelResponse.data[0];
+  const reportChannel = channelResponse.data;
 
   const report = createEmbeded(
     `📢 User Report!`,
@@ -60,12 +68,18 @@ export const report = async (
 
   const roleResponse = await getRole("officer", guild);
 
-  const officerRole = roleResponse.data[0];
+  const officerRole = !roleResponse.error && roleResponse.data;
 
-  reportChannel.send({
-    embeds: [report],
-    content: `${officerRole}`,
-  });
+  const content = officerRole ? `${officerRole}` : "";
+
+  try {
+    reportChannel.send({
+      embeds: [report],
+      content,
+    });
+  } catch (error) {
+    console.log(error);
+  }
 };
 
 export const log = async (
@@ -78,19 +92,21 @@ export const log = async (
 
   const channelResponse = await getChannel("log", guild);
 
-  console.log(`${guild.name}: ${channelResponse.message}`);
-
   if (channelResponse.error) return;
 
-  const logChannel = channelResponse.data[0];
+  const logChannel = channelResponse.data;
 
-  logChannel.send({ embeds: [message] });
+  try {
+    logChannel.send({ embeds: [message] });
+  } catch (error) {
+    console.log(error);
+  }
 };
 
 export const sendError = async (
   errorTitle: string,
   errorMessage: string,
-  interaction: CommandInteraction
+  interaction: CommandInteraction | ButtonInteraction
 ) => {
   const errorEmbed = createEmbeded(errorTitle, errorMessage).setColor("Red");
   await interaction.editReply({ embeds: [errorEmbed] });

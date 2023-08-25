@@ -48,7 +48,11 @@ export const onReady = async (client: Client) => {
   console.log(`🤖 ${client.user?.tag} is online ⚡`);
   console.log("😺 Initialization complete");
 
+  heartbeat();
+  console.log("📈 Heartbeat started");
+
   client.guilds.cache.forEach((guild) => {
+    console.log(guild.name);
     log(
       "🔁 Bot Restarted",
       "The CougarCS bot has been restarted. All previous interactions are no longer connected.",
@@ -57,6 +61,16 @@ export const onReady = async (client: Client) => {
     );
   });
 
-  heartbeat();
-  console.log("📈 Heartbeat started");
+  process.on("uncaughtException", async (error) => {
+    for (const [, guild] of client.guilds.cache) {
+      await log(
+        "❌ Bot Shut Down",
+        `The CougarCS bot has been shut down due to an uncaught error. All previous interactions are no longer functional.`,
+        "Red",
+        guild
+      );
+      await log(" ", `${error.stack}`, "Red", guild);
+    }
+    process.exit(1);
+  });
 };

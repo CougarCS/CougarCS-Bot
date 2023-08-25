@@ -25,11 +25,16 @@ export type ContactQuery = {
   shirt_size_id?: string;
 };
 
-export type SupabaseResponse = {
-  data: any[];
-  error: boolean;
-  message: string;
-};
+export type SupabaseResponse<T> =
+  | {
+      data: T;
+      error: false;
+      message: string;
+    }
+  | {
+      error: true;
+      message: string;
+    };
 
 export type ContactUpdate = {
   contact_id?: string;
@@ -73,6 +78,14 @@ export type TransactionInsert = {
   reason_id: string;
 };
 
+export type TransactionSelect = {
+  contact_id: string;
+  member_point_transaction_id: string;
+  member_point_transaction_reason_id: string;
+  point_value: number;
+  timestamp: string;
+};
+
 export type EventAttendanceInsert = {
   contact_id: string;
   event_attendance_id?: string;
@@ -99,6 +112,8 @@ export type GuildUpdate = {
   name?: string;
   officer_role_id?: string | null;
   report_channel_id?: string | null;
+  tutor_role_id?: string | null;
+  tutoring_director_id?: string | null;
 };
 
 export type GuildSelect = {
@@ -109,6 +124,8 @@ export type GuildSelect = {
   name: string;
   officer_role_id: string | null;
   report_channel_id: string | null;
+  tutor_role_id: string | null;
+  tutoring_director_id: string | null;
 };
 
 export type MembershipSelect = {
@@ -120,10 +137,59 @@ export type MembershipSelect = {
   start_date: string;
 };
 
+export type MembershipCodeSelect = {
+  membership_code_id: string;
+  message: string;
+};
+
 export type AttendanceSelect = {
   contact_id: string;
   event_attendance_id: string;
   event_id: string;
   swag: boolean;
   timestamp: string;
+};
+
+export type ShirtSizeSelect = {
+  message: string;
+  shirt_size_id: string;
+};
+
+export type MemberPointReasonSelect = {
+  member_point_transaction_reason_id: string;
+  message: string;
+};
+
+export type EventSelect = {
+  date: string;
+  description: string | null;
+  duration: number | null;
+  event_id: string;
+  point_value: number;
+  title: string;
+};
+
+export type EventAttendanceSelect = {
+  contact_id: string;
+  event_attendance_id: string;
+  event_id: string;
+  swag: boolean;
+  timestamp: string;
+};
+
+export type TutorSignupFormData = {
+  name: string;
+  psid: string;
+  email: string;
+  phoneNumber: string;
+  reason: string;
+  pronouns: string[];
+  classification: string;
+  isCSMajor: string;
+  lessThanBMinus: string;
+  tutorType: string[];
+  coursesTutoring: string[];
+  threeCourseHours: string;
+  passedCourses: string;
+  tosAgreement: string;
 };

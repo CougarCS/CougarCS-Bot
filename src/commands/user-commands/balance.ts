@@ -39,7 +39,7 @@ export const balance: Command = {
       return;
     }
 
-    const balance = balanceResponse.data[0];
+    const balance = balanceResponse.data;
     const prefix =
       discord_snowflake === user.id
         ? "You have"

@@ -102,7 +102,7 @@ export const checkin: Command = {
       return;
     }
 
-    const contact = contactResponse.data[0];
+    const contact = contactResponse.data;
     const { contact_id } = contact;
     const identifier = contact.discord_snowflake
       ? `<@${contact.discord_snowflake}>`
@@ -134,7 +134,7 @@ export const checkin: Command = {
       return;
     }
 
-    const eventName = eventResponse.data[0].title;
+    const eventName = eventResponse.data.title;
 
     const attendanceResponse = await insertEventAttendance(attendance);
 

@@ -35,7 +35,7 @@ const createUpdateEmbeds = (
 
 export const updatecontact: Command = {
   data: new SlashCommandBuilder()
-    .setName("updatecontact")
+    .setName("update-contact")
     .setDescription("Update a contact in the database!")
     .setDefaultMemberPermissions(PermissionFlagsBits.Administrator)
     .addNumberOption((option) =>
@@ -142,7 +142,7 @@ export const updatecontact: Command = {
       return;
     }
 
-    const { contact_id } = oldContactResponse.data[0];
+    const { contact_id } = oldContactResponse.data;
 
     const contactResponse = await updateContact(update, contact_id);
 
@@ -151,8 +151,8 @@ export const updatecontact: Command = {
       return;
     }
 
-    const oldContact = oldContactResponse.data[0];
-    const newContact = contactResponse.data[0];
+    const oldContact = oldContactResponse.data;
+    const newContact = contactResponse.data;
     const embeds = createUpdateEmbeds(oldContact, newContact);
 
     await interaction.editReply({ embeds });

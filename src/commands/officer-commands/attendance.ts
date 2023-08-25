@@ -25,7 +25,8 @@ const attendanceEmbeds = async (
     const attendance = attendanceArray[i];
     const { event_id } = attendance;
     const eventResponse = await getEvent(event_id);
-    const identifier = eventResponse.data[0]?.title || event_id;
+    const eventTitle = !eventResponse.error && eventResponse.data;
+    const identifier = eventTitle || event_id;
     const embed = createEmbeded(`${identifier} ✅`, " ").setColor("Green");
     attendanceEmbeds.push(embed);
   }

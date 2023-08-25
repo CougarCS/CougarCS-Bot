@@ -1,4 +1,4 @@
-import { Guild, Role, SlashCommandBuilder, User } from "discord.js";
+import { Guild, SlashCommandBuilder, User } from "discord.js";
 import { Command } from "../../interfaces/Command";
 import { createEmbeded } from "../../utils/embeded";
 import { commandLog, sendError } from "../../utils/logs";
@@ -51,7 +51,7 @@ export const pay: Command = {
       return;
     }
 
-    const memberRole = roleResponse.data[0] as Role;
+    const memberRole = roleResponse.data;
 
     const hasMemberRole = member.roles.cache.find((r) => r === memberRole);
 
@@ -90,7 +90,7 @@ export const pay: Command = {
       return;
     }
 
-    const initialBalance = balanceResponse.data[0];
+    const initialBalance = balanceResponse.data;
 
     if (initialBalance < point_value) {
       await sendError(errorTitle, `Your balance is too low!`, interaction);
@@ -129,7 +129,7 @@ export const pay: Command = {
     let payBalance = 0;
 
     if (!payBalanceResponse.error) {
-      payBalance = payBalanceResponse.data[0];
+      payBalance = payBalanceResponse.data;
     }
 
     const finalBalance = initialBalance - point_value;
