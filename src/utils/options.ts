@@ -1,4 +1,4 @@
-import { APIApplicationCommandOptionChoice, APIApplicationCommandPermissionsConstant } from "discord.js";
+import { APIApplicationCommandOptionChoice } from "discord.js";
 import {
   getEvents,
   getMemberPointReasons,
