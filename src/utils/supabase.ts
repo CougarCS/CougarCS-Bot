@@ -941,9 +941,7 @@ export const insertTutorLog = async (
 
 export const getTutoringTypes = async (
 ): Promise<SupabaseResponse<TutoringTypeSelect[]>> => {
-  const query = supabase.from("tutoring_types").select("*");
-
-  const tutoringTypeResponse = await query;
+  const tutoringTypeResponse = await supabase.from("tutoring_types").select("*");;
 
   if (tutoringTypeResponse.error) {
     return {
