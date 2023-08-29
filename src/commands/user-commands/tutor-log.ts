@@ -40,7 +40,7 @@ export const tutorlog: Command = {
 
     const tutoring_type_id = interaction.options.get("tutoring-type", true).value as string
     const tutored_user =  interaction.options.get("tutored-user", true).value as string 
-    const hours = interaction.options.get("hours", true).value as number
+    const hours = Math.round(interaction.options.get("hours", true).value as number)
     const description = interaction.options.get("description", false)?.value as | string | null 
     
     commandLog(interaction, "/tutor-log", "Orange", [
