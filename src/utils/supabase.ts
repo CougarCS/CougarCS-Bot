@@ -41,10 +41,10 @@ const addQueryFilters = (query: any, queryData: any) => {
     if (!queryData[key]) return;
 
     if (key.match(/_id$/)) { 
-        query = query.eq(key, queryData[key]);
+      query = query.eq(key, queryData[key]);
     } else {
-    const stringSearch = `%${queryData[key]}%`;
-    query = query.ilike(key, stringSearch);
+        const stringSearch = `%${queryData[key]}%`;
+        query = query.ilike(key, stringSearch);
     }
   });
 };
