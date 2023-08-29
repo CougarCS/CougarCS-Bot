@@ -3,7 +3,7 @@ import { commandLog, sendError } from "../../utils/logs";
 import { SlashCommandBuilder } from "discord.js";
 import { TutorLogInsert} from "../../utils/types";
 import { getContactId, getTutorId, insertTutorLog, getTutoringType } from "../../utils/supabase";
-import { createEmbeded } from "../../utils/embeded";
+import { createEmbed } from "../../utils/embeded";
 import { tutoringTypeOptions } from "../../utils/options";
 
 export const tutorlog: Command = {
@@ -94,7 +94,7 @@ export const tutorlog: Command = {
 
     const tutoringTypeName = tutoringTypeResponse.data.message
 
-    const returnMessage = createEmbeded (
+    const returnMessage = createEmbed (
       "📝 Tutor Log Submitted!",
       `You submitted 
       tutoring type: ${tutoringTypeName},
