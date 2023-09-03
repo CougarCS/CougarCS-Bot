@@ -88,7 +88,7 @@ export const tutorStatsFields = (
 
     const currentDate = new Date(timestamp);
     const firstDayOfWeek = Math.abs(currentDate.getDay() - currentDate.getDate());
-    const weekDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), firstDayOfWeek ).toLocaleDateString();
+    const weekDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), firstDayOfWeek).toLocaleDateString();
 
     if (detail) {
       if (prevWeek == " ") {
@@ -108,7 +108,7 @@ export const tutorStatsFields = (
           prevWeek = weekDate;
       };
       // reach end of array
-      if (iter == (tutor.length)) {
+      if (iter == tutor.length) {
         embeds.push (
           {
             name: `Week ${prevWeek}`,
@@ -119,7 +119,7 @@ export const tutorStatsFields = (
       };
   } else {
       totalHours += hours;
-      if (iter == (tutor.length)) {
+      if (iter == tutor.length) {
         embeds.push ( 
           {
             name: " ",

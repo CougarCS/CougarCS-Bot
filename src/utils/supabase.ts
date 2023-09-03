@@ -37,8 +37,7 @@ const supabase = createClient<Database>(supabaseUrl, supabaseKey);
 const addQueryFilters = (query: any, queryData: any) => {
   Object.keys(queryData).forEach((key) => {
     const contactKey = key as any;
-    //   console.log("query", query)
-    // console.log(queryData[contactKey])
+
     if (!queryData[contactKey]) return;
 
     if (contactKey.match(/_id$/)) {
@@ -928,7 +927,8 @@ export const getTutorLogs = async (
   start.setFullYear(year, semester === "Spring" ? 0 : 7, 1);
  
   const end = new Date();
-  end.setFullYear(year, semester === "Fall" ? 0 : 7, 1);
+  end.setFullYear(year, semester === "Fall" ? 8 : 11, 1);
+  console.log(end)
 
   const query = supabase.from("tutor_logs").select("*").gte("timestamp", start.toISOString()).lte("timestamp", end.toISOString());
 
