@@ -157,6 +157,8 @@ export const guildConfigFields = (
     member_role_id,
     log_channel_id,
     report_channel_id,
+    tutor_role_id,
+    tutoring_director_id,
   } = guildConfig;
 
   return [
@@ -178,6 +180,16 @@ export const guildConfigFields = (
     {
       name: "Member Role",
       value: `<@&${member_role_id}>`,
+      inline: true,
+    },
+    {
+      name: "Tutor Role",
+      value: `<@&${tutor_role_id}>`,
+      inline: true,
+    },
+    {
+      name: "Tutoring Director",
+      value: `<@${tutoring_director_id}>`,
       inline: true,
     },
     {
