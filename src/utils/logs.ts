@@ -1,4 +1,8 @@
-import { ColorResolvable, CommandInteraction } from "discord.js";
+import {
+  ButtonInteraction,
+  ColorResolvable,
+  CommandInteraction,
+} from "discord.js";
 import { Guild } from "discord.js";
 import { createEmbed } from "./embeded";
 import { getChannel, getRole } from "./supabase";
@@ -88,8 +92,6 @@ export const log = async (
 
   const channelResponse = await getChannel("log", guild);
 
-  console.log(`${guild.name}: ${channelResponse.message}`);
-
   if (channelResponse.error) return;
 
   const logChannel = channelResponse.data;
@@ -104,7 +106,7 @@ export const log = async (
 export const sendError = async (
   errorTitle: string,
   errorMessage: string,
-  interaction: CommandInteraction
+  interaction: CommandInteraction | ButtonInteraction
 ) => {
   const errorEmbed = createEmbed(errorTitle, errorMessage).setColor("Red");
   await interaction.editReply({ embeds: [errorEmbed] });

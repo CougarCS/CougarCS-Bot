@@ -22,6 +22,7 @@ import { setguildconfig } from "../commands/officer-commands/set-guild-config";
 import { tutorsignup } from "../commands/user-commands/tutor-signup";
 import { tutorlog } from "../commands/user-commands/tutor-log";
 
+
 export const CommandList: Command[] = [
   attendance,
   balance,
@@ -41,7 +42,6 @@ export const CommandList: Command[] = [
   rolegiver,
   setguildconfig,
   supabaseping,
-  tutorsignup,
   updatecontact,
   whois,
   tutorlog
