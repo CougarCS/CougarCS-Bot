@@ -35,6 +35,7 @@ const supabaseUrl = process.env.SUPABASE_URL as string;
 const supabaseKey = process.env.SUPABASE_KEY as string;
 const supabase = createClient<Database>(supabaseUrl, supabaseKey);
 
+// Due to previous conflicting queryData types, the parameters were temporarily changed to type 'any' to avoid errors
 const addQueryFilters = (query: any, queryData: any) => {
   Object.keys(queryData).forEach((key) => { 
 
