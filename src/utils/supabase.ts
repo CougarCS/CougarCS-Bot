@@ -918,6 +918,7 @@ export const getTutorId = async (
   };
 };
 
+// There is a tutorLogInfo type error here even though the bot works fine temporarily, but it will need to be fixed whenever possible.
 export const insertTutorLog = async (
   tutorLogInfo: TutorLogInsert
 ): Promise<SupabaseResponse<TutorLogSelect>> => {
