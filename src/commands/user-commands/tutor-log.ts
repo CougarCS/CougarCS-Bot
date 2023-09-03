@@ -96,10 +96,9 @@ export const tutorlog: Command = {
 
     const returnMessage = createEmbed (
       "📝 Tutor Log Submitted!",
-      `You submitted 
-      tutoring type: ${tutoringTypeName},
-      person(s) tutored: ${tutored_user} 
-      hours: ${hours}
+      ` Tutoring Type: ${tutoringTypeName},
+        Person(s) Tutored: ${tutored_user} 
+        Hours: ${hours}
       ${descriptionMessage}`,      
     ).setColor("Green");
           
