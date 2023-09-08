@@ -195,23 +195,23 @@ export type TutorSignupFormData = {
 };
 
 export type TutorSelect = {
-  contact_id: string,
-  end_date: string,
-  start_date: string,
-  tutor_id: string,
-}
+  contact_id: string;
+  end_date: string;
+  start_date: string;
+  tutor_id: string;
+};
 
 export type UniqueTutorQuery = {
-  contact_id?: string,
-  tutor_id?: string,
-}
+  contact_id?: string;
+  tutor_id?: string;
+};
 
 export type TutorQuery = {
-  contact_id?: string
-  end_date?: string
-  start_date?: string
-  tutor_id?: string
-}
+  contact_id?: string;
+  end_date?: string;
+  start_date?: string;
+  tutor_id?: string;
+};
 
 export type TutorLogInsert = {
   description?: string | null;
@@ -231,9 +231,9 @@ export type TutorLogSelect = {
   tutor_log_id: string;
   tutored_user: string;
   tutoring_type_id: string;
-}
+};
 
 export type TutoringTypeSelect = {
   message: string;
   tutoring_type_id: string;
-}
+};

@@ -1,6 +1,6 @@
 import { Guild, SlashCommandBuilder, User } from "discord.js";
 import { Command } from "../../interfaces/Command";
-import { createEmbeded } from "../../utils/embeded";
+import { createEmbed } from "../../utils/embeded";
 import { commandLog, sendError } from "../../utils/logs";
 import { getBalance, getRole, insertTransaction } from "../../utils/supabase";
 import { TransactionInsert } from "../../utils/types";
@@ -134,7 +134,7 @@ export const pay: Command = {
 
     const finalBalance = initialBalance - point_value;
 
-    const returnMessage = createEmbeded(
+    const returnMessage = createEmbed(
       "<a:CC:991512220909445150> CougarCoin Paid!",
       `You paid **${point_value}** CougarCoin to ${payMember.user}!`
     )

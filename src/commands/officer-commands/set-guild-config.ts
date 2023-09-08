@@ -5,7 +5,7 @@ import {
   SlashCommandBuilder,
 } from "discord.js";
 import { Command } from "../../interfaces/Command";
-import { createEmbeded } from "../../utils/embeded";
+import { createEmbed } from "../../utils/embeded";
 import { commandLog, sendError } from "../../utils/logs";
 import { GuildSelect, GuildUpdate } from "../../utils/types";
 import {
@@ -21,18 +21,18 @@ const createUpdateEmbeds = (
 ): EmbedBuilder[] => {
   const embeds: EmbedBuilder[] = [];
 
-  const returnMessage = createEmbeded(
+  const returnMessage = createEmbed(
     "✅ Guild Config Updated!",
     "This guild's configuration information was updated!"
   ).setColor("Green");
   embeds.push(returnMessage);
 
-  const oldConfigMessage = createEmbeded("⏳ Old Config!", " ")
+  const oldConfigMessage = createEmbed("⏳ Old Config!", " ")
     .setColor("Red")
     .addFields(...guildConfigFields(oldGuildData));
   embeds.push(oldConfigMessage);
 
-  const newConfigMessage = createEmbeded("⌛ New Config!", " ")
+  const newConfigMessage = createEmbed("⌛ New Config!", " ")
     .setColor("Blue")
     .addFields(...guildConfigFields(newGuildData));
 

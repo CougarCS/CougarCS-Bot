@@ -1,6 +1,6 @@
 import { Guild, SlashCommandBuilder } from "discord.js";
 import { Command } from "../../interfaces/Command";
-import { createEmbeded } from "../../utils/embeded";
+import { createEmbed } from "../../utils/embeded";
 import { commandLog, sendError } from "../../utils/logs";
 import {
   getContact,
@@ -65,7 +65,7 @@ export const claim: Command = {
     const haveMemberRole = !!member.roles.cache.find((r) => r === memberRole);
 
     if (haveMemberRole) {
-      const returnMessage = createEmbeded(
+      const returnMessage = createEmbed(
         "✅ Membership Confirmed!",
         `You still have the ${memberRole} role!`
       ).setColor("Green");
@@ -145,7 +145,7 @@ export const claim: Command = {
 
     await member.roles.add(memberRole);
 
-    const returnMessage = createEmbeded(
+    const returnMessage = createEmbed(
       "✅ Membership Claimed!",
       `The ${memberRole} role has been applied!`
     ).setColor("Green");

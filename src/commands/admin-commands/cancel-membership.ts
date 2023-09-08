@@ -5,7 +5,7 @@ import {
   User,
 } from "discord.js";
 import { Command } from "../../interfaces/Command";
-import { createEmbeded } from "../../utils/embeded";
+import { createEmbed } from "../../utils/embeded";
 import { commandLog, sendError } from "../../utils/logs";
 import { cancelMembership, getRole } from "../../utils/supabase";
 
@@ -40,7 +40,7 @@ export const cancelmembership: Command = {
       return;
     }
 
-    const returnMessage = createEmbeded(
+    const returnMessage = createEmbed(
       "✅ Membership canceled!",
       `<@${discord_snowflake}>'s membership has been successfully canceled!`
     ).setColor("Green");

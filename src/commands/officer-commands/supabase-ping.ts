@@ -1,6 +1,6 @@
 import { PermissionFlagsBits, SlashCommandBuilder } from "discord.js";
 import { Command } from "../../interfaces/Command";
-import { createEmbeded } from "../../utils/embeded";
+import { createEmbed } from "../../utils/embeded";
 import { pingSB } from "../../utils/supabase";
 import { commandLog, sendError } from "../../utils/logs";
 
@@ -32,7 +32,7 @@ export const supabaseping: Command = {
     const endTime = new Date().getTime();
     const repsonseTime = (endTime - startTime) / 1000;
 
-    const returnMessage = createEmbeded(
+    const returnMessage = createEmbed(
       "<:supabase:867529336197480468> Supabase Pong!",
       `The Supabase instance responded with no errors!\nResponded in **${repsonseTime}** seconds!`
     ).setColor("#3ECF8E");

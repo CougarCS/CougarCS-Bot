@@ -313,7 +313,7 @@ export interface Database {
           hours: number
           timestamp?: string
           tutor_id: string
-          tutor_log_id: string
+          tutor_log_id?: string
           tutored_user: string
           tutoring_type_id: string
         }
@@ -327,12 +327,6 @@ export interface Database {
           tutoring_type_id?: string
         }
         Relationships: [
-          {
-            foreignKeyName: "tutor_logs_tutor_id_fkey"
-            columns: ["tutor_id"]
-            referencedRelation: "tutors"
-            referencedColumns: ["tutor_id"]
-          },
           {
             foreignKeyName: "tutor_logs_tutoring_type_id_fkey"
             columns: ["tutoring_type_id"]
@@ -367,7 +361,7 @@ export interface Database {
           contact_id: string
           end_date: string
           start_date?: string
-          tutor_id: string
+          tutor_id?: string
         }
         Update: {
           contact_id?: string

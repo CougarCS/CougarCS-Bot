@@ -3,7 +3,6 @@
 import { createClient } from "@supabase/supabase-js";
 import {
   ContactInsert,
-  ContactKey,
   ContactQuery,
   ContactSelect,
   ContactUpdate,
@@ -36,16 +35,16 @@ const supabaseKey = process.env.SUPABASE_KEY as string;
 const supabase = createClient<Database>(supabaseUrl, supabaseKey);
 
 // Due to previous conflicting queryData types, the parameters were temporarily changed to type 'any' to avoid errors
+// TODO: Determine acceptable types for query parameters
 const addQueryFilters = (query: any, queryData: any) => {
-  Object.keys(queryData).forEach((key) => { 
-
+  Object.keys(queryData).forEach((key) => {
     if (!queryData[key]) return;
 
-    if (key.match(/_id$/)) { 
-      query = query.eq(key, queryData[key]);
+    if (key.match(/_id$/)) {
+      query.eq(key, queryData[key]);
     } else {
-        const stringSearch = `%${queryData[key]}%`;
-        query = query.ilike(key, stringSearch);
+      const stringSearch = `%${queryData[key]}%`;
+      query.ilike(key, stringSearch);
     }
   });
 };
@@ -859,21 +858,21 @@ export const getTutors = async (
   if (tutorsResponse.error) {
     return {
       error: true,
-      message: "There was an error fetching tutors!"
+      message: "There was an error fetching tutors!",
     };
   }
 
   if (tutorsResponse.data.length === 0) {
     return {
       error: true,
-      message: "No tutors were found!"
+      message: "No tutors were found!",
     };
   }
 
   return {
     data: tutorsResponse.data,
     error: false,
-    message: "Successfully fetched tutors!"
+    message: "Successfully fetched tutors!",
   };
 };
 
@@ -886,9 +885,22 @@ export const getTutor = async (
     return tutorResponse;
   }
 
+  const mostRecentTutor = tutorResponse.data[0];
+
+  const now = new Date();
+  const tutorStart = new Date(mostRecentTutor.start_date);
+  const tutorEnd = new Date(mostRecentTutor.end_date);
+
+  if (now > tutorStart && now < tutorEnd) {
+    return {
+      ...tutorResponse,
+      data: tutorResponse.data[0],
+    };
+  }
+
   return {
-    ...tutorResponse,
-    data: tutorResponse.data[0],
+    error: true,
+    message: "No current tutor data was found!",
   };
 };
 
@@ -918,7 +930,6 @@ export const getTutorId = async (
   };
 };
 
-// There is a tutorLogInfo type error here even though the bot works fine temporarily, but it will need to be fixed whenever possible.
 export const insertTutorLog = async (
   tutorLogInfo: TutorLogInsert
 ): Promise<SupabaseResponse<TutorLogSelect>> => {
@@ -941,22 +952,25 @@ export const insertTutorLog = async (
   };
 };
 
-export const getTutoringTypes = async (
-): Promise<SupabaseResponse<TutoringTypeSelect[]>> => {
-  const tutoringTypeResponse = await supabase.from("tutoring_types").select("*");;
+export const getTutoringTypes = async (): Promise<
+  SupabaseResponse<TutoringTypeSelect[]>
+> => {
+  const tutoringTypeResponse = await supabase
+    .from("tutoring_types")
+    .select("*");
 
   if (tutoringTypeResponse.error) {
     return {
       error: true,
-      message: "There was an error fetching the tutoring types!"
+      message: "There was an error fetching the tutoring types!",
     };
   }
 
   if (tutoringTypeResponse.data.length === 0) {
     return {
       error: true,
-      message: "No tutoring types were found!"
-    }
+      message: "No tutoring types were found!",
+    };
   }
 
   return {
