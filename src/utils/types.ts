@@ -112,6 +112,8 @@ export type GuildUpdate = {
   name?: string;
   officer_role_id?: string | null;
   report_channel_id?: string | null;
+  tutor_role_id?: string | null;
+  tutoring_director_id?: string | null;
 };
 
 export type GuildSelect = {
@@ -213,3 +215,21 @@ export type TutorLogSelect = {
   tutored_user: string,
   tutoring_type_id: string,
 }
+
+export type TutorSignupFormData = {
+  name: string;
+  psid: string;
+  email: string;
+  phoneNumber: string;
+  reason: string;
+  pronouns: string[];
+  classification: string;
+  isCSMajor: string;
+  lessThanBMinus: string;
+  tutorType: string[];
+  coursesTutoring: string[];
+  threeCourseHours: string;
+  passedCourses: string;
+  tosAgreement: string;
+};
+
