@@ -928,7 +928,7 @@ export const getTutorLogs = async (
  
   const end = new Date();
   end.setFullYear(year, semester === "Fall" ? 8 : 11, 1);
-  console.log(end)
+
 
   const query = supabase.from("tutor_logs").select("*").gte("timestamp", start.toISOString()).lte("timestamp", end.toISOString());
 
