@@ -18,18 +18,14 @@ import {
   SupabaseResponse,
   TransactionInsert,
   TransactionSelect,
-  TutorLogInsert,
-  TutorLogSelect,
-  TutorQuery,
-  TutorSelect,
   TutoringTypeSelect,
-  UniqueTutorQuery,
   UniqueContactQuery,
-  TutorSelect,
   UniqueTutorQuery,
   TutorQuery,
+  TutorSelect,
+  TutorLogInsert,
   TutorLogQuery,
-  TutorLogSelect
+  TutorLogSelect,
   TutorInsert,
 } from "./types";
 import { Database } from "./schema";
