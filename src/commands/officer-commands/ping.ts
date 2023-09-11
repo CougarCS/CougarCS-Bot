@@ -1,6 +1,6 @@
 import { PermissionFlagsBits, SlashCommandBuilder } from "discord.js";
 import { Command } from "../../interfaces/Command";
-import { createEmbeded } from "../../utils/embeded";
+import { createEmbed } from "../../utils/embeded";
 import { commandLog } from "../../utils/logs";
 
 export const ping: Command = {
@@ -13,7 +13,7 @@ export const ping: Command = {
 
     commandLog(interaction, "/ping", "Green", []);
 
-    const returnMessage = createEmbeded(
+    const returnMessage = createEmbed(
       "🏓 Pong!",
       "Thank you for using the /ping command!"
     ).setColor("Green");

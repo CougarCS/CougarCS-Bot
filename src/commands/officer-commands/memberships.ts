@@ -4,7 +4,7 @@ import {
   SlashCommandBuilder,
 } from "discord.js";
 import { Command } from "../../interfaces/Command";
-import { createEmbeded, sendBulkEmbeds } from "../../utils/embeded";
+import { createEmbed, sendBulkEmbeds } from "../../utils/embeded";
 import { commandLog, sendError } from "../../utils/logs";
 import { getMembershipReason, getMemberships } from "../../utils/supabase";
 import { MembershipSelect, UniqueContactQuery } from "../../utils/types";
@@ -42,7 +42,7 @@ const formatMembership = async (
     reason = membershipReasonResponse.data;
   }
 
-  return createEmbeded(
+  return createEmbed(
     `${startSeason} ${startYear}`,
     `Number of Semesters: ${numSemesters}\nStatus: ${status}\n${reason}`
   ).setColor("Green");
@@ -122,7 +122,7 @@ export const memberships: Command = {
     const membershipCount = memberships.length;
     const suffix = membershipCount === 1 ? "" : "s";
 
-    const infoMessage = createEmbeded(
+    const infoMessage = createEmbed(
       `🔎 Found ${membershipCount} result${suffix}:`,
       " "
     ).setColor("Yellow");

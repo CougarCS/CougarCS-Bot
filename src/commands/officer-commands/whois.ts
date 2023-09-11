@@ -5,7 +5,7 @@ import {
   User,
 } from "discord.js";
 import { Command } from "../../interfaces/Command";
-import { createEmbeded } from "../../utils/embeded";
+import { createEmbed } from "../../utils/embeded";
 import {
   getBalance,
   getContact,
@@ -83,7 +83,7 @@ export const whois: Command = {
       isAdmin = !!member.roles.cache.find((r) => r === adminRole);
     }
 
-    const returnMessage = createEmbeded("👤 Contact Found!", " ")
+    const returnMessage = createEmbed("👤 Contact Found!", " ")
       .setColor("Blue")
       .addFields(...fullContactFields(contact, balance, activeMember, isAdmin))
       .setThumbnail(whoUser.displayAvatarURL());

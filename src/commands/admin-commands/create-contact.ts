@@ -1,6 +1,6 @@
 import { PermissionFlagsBits, SlashCommandBuilder } from "discord.js";
 import { Command } from "../../interfaces/Command";
-import { createEmbeded } from "../../utils/embeded";
+import { createEmbed } from "../../utils/embeded";
 import { commandLog, sendError } from "../../utils/logs";
 import { insertContact } from "../../utils/supabase";
 import { shirtSizeOptions } from "../../utils/options";
@@ -110,13 +110,13 @@ export const createcontact: Command = {
       return;
     }
 
-    const returnMessage = createEmbeded(
+    const returnMessage = createEmbed(
       "✅ Contact Created!",
       "The contact has been inserted in the database!"
     ).setColor("Green");
 
     const newContact = contactResponse.data;
-    const newContactMessage = createEmbeded("👤 New Contact!", " ")
+    const newContactMessage = createEmbed("👤 New Contact!", " ")
       .setColor("Yellow")
       .addFields(...contactFields(newContact));
 

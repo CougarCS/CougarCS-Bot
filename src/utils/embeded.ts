@@ -1,6 +1,6 @@
 import { CommandInteraction, EmbedBuilder } from "discord.js";
 
-export function createEmbeded(title: string, message: string): EmbedBuilder {
+export function createEmbed (title: string, message: string): EmbedBuilder {
   return new EmbedBuilder()
     .setColor("Green")
     .setTitle(title)

@@ -1,6 +1,6 @@
 import { SlashCommandBuilder } from "discord.js";
 import { Command } from "../../interfaces/Command";
-import { createEmbeded } from "../../utils/embeded";
+import { createEmbed } from "../../utils/embeded";
 import * as Logger from "../../utils/logs";
 import { reportOptions } from "../../utils/options";
 
@@ -32,7 +32,7 @@ export const report: Command = {
       { name: "message", value: message },
     ]);
 
-    const returnMessage = createEmbeded(
+    const returnMessage = createEmbed(
       "📢 Report Submitted!",
       "Your report has been submitted and is currently in review!"
     ).setColor("Green");

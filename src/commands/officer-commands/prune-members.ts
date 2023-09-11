@@ -8,7 +8,7 @@ import {
   TextBasedChannel,
 } from "discord.js";
 import { Command } from "../../interfaces/Command";
-import { createEmbeded } from "../../utils/embeded";
+import { createEmbed } from "../../utils/embeded";
 import { commandLog, sendError } from "../../utils/logs";
 import { getRole, isMember } from "../../utils/supabase";
 
@@ -39,7 +39,7 @@ const removeExpiredMembers = async (
 ) => {
   for (let i = 0; i < removedMembers.length; i++) {
     const member = removedMembers[i];
-    const removedMember = createEmbeded(
+    const removedMember = createEmbed(
       ` `,
       `**Pruned User: ${member}**`
     ).setColor("Red");
@@ -85,7 +85,7 @@ export const prunemembers: Command = {
     const removedCount = removedMembers.length;
     const suffix = removedMembers.length === 1 ? "" : "s";
 
-    const returnMessage = createEmbeded(
+    const returnMessage = createEmbed(
       `🚪 Pruning ${removedCount} expired membership${suffix}!`,
       "Please wait until all users have been pruned."
     ).setColor("Purple");
@@ -96,7 +96,7 @@ export const prunemembers: Command = {
 
     await removeExpiredMembers(removedMembers, memberRole, currentChannel);
 
-    const finishedMessage = createEmbeded("✅ Prune Completed!", " ").setColor(
+    const finishedMessage = createEmbed("✅ Prune Completed!", " ").setColor(
       "Green"
     );
 

@@ -4,6 +4,7 @@ import {
   getMemberPointReasons,
   getMembershipCodes,
   getShirtSizes,
+  getTutoringTypes,
 } from "./supabase";
 
 export const membershipLengthOptions: APIApplicationCommandOptionChoice<string>[] =
@@ -105,3 +106,22 @@ export const tutorStatsLengthOptions: APIApplicationCommandOptionChoice<string>[
     { name: "Spring", value: "Spring" },
     { name: "Fall", value: "Fall" },
   ];
+
+export const tutoringTypeOptions = async (): Promise<
+  APIApplicationCommandOptionChoice<string>[]
+> => {
+  const tutoringTypeResponse = await getTutoringTypes();
+
+  if (tutoringTypeResponse.error) {
+    return [{ name: "In Person", value: "t-ip"}];
+  }
+
+  const tutoringTypeData = tutoringTypeResponse.data;
+  const tutoringTypes: APIApplicationCommandOptionChoice<string>[] = [];
+
+  tutoringTypeData.forEach((tt) =>
+    tutoringTypes.push({ name: tt.message, value: tt.tutoring_type_id })
+  );
+
+  return tutoringTypes;
+};

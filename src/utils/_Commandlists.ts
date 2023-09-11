@@ -20,6 +20,11 @@ import { attendance } from "../commands/officer-commands/attendance";
 import { createcontact } from "../commands/admin-commands/create-contact";
 import { setguildconfig } from "../commands/officer-commands/set-guild-config";
 import { tutorstats } from "../commands/user-commands/tutor-stats";
+import { tutorlog } from "../commands/tutor-commands/tutor-log";
+import { appointTutor } from "../commands/officer-commands/appoint-tutor";
+import { updateProfile } from "../commands/user-commands/update-profile";
+import { createProfile } from "../commands/user-commands/create-profile";
+
 
 export const CommandList: Command[] = [
   attendance,
@@ -43,4 +48,8 @@ export const CommandList: Command[] = [
   updatecontact,
   whois,
   tutorstats
+  tutorlog,
+  appointTutor,
+  updateProfile,
+  createProfile,
 ];

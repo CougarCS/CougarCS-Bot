@@ -1,6 +1,6 @@
 import { SlashCommandBuilder } from "discord.js";
 import { Command } from "../../interfaces/Command";
-import { createEmbeded } from "../../utils/embeded";
+import { createEmbed } from "../../utils/embeded";
 import { getBalance } from "../../utils/supabase";
 import { commandLog, sendError } from "../../utils/logs";
 
@@ -45,7 +45,7 @@ export const balance: Command = {
         ? "You have"
         : `<@${discord_snowflake}> has`;
 
-    const returnMessage = createEmbeded(
+    const returnMessage = createEmbed(
       "<a:CC:991512220909445150> CougarCoin Balance!",
       `${prefix} **${balance}** CougarCoin!`
     ).setColor("#FFD800");

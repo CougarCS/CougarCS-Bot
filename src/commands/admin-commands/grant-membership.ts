@@ -5,7 +5,7 @@ import {
   User,
 } from "discord.js";
 import { Command } from "../../interfaces/Command";
-import { createEmbeded } from "../../utils/embeded";
+import { createEmbed } from "../../utils/embeded";
 import { commandLog, sendError } from "../../utils/logs";
 import {
   getContact,
@@ -97,7 +97,7 @@ export const grantmembership: Command = {
       return;
     }
 
-    const returnMessage = createEmbeded(
+    const returnMessage = createEmbed(
       "✅ Membership Granted!",
       `<@${discord_snowflake}> has successfully received a ${length} long membership!`
     ).setColor("Green");
