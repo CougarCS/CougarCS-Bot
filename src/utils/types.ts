@@ -201,6 +201,13 @@ export type TutorSelect = {
   tutor_id: string;
 };
 
+export type TutorInsert = {
+  contact_id: string;
+  end_date: string;
+  start_date?: string;
+  tutor_id?: string;
+};
+
 export type UniqueTutorQuery = {
   contact_id?: string;
   tutor_id?: string;

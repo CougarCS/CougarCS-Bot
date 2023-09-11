@@ -25,6 +25,7 @@ import {
   TutoringTypeSelect,
   UniqueTutorQuery,
   UniqueContactQuery,
+  TutorInsert,
 } from "./types";
 import { Database } from "./schema";
 import { Guild, Role, TextChannel } from "discord.js";
@@ -927,6 +928,37 @@ export const getTutorId = async (
     data: tutor_id,
     error: false,
     message: "Successfully fetched Tutor ID!",
+  };
+};
+
+export const insertTutor = async (
+  contact_id: string
+): Promise<SupabaseResponse<TutorSelect>> => {
+  const today = new Date();
+  const start_year = today.getFullYear();
+  const spring_start = today.getMonth() < 6;
+  const end_year = spring_start ? start_year : start_year + 1;
+  const end_month = spring_start ? "7" : "1";
+  const end_date = `${end_year}-${end_month}-1 06:00:00`;
+
+  const newTutor: TutorInsert = {
+    contact_id,
+    end_date,
+  };
+
+  const tutorResponse = await supabase.from("tutors").insert(newTutor).select();
+
+  if (tutorResponse.error) {
+    return {
+      error: true,
+      message: "There was an error inserting the tutor!",
+    };
+  }
+
+  return {
+    data: tutorResponse.data[0],
+    error: false,
+    message: "Successfully inserted tutor!",
   };
 };
 

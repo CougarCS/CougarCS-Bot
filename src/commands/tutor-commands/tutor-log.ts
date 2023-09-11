@@ -29,10 +29,12 @@ export const tutorlog: Command = {
         .setDescription("Name(s) of the student you tutored")
         .setRequired(true)
     )
-    .addNumberOption((option) =>
+    .addIntegerOption((option) =>
       option
         .setName("hours")
         .setDescription("How many hours did you tutor?")
+        .setMinValue(1)
+        .setMaxValue(6)
         .setRequired(true)
     )
     .addStringOption((option) =>
@@ -50,9 +52,7 @@ export const tutorlog: Command = {
       .value as string;
     const tutored_user = interaction.options.get("tutored-user", true)
       .value as string;
-    const hours = Math.round(
-      interaction.options.get("hours", true).value as number
-    );
+    const hours = interaction.options.get("hours", true).value as number;
     const description = interaction.options.get("description", false)?.value as
       | string
       | null;
