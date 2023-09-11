@@ -1,6 +1,6 @@
 import { Guild, PermissionFlagsBits, SlashCommandBuilder } from "discord.js";
 import { Command } from "../../interfaces/Command";
-import { createEmbeded, sendBulkEmbeds } from "../../utils/embeded";
+import { createEmbed, sendBulkEmbeds } from "../../utils/embeded";
 import { commandLog, sendError } from "../../utils/logs";
 import {
   getBalance,
@@ -21,7 +21,7 @@ const createContactEmbeds = async (
   const contactCount = contacts.length;
   const suffix = contactCount === 1 ? "" : "s";
 
-  const returnMessage = createEmbeded(
+  const returnMessage = createEmbed(
     `🔎 Found ${contactCount} result${suffix}:`,
     " "
   ).setColor("Yellow");
@@ -34,7 +34,7 @@ const createContactEmbeds = async (
     const activeMember = !memberResponse.error && memberResponse.data;
 
     if (!fullprofile) {
-      const embed = createEmbeded(
+      const embed = createEmbed(
         `${contact.first_name} ${contact.last_name} (${contact.uh_id})`,
         `Member: ${activeMember ? "✅" : "❌"}`
       ).setColor("Green");
@@ -49,7 +49,7 @@ const createContactEmbeds = async (
       balance = balanceResponse.data;
     }
 
-    const embed = createEmbeded(" ", " ").addFields(
+    const embed = createEmbed(" ", " ").addFields(
       ...fullContactFields(contact, balance, activeMember, isAdmin)
     );
     embeds.push(embed);
@@ -172,7 +172,7 @@ export const find: Command = {
     const contactsResponse = await getContacts(query);
 
     if (contactsResponse.error) {
-      const returnMessage = createEmbeded(`🔎 Found 0 results!`, " ").setColor(
+      const returnMessage = createEmbed(`🔎 Found 0 results!`, " ").setColor(
         "Red"
       );
       await interaction.editReply({ embeds: [returnMessage] });

@@ -1,6 +1,6 @@
 import { SlashCommandBuilder } from "discord.js";
 import { Command } from "../../interfaces/Command";
-import { createEmbeded } from "../../utils/embeded";
+import { createEmbed } from "../../utils/embeded";
 import { getLeaderboard } from "../../utils/supabase";
 import { commandLog, sendError } from "../../utils/logs";
 
@@ -44,7 +44,7 @@ export const leaderboard: Command = {
 
     const leaderboardString = leaderboardBody(leaderboardResponse.data);
 
-    const returnMessage = createEmbeded(
+    const returnMessage = createEmbed(
       "<a:CC:991512220909445150> CougarCoin Leaderboard!",
       leaderboardString || "The leaderboard is empty!"
     ).setColor("Green");

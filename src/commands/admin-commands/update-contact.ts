@@ -1,6 +1,6 @@
 import { PermissionFlagsBits, SlashCommandBuilder } from "discord.js";
 import { Command } from "../../interfaces/Command";
-import { createEmbeded } from "../../utils/embeded";
+import { createEmbed } from "../../utils/embeded";
 import { commandLog, sendError } from "../../utils/logs";
 import { getContact, updateContact } from "../../utils/supabase";
 import { EmbedBuilder } from "@discordjs/builders";
@@ -14,18 +14,18 @@ const createUpdateEmbeds = (
 ): EmbedBuilder[] => {
   const embeds: EmbedBuilder[] = [];
 
-  const returnMessage = createEmbeded(
+  const returnMessage = createEmbed(
     "✅ Contact Updated!",
     "The contact information was updated!"
   ).setColor("Green");
   embeds.push(returnMessage);
 
-  const oldContactMessage = createEmbeded("👤 Old Contact!", " ")
+  const oldContactMessage = createEmbed("👤 Old Contact!", " ")
     .setColor("Red")
     .addFields(...contactFields(oldContact));
   embeds.push(oldContactMessage);
 
-  const newContactMessage = createEmbeded("👤 New Contact!", " ")
+  const newContactMessage = createEmbed("👤 New Contact!", " ")
     .setColor("Blue")
     .addFields(...contactFields(newContact));
 

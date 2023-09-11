@@ -1,6 +1,6 @@
 import { PermissionFlagsBits, SlashCommandBuilder } from "discord.js";
 import { Command } from "../../interfaces/Command";
-import { createEmbeded } from "../../utils/embeded";
+import { createEmbed } from "../../utils/embeded";
 import { commandLog, sendError } from "../../utils/logs";
 import { eventOptions } from "../../utils/options";
 import {
@@ -143,7 +143,7 @@ export const checkin: Command = {
       return;
     }
 
-    const returnMessage = createEmbeded(
+    const returnMessage = createEmbed(
       "✅ Checked In!",
       `${identifier} has been checked into the event: ${eventName}!`
     ).setColor("Green");

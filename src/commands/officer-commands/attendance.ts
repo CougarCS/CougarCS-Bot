@@ -4,7 +4,7 @@ import {
   SlashCommandBuilder,
 } from "discord.js";
 import { Command } from "../../interfaces/Command";
-import { createEmbeded, sendBulkEmbeds } from "../../utils/embeded";
+import { createEmbed, sendBulkEmbeds } from "../../utils/embeded";
 import { commandLog, sendError } from "../../utils/logs";
 import { getEvent, getEventAttendance } from "../../utils/supabase";
 import { AttendanceSelect } from "src/utils/types";
@@ -15,7 +15,7 @@ const attendanceEmbeds = async (
   const attendanceEmbeds: EmbedBuilder[] = [];
   const attendanceCount = attendanceArray.length;
   const suffix = attendanceCount === 1 ? "" : "s";
-  const infoMessage = createEmbeded(
+  const infoMessage = createEmbed(
     `🔎 Found ${attendanceCount} result${suffix}:`,
     " "
   ).setColor("Yellow");
@@ -27,7 +27,7 @@ const attendanceEmbeds = async (
     const eventResponse = await getEvent(event_id);
     const eventTitle = !eventResponse.error && eventResponse.data;
     const identifier = eventTitle || event_id;
-    const embed = createEmbeded(`${identifier} ✅`, " ").setColor("Green");
+    const embed = createEmbed(`${identifier} ✅`, " ").setColor("Green");
     attendanceEmbeds.push(embed);
   }
   return attendanceEmbeds;
