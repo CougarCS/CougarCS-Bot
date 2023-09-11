@@ -4,7 +4,7 @@ import {
   TextChannel,
 } from "discord.js";
 import { Command } from "../../interfaces/Command";
-import { createEmbeded } from "../../utils/embeded";
+import { createEmbed } from "../../utils/embeded";
 import { commandLog, sendError } from "../../utils/logs";
 import { ReactionRoleGiver } from "../../utils/reactions";
 
@@ -80,15 +80,13 @@ export const rolegiver: Command = {
 
     const { body, rolePairs } = parseSplit(roleParse);
 
-    const returnMessage = createEmbeded(
+    const returnMessage = createEmbed(
       "✅ Reaction Roles Sent!",
       "Your reaction roles have been sent in this channel!"
     ).setColor("Green");
     await interaction.editReply({ embeds: [returnMessage] });
 
-    const roleMessage = createEmbeded(`Roles: ${type}`, body).setColor(
-      "Orange"
-    );
+    const roleMessage = createEmbed(`Roles: ${type}`, body).setColor("Orange");
 
     const roleSentMessage = await (interaction.channel as TextChannel).send({
       embeds: [roleMessage],

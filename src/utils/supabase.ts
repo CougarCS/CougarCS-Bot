@@ -3,7 +3,6 @@
 import { createClient } from "@supabase/supabase-js";
 import {
   ContactInsert,
-  ContactKey,
   ContactQuery,
   ContactSelect,
   ContactUpdate,
@@ -19,7 +18,14 @@ import {
   SupabaseResponse,
   TransactionInsert,
   TransactionSelect,
+  TutorLogInsert,
+  TutorLogSelect,
+  TutorQuery,
+  TutorSelect,
+  TutoringTypeSelect,
+  UniqueTutorQuery,
   UniqueContactQuery,
+  TutorInsert,
 } from "./types";
 import { Database } from "./schema";
 import { Guild, Role, TextChannel } from "discord.js";
@@ -29,17 +35,17 @@ const supabaseUrl = process.env.SUPABASE_URL as string;
 const supabaseKey = process.env.SUPABASE_KEY as string;
 const supabase = createClient<Database>(supabaseUrl, supabaseKey);
 
-const addQueryFilters = (query: any, queryData: ContactQuery) => {
+// Due to previous conflicting queryData types, the parameters were temporarily changed to type 'any' to avoid errors
+// TODO: Determine acceptable types for query parameters
+const addQueryFilters = (query: any, queryData: any) => {
   Object.keys(queryData).forEach((key) => {
-    const contactKey = key as ContactKey;
+    if (!queryData[key]) return;
 
-    if (!queryData[contactKey]) return;
-
-    if (contactKey === "uh_id" || contactKey === "contact_id") {
-      query = query.eq(contactKey, queryData[contactKey]);
+    if (key.match(/_id$/)) {
+      query.eq(key, queryData[key]);
     } else {
-      const stringSearch = `%${queryData[contactKey]}%`;
-      query = query.ilike(contactKey, stringSearch);
+      const stringSearch = `%${queryData[key]}%`;
+      query.ilike(key, stringSearch);
     }
   });
 };
@@ -827,7 +833,6 @@ export const getChannel = async (
   }
 
   const channel = await guild.channels.fetch(channelId);
-
   if (!channel) {
     return {
       error: true,
@@ -839,5 +844,199 @@ export const getChannel = async (
     data: channel as TextChannel,
     error: false,
     message: "Successfully fetched the channel!",
+  };
+};
+
+export const getTutors = async (
+  queryData: TutorQuery
+): Promise<SupabaseResponse<TutorSelect[]>> => {
+  const query = supabase.from("tutors").select("*");
+
+  addQueryFilters(query, queryData);
+
+  const tutorsResponse = await query;
+
+  if (tutorsResponse.error) {
+    return {
+      error: true,
+      message: "There was an error fetching tutors!",
+    };
+  }
+
+  if (tutorsResponse.data.length === 0) {
+    return {
+      error: true,
+      message: "No tutors were found!",
+    };
+  }
+
+  return {
+    data: tutorsResponse.data,
+    error: false,
+    message: "Successfully fetched tutors!",
+  };
+};
+
+export const getTutor = async (
+  queryData: UniqueTutorQuery
+): Promise<SupabaseResponse<TutorSelect>> => {
+  const tutorResponse = await getTutors(queryData);
+
+  if (tutorResponse.error) {
+    return tutorResponse;
+  }
+
+  const mostRecentTutor = tutorResponse.data[0];
+
+  const now = new Date();
+  const tutorStart = new Date(mostRecentTutor.start_date);
+  const tutorEnd = new Date(mostRecentTutor.end_date);
+
+  if (now > tutorStart && now < tutorEnd) {
+    return {
+      ...tutorResponse,
+      data: tutorResponse.data[0],
+    };
+  }
+
+  return {
+    error: true,
+    message: "No current tutor data was found!",
+  };
+};
+
+export const getTutorId = async (
+  queryData: UniqueTutorQuery
+): Promise<SupabaseResponse<string>> => {
+  if (queryData.tutor_id) {
+    return {
+      data: queryData.tutor_id,
+      error: false,
+      message: "Tutor ID already exists!",
+    };
+  }
+
+  const tutorResponse = await getTutor(queryData);
+
+  if (tutorResponse.error) {
+    return tutorResponse;
+  }
+
+  const { tutor_id } = tutorResponse.data;
+
+  return {
+    data: tutor_id,
+    error: false,
+    message: "Successfully fetched Tutor ID!",
+  };
+};
+
+export const insertTutor = async (
+  contact_id: string
+): Promise<SupabaseResponse<TutorSelect>> => {
+  const today = new Date();
+  const start_year = today.getFullYear();
+  const spring_start = today.getMonth() < 6;
+  const end_year = spring_start ? start_year : start_year + 1;
+  const end_month = spring_start ? "7" : "1";
+  const end_date = `${end_year}-${end_month}-1 06:00:00`;
+
+  const newTutor: TutorInsert = {
+    contact_id,
+    end_date,
+  };
+
+  const tutorResponse = await supabase.from("tutors").insert(newTutor).select();
+
+  if (tutorResponse.error) {
+    return {
+      error: true,
+      message: "There was an error inserting the tutor!",
+    };
+  }
+
+  return {
+    data: tutorResponse.data[0],
+    error: false,
+    message: "Successfully inserted tutor!",
+  };
+};
+
+export const insertTutorLog = async (
+  tutorLogInfo: TutorLogInsert
+): Promise<SupabaseResponse<TutorLogSelect>> => {
+  const tutorLogResponse = await supabase
+    .from("tutor_logs")
+    .insert(tutorLogInfo)
+    .select();
+
+  if (tutorLogResponse.error) {
+    return {
+      error: true,
+      message: "There was an error inserting the tutor log!",
+    };
+  }
+
+  return {
+    data: tutorLogResponse.data[0],
+    error: false,
+    message: "Successfully inserted tutor log data!",
+  };
+};
+
+export const getTutoringTypes = async (): Promise<
+  SupabaseResponse<TutoringTypeSelect[]>
+> => {
+  const tutoringTypeResponse = await supabase
+    .from("tutoring_types")
+    .select("*");
+
+  if (tutoringTypeResponse.error) {
+    return {
+      error: true,
+      message: "There was an error fetching the tutoring types!",
+    };
+  }
+
+  if (tutoringTypeResponse.data.length === 0) {
+    return {
+      error: true,
+      message: "No tutoring types were found!",
+    };
+  }
+
+  return {
+    data: tutoringTypeResponse.data,
+    error: false,
+    message: "Successfully fetched tutoring types!",
+  };
+};
+
+export const getTutoringType = async (
+  tutoring_type_id: string
+): Promise<SupabaseResponse<TutoringTypeSelect>> => {
+  const tutoringTypeResponse = await supabase
+    .from("tutoring_types")
+    .select()
+    .eq("tutoring_type_id", tutoring_type_id);
+
+  if (tutoringTypeResponse.error) {
+    return {
+      error: true,
+      message: "There was an error fetching the tutoring type!",
+    };
+  }
+
+  if (tutoringTypeResponse.data.length === 0) {
+    return {
+      error: true,
+      message: "No tutoring types could be found!",
+    };
+  }
+
+  return {
+    data: tutoringTypeResponse.data[0],
+    error: false,
+    message: "Successfully fetched this tutoring type!",
   };
 };

@@ -1,6 +1,6 @@
 import { PermissionFlagsBits, SlashCommandBuilder } from "discord.js";
 import { Command } from "../../interfaces/Command";
-import { createEmbeded } from "../../utils/embeded";
+import { createEmbed } from "../../utils/embeded";
 import { getBalance, insertTransaction } from "../../utils/supabase";
 import { commandLog, sendError } from "../../utils/logs";
 import { memberPointReasonOptions } from "../../utils/options";
@@ -86,7 +86,7 @@ export const grant: Command = {
       balance = balanceResponse.data;
     }
 
-    const returnMessage = createEmbeded(
+    const returnMessage = createEmbed(
       "<a:CC:991512220909445150> CougarCoin Granted!",
       `<@${discord_snowflake}> has received **${transactionInfo.point_value}** CougarCoin!\n\nNew balance: **${balance}**`
     ).setColor("Green");
