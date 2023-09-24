@@ -933,34 +933,41 @@ export const getTutorId = async (
 };
 
 export const getTutorLogs = async (
-  queryData : TutorLogQuery,
-  semester: string,
-  year: number
+  queryData: TutorLogQuery,
+  start_date: Date,
+  end_date: Date
 ): Promise<SupabaseResponse<TutorLogSelect[]>> => {
-  const start = new Date()
-  start.setFullYear(year, semester === "Spring" ? 0 : 7, 1);
- 
-  const end = new Date();
-  end.setFullYear(year, semester === "Fall" ? 8 : 11, 1);
-
-
-  const query = supabase.from("tutor_logs").select("*").gte("timestamp", start.toISOString()).lte("timestamp", end.toISOString());
+  const query = supabase
+    .from("tutor_logs")
+    .select("*")
+    .gte("timestamp", start_date.toISOString())
+    .lte("timestamp", end_date.toISOString())
+    .order("timestamp", { ascending: true });
 
   addQueryFilters(query, queryData);
 
   const tutorLogsResponse = await query;
- 
+
   if (tutorLogsResponse.error) {
     return {
       error: true,
-      message: "There was an error fetching tutor logs!"
+      message: "There was an error fetching tutor logs!",
     };
   }
 
   if (tutorLogsResponse.data.length === 0) {
     return {
       error: true,
-      message: "No tutor logs were found!"
+      message: "No tutor logs were found!",
+    };
+  }
+
+  return {
+    data: tutorLogsResponse.data,
+    error: false,
+    message: "Successfully fetched tutor logs!",
+  };
+};
 
 export const insertTutor = async (
   contact_id: string

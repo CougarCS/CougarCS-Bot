@@ -1,5 +1,4 @@
 import { APIEmbedField, RestOrArray } from "discord.js";
-import { start } from "repl";
 import { ContactSelect, GuildSelect, TutorLogSelect } from "./types";
 
 export const contactFields = (
@@ -69,68 +68,64 @@ export const contactFields = (
 };
 
 export const tutorStatsFields = (
-  tutor: TutorLogSelect[],
-  detail: Boolean,
+  tutorLogs: TutorLogSelect[],
+  detailed: boolean
 ): RestOrArray<APIEmbedField> => {
-  var prevWeek = " ";
-  var weeklyHours = 0;
-  var totalHours = 0;
-  var iter = 0;
-  var embeds = [];
-  
-  for (const log of tutor) {
-    const {
-      timestamp,
-      hours
-    } = log;
+  let prevWeek = " ";
+  let weeklyHours = 0;
+  let totalHours = 0;
+  let iter = 0;
+  const fields = [];
 
-    iter +=1;
+  for (const log of tutorLogs) {
+    const { timestamp, hours } = log;
+
+    iter += 1;
 
     const currentDate = new Date(timestamp);
-    const firstDayOfWeek = Math.abs(currentDate.getDay() - currentDate.getDate());
-    const weekDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), firstDayOfWeek).toLocaleDateString();
+    const firstDayOfWeek = Math.abs(
+      currentDate.getDay() - currentDate.getDate()
+    );
+    const weekDate = new Date(
+      currentDate.getFullYear(),
+      currentDate.getMonth(),
+      firstDayOfWeek
+    ).toLocaleDateString();
 
-    if (detail) {
-      if (prevWeek == " ") {
+    if (detailed) {
+      if (prevWeek === " ") {
         prevWeek = weekDate;
         weeklyHours += hours;
       } else if (weekDate == prevWeek) {
-          weeklyHours += hours;
+        weeklyHours += hours;
       } else {
-          embeds.push (
-            {
-              name: `Week of ${prevWeek}`,
-              value: `Hours: ${weeklyHours}`,
-              inline: true,
-            }
-          )
-          weeklyHours = hours;  // reset hours for the next week
-          prevWeek = weekDate;
-      };
-      // reach end of array
-      if (iter == tutor.length) {
-        embeds.push (
-          {
-            name: `Week ${prevWeek}`,
-            value: `Hours: ${weeklyHours}`,
-            inline: true,
-          }
-        );
-      };
-  } else {
+        fields.push({
+          name: `Week of ${prevWeek}`,
+          value: `${weeklyHours} hours`,
+          inline: true,
+        });
+        weeklyHours = hours;
+        prevWeek = weekDate;
+      }
+      if (iter == tutorLogs.length) {
+        fields.push({
+          name: `Week of ${prevWeek}`,
+          value: `${weeklyHours} hours`,
+          inline: true,
+        });
+      }
+    } else {
       totalHours += hours;
-      if (iter == tutor.length) {
-        embeds.push ( 
-          {
-            name: " ",
-            value: `Hours: ${totalHours}`,
-            inline: true,
-          }
-        )
-      };
-    };
-  };
-return embeds
+      if (iter == tutorLogs.length) {
+        fields.push({
+          name: "Total Hours",
+          value: `${totalHours} hours`,
+          inline: true,
+        });
+      }
+    }
+  }
+  return fields;
 };
 
 export const fullContactFields = (
