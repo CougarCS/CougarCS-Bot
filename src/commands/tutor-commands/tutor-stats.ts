@@ -9,7 +9,8 @@ import { tutorStatsFields } from "../../utils/embedFields";
 
 const createTutorStatsEmbeds = (
   tutorLogs: TutorLogSelect[],
-  detailed: boolean
+  detailed: boolean,
+  discord_snowflake: string
 ): EmbedBuilder[] => {
   const groupedLogs: TutorLogSelect[][] = [];
   let curSemester = "";
@@ -28,7 +29,18 @@ const createTutorStatsEmbeds = (
     groupedLogs[ind].push(tutorLog);
   }
 
-  const embeds = groupedLogs.map((logGroup) => {
+  const embeds: EmbedBuilder[] = [];
+
+  const suffix = groupedLogs.length === 1 ? "" : "s";
+
+  const startMessage = createEmbed(
+    `🔎 Found ${groupedLogs.length} result${suffix}!`,
+    `Tutor stats for <@${discord_snowflake}>`
+  ).setColor("Yellow");
+
+  embeds.push(startMessage);
+
+  const logEmbeds = groupedLogs.map((logGroup) => {
     const firstTimestamp = logGroup[0].timestamp;
     const firstDate = new Date(firstTimestamp);
     const semester = firstDate.getMonth() < 6 ? "Spring" : "Fall";
@@ -38,6 +50,8 @@ const createTutorStatsEmbeds = (
       .setColor("Green")
       .addFields(...tutorStatsFields(logGroup, detailed));
   });
+
+  embeds.push(...logEmbeds);
 
   return embeds;
 };
@@ -76,7 +90,7 @@ export const tutorstats: Command = {
         .setMaxValue(new Date().getFullYear())
     ),
   run: async (interaction) => {
-    await interaction.deferReply({ ephemeral: true });
+    await interaction.deferReply({ ephemeral: false });
     const { user } = interaction;
 
     const discord_snowflake =
@@ -134,7 +148,8 @@ export const tutorstats: Command = {
 
     const tutorStatsEmbeds: EmbedBuilder[] = createTutorStatsEmbeds(
       tutorLogs,
-      detailed
+      detailed,
+      discord_snowflake
     );
 
     await sendBulkEmbeds(interaction, tutorStatsEmbeds);
