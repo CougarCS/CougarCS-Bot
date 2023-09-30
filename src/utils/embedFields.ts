@@ -84,7 +84,7 @@ export const tutorStatsFields = (
 
     const currentDate = new Date(timestamp);
     const firstDayOfWeek = Math.abs(
-      currentDate.getDay() - currentDate.getDate()
+      currentDate.getUTCDay() - currentDate.getUTCDate()
     );
     const weekDate = new Date(
       currentDate.getFullYear(),
