@@ -101,6 +101,12 @@ export const eventOptions = async (): Promise<
   return events;
 };
 
+export const tutorStatsLengthOptions: APIApplicationCommandOptionChoice<string>[] =
+  [
+    { name: "Spring", value: "Spring" },
+    { name: "Fall", value: "Fall" },
+  ];
+
 export const tutoringTypeOptions = async (): Promise<
   APIApplicationCommandOptionChoice<string>[]
 > => {

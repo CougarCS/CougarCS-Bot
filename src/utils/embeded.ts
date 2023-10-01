@@ -11,7 +11,8 @@ export function createEmbed (title: string, message: string): EmbedBuilder {
 
 export const sendBulkEmbeds = async (
   interaction: CommandInteraction,
-  embedArray: EmbedBuilder[]
+  embedArray: EmbedBuilder[],
+  ephemeral?: boolean
 ) => {
   const embedChunks: EmbedBuilder[][] = [];
 
@@ -24,6 +25,6 @@ export const sendBulkEmbeds = async (
   await interaction.editReply({ embeds: embedChunks[0] });
 
   for (let i = 1; i < embedChunks.length; i++) {
-    await interaction.followUp({ embeds: embedChunks[i] });
+    await interaction.followUp({ ephemeral, embeds: embedChunks[i] });
   }
 };

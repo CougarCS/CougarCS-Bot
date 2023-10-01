@@ -1,5 +1,5 @@
 import { APIEmbedField, RestOrArray } from "discord.js";
-import { ContactSelect, GuildSelect } from "./types";
+import { ContactSelect, GuildSelect, TutorLogSelect } from "./types";
 
 export const contactFields = (
   contact: ContactSelect
@@ -65,6 +65,67 @@ export const contactFields = (
       inline: true,
     },
   ];
+};
+
+export const tutorStatsFields = (
+  tutorLogs: TutorLogSelect[],
+  detailed: boolean
+): RestOrArray<APIEmbedField> => {
+  let prevWeek = " ";
+  let weeklyHours = 0;
+  let totalHours = 0;
+  let iter = 0;
+  const fields = [];
+
+  for (const log of tutorLogs) {
+    const { timestamp, hours } = log;
+
+    iter += 1;
+
+    const currentDate = new Date(timestamp);
+    const firstDayOfWeek = Math.abs(
+      currentDate.getUTCDay() - currentDate.getUTCDate()
+    );
+    const weekDate = new Date(
+      currentDate.getFullYear(),
+      currentDate.getMonth(),
+      firstDayOfWeek
+    ).toLocaleDateString();
+
+    if (detailed) {
+      if (prevWeek === " ") {
+        prevWeek = weekDate;
+        weeklyHours += hours;
+      } else if (weekDate == prevWeek) {
+        weeklyHours += hours;
+      } else {
+        fields.push({
+          name: `Week of ${prevWeek}`,
+          value: `${weeklyHours} hours`,
+          inline: true,
+        });
+        weeklyHours = hours;
+        prevWeek = weekDate;
+      }
+      if (iter == tutorLogs.length) {
+        fields.push({
+          name: `Week of ${prevWeek}`,
+          value: `${weeklyHours} hours`,
+          inline: true,
+        });
+      }
+    } else {
+      totalHours += hours;
+      if (iter == tutorLogs.length) {
+        fields.push({
+          name: "Total Hours",
+          value: `${totalHours} hours`,
+          inline: true,
+        });
+      }
+    }
+  }
+  return fields;
 };
 
 export const fullContactFields = (

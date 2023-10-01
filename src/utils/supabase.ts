@@ -18,13 +18,14 @@ import {
   SupabaseResponse,
   TransactionInsert,
   TransactionSelect,
-  TutorLogInsert,
-  TutorLogSelect,
+  TutoringTypeSelect,
+  UniqueContactQuery,
+  UniqueTutorQuery,
   TutorQuery,
   TutorSelect,
-  TutoringTypeSelect,
-  UniqueTutorQuery,
-  UniqueContactQuery,
+  TutorLogInsert,
+  TutorLogQuery,
+  TutorLogSelect,
   TutorInsert,
 } from "./types";
 import { Database } from "./schema";
@@ -928,6 +929,43 @@ export const getTutorId = async (
     data: tutor_id,
     error: false,
     message: "Successfully fetched Tutor ID!",
+  };
+};
+
+export const getTutorLogs = async (
+  queryData: TutorLogQuery,
+  start_date: Date,
+  end_date: Date
+): Promise<SupabaseResponse<TutorLogSelect[]>> => {
+  const query = supabase
+    .from("tutor_logs")
+    .select("*")
+    .gte("timestamp", start_date.toISOString())
+    .lte("timestamp", end_date.toISOString())
+    .order("timestamp", { ascending: true });
+
+  addQueryFilters(query, queryData);
+
+  const tutorLogsResponse = await query;
+
+  if (tutorLogsResponse.error) {
+    return {
+      error: true,
+      message: "There was an error fetching tutor logs!",
+    };
+  }
+
+  if (tutorLogsResponse.data.length === 0) {
+    return {
+      error: true,
+      message: "No tutor logs were found!",
+    };
+  }
+
+  return {
+    data: tutorLogsResponse.data,
+    error: false,
+    message: "Successfully fetched tutor logs!",
   };
 };
 

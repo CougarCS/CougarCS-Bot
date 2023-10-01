@@ -177,6 +177,45 @@ export type EventAttendanceSelect = {
   timestamp: string;
 };
 
+export type TutorSelect = {
+  contact_id: string;
+  end_date: string;
+  start_date: string;
+  tutor_id: string;
+};
+
+export type UniqueTutorQuery = {
+  contact_id?: string;
+  tutor_id?: string;
+};
+
+export type TutorQuery = {
+  contact_id?: string;
+  end_date?: string;
+  start_date?: string;
+  tutor_id?: string;
+};
+
+export type TutorLogQuery = {
+  description?: string | null;
+  hours?: number;
+  timestamp?: string;
+  tutor_id?: string;
+  tutor_log_id?: string;
+  tutored_user?: string;
+  tutoring_type_id?: string;
+};
+
+export type TutorLogSelect = {
+  description: string | null;
+  hours: number;
+  timestamp: string;
+  tutor_id: string;
+  tutor_log_id: string;
+  tutored_user: string;
+  tutoring_type_id: string;
+};
+
 export type TutorSignupFormData = {
   name: string;
   psid: string;
@@ -194,28 +233,9 @@ export type TutorSignupFormData = {
   tosAgreement: string;
 };
 
-export type TutorSelect = {
-  contact_id: string;
-  end_date: string;
-  start_date: string;
-  tutor_id: string;
-};
-
 export type TutorInsert = {
   contact_id: string;
   end_date: string;
-  start_date?: string;
-  tutor_id?: string;
-};
-
-export type UniqueTutorQuery = {
-  contact_id?: string;
-  tutor_id?: string;
-};
-
-export type TutorQuery = {
-  contact_id?: string;
-  end_date?: string;
   start_date?: string;
   tutor_id?: string;
 };
@@ -226,16 +246,6 @@ export type TutorLogInsert = {
   timestamp?: string;
   tutor_id: string;
   tutor_log_id?: string;
-  tutored_user: string;
-  tutoring_type_id: string;
-};
-
-export type TutorLogSelect = {
-  description: string | null;
-  hours: number;
-  timestamp: string;
-  tutor_id: string;
-  tutor_log_id: string;
   tutored_user: string;
   tutoring_type_id: string;
 };

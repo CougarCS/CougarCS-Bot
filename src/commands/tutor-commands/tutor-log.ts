@@ -44,7 +44,7 @@ export const tutorlog: Command = {
         .setRequired(false)
     ),
   run: async (interaction) => {
-    await interaction.deferReply({ ephemeral: true });
+    await interaction.deferReply({ ephemeral: false });
     const { user } = interaction;
     const guild = interaction.guild as Guild;
 

@@ -19,6 +19,7 @@ import { checkin } from "../commands/officer-commands/checkin";
 import { attendance } from "../commands/officer-commands/attendance";
 import { createcontact } from "../commands/admin-commands/create-contact";
 import { setguildconfig } from "../commands/officer-commands/set-guild-config";
+import { tutorstats } from "../commands/tutor-commands/tutor-stats";
 import { tutorlog } from "../commands/tutor-commands/tutor-log";
 import { appointTutor } from "../commands/officer-commands/appoint-tutor";
 import { updateProfile } from "../commands/user-commands/update-profile";
@@ -45,6 +46,7 @@ export const CommandList: Command[] = [
   supabaseping,
   updatecontact,
   whois,
+  tutorstats,
   tutorlog,
   appointTutor,
   updateProfile,

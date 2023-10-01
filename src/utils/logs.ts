@@ -106,7 +106,9 @@ export const log = async (
 export const sendError = async (
   errorTitle: string,
   errorMessage: string,
+
   interaction: CommandInteraction | ButtonInteraction
+
 ) => {
   const errorEmbed = createEmbed(errorTitle, errorMessage).setColor("Red");
   await interaction.editReply({ embeds: [errorEmbed] });
