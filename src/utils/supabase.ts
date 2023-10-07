@@ -1142,8 +1142,9 @@ export const getTutorLeaderboard = async (
 
   tutorUniqueBalancePairs.sort((a, b) => b.tutorBalance - a.tutorBalance);
   const arrayString: string[] = [];
+  let counter = 0;
 
-  for (let i = 0; i < tutorUniqueBalancePairs.length && i < maxSlots; i++) {
+  for (let i = 0; i < tutorUniqueBalancePairs.length; i++) {
     const { tutor_id, tutorBalance } = tutorUniqueBalancePairs[i];
     const tutorIdentifierResponse = await getTutor({ tutor_id });
     
@@ -1151,7 +1152,7 @@ export const getTutorLeaderboard = async (
       continue;
     }
     const UUID = tutorIdentifierResponse.data.contact_id;
-    const identifierResponse = await getContact({ contact_id: UUID })
+    const identifierResponse = await getContact({ contact_id: UUID });
 
     const { discord_snowflake, first_name, last_name } = identifierResponse.data;
     const identifier = discord_snowflake
@@ -1160,6 +1161,9 @@ export const getTutorLeaderboard = async (
     const slot = `${i + 1}. ${identifier}: **${tutorBalance}**`;
 
     arrayString.push(slot);
+    counter++;
+
+    if (counter == maxSlots) break;
   }
 
   return {
