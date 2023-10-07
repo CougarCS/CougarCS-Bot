@@ -388,6 +388,12 @@ export interface Database {
           contact_id: string
         }
         Returns: number
+      },
+      hour: {
+        Args: {
+          tutor_id: string
+        }
+        Returns: number
       }
     }
     Enums: {
