@@ -45,7 +45,7 @@ export const tutorleaderboard: Command = {
     const leaderboardString = tutorleaderboardBody(leaderboardResponse.data);
 
     const returnMessage = createEmbed(
-      "<a:CC:991512220909445150> CougarCoin Leaderboard!",
+      "Tutor Leaderboard!",
       leaderboardString || "The leaderboard is empty!"
     ).setColor("Green");
     await interaction.editReply({ embeds: [returnMessage] });

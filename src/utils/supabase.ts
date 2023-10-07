@@ -1078,3 +1078,93 @@ export const getTutoringType = async (
     message: "Successfully fetched this tutoring type!",
   };
 };
+
+export const getTutorHours = async (
+  queryData: UniqueTutorQuery
+): Promise<SupabaseResponse<number>> => {
+  const tutorIdResponse = await getTutorId(queryData);
+
+  if (tutorIdResponse.error) {
+    return tutorIdResponse;
+  }
+
+  const tutor_id = tutorIdResponse.data;
+  const hourResponses = await supabase.rpc("hour", { tutor_id })
+
+  if (hourResponses.error) {
+    console.log(hourResponses.error);
+    return {
+      error: true,
+      message: "There was an error fetching CougarCoin balance!",
+    };
+  }
+
+  const balance = hourResponses.data || 0;
+
+  return {
+    data: balance,
+    error: false,
+    message: "Successfully fetched balance!",
+  };
+};
+
+
+export const getTutorLeaderboard = async (
+  maxSlots: number
+): Promise<SupabaseResponse<string[]>> => {
+  const transactionsResponse = await supabase
+    .from("tutor_logs")
+    .select("tutor_id");
+
+  if (transactionsResponse.error) {
+    return {
+      error: true,
+      message: "There was an error fetching transactions!",
+    };
+  }
+
+  const tutorUniqueBalancePairs: { tutor_id: string; tutorBalance: number }[] = [];
+
+  for (let i = 0; i < transactionsResponse.data.length; i++) {
+    const { tutor_id } = transactionsResponse.data[i];
+    if (tutorUniqueBalancePairs.find((uci) => uci.tutor_id === tutor_id)) {
+      continue;
+    }
+    const tutorBalanceResponse = await getTutorHours({ tutor_id });
+
+    if (tutorBalanceResponse.error) {
+      return tutorBalanceResponse;
+    }
+
+    const tutorBalance = tutorBalanceResponse.data;
+    tutorUniqueBalancePairs.push({ tutor_id, tutorBalance });
+  }
+
+  tutorUniqueBalancePairs.sort((a, b) => b.tutorBalance - a.tutorBalance);
+  const arrayString: string[] = [];
+
+  for (let i = 0; i < tutorUniqueBalancePairs.length && i < maxSlots; i++) {
+    const { tutor_id, tutorBalance } = tutorUniqueBalancePairs[i];
+    const tutorIdentifierResponse = await getTutor({ tutor_id });
+    
+    if (tutorIdentifierResponse.error) {
+      continue;
+    }
+    const UUID = tutorIdentifierResponse.data.contact_id;
+    const identifierResponse = await getContact({ contact_id: UUID })
+
+    const { discord_snowflake, first_name, last_name } = identifierResponse.data;
+    const identifier = discord_snowflake
+      ? `<@${discord_snowflake}>`
+      : `${first_name} ${last_name}`;
+    const slot = `${i + 1}. ${identifier}: **${tutorBalance}**`;
+
+    arrayString.push(slot);
+  }
+
+  return {
+    data: arrayString,
+    error: false,
+    message: "Successfully fetched tutor leaderboard!",
+  };
+};
