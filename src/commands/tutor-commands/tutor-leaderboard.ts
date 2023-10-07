@@ -12,8 +12,8 @@ const tutorleaderboardBody = (array: string[]): string => {
 
 export const tutorleaderboard: Command = {
   data: new SlashCommandBuilder()
-    .setName("leaderboard")
-    .setDescription("See the CougarCoin leaderboard!")
+    .setName("tutor-leaderboard")
+    .setDescription("See the top tutor!")
     .addNumberOption((option) =>
       option
         .setName("number")
