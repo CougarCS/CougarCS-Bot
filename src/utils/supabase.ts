@@ -1095,7 +1095,7 @@ export const getTutorHours = async (
     console.log(hourResponses.error);
     return {
       error: true,
-      message: "There was an error fetching CougarCoin balance!",
+      message: "There was an error fetching tutor hour balance!",
     };
   }
 
@@ -1104,7 +1104,7 @@ export const getTutorHours = async (
   return {
     data: balance,
     error: false,
-    message: "Successfully fetched balance!",
+    message: "Successfully fetched tutor hour balance!",
   };
 };
 
@@ -1159,7 +1159,7 @@ export const getTutorLeaderboard = async (
 
     const { discord_snowflake, first_name, last_name } = identifierResponse.data;
     const identifier = discord_snowflake
-      ? `<@${discord_snowflake}>`
+? `<@${discord_snowflake}>`
       : `${first_name} ${last_name}`;
     const slot = `${i + 1}. ${identifier}: **${tutorBalance}**`;
 
@@ -1169,7 +1169,7 @@ export const getTutorLeaderboard = async (
   }
 
   return {
-    data: arrayString,
+    data: arrayString,  
     error: false,
     message: "Successfully fetched tutor leaderboard!",
   };
