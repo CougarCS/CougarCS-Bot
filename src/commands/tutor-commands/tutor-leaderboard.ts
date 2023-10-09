@@ -45,7 +45,7 @@ export const tutorleaderboard: Command = {
     const leaderboardString = tutorleaderboardBody(leaderboardResponse.data);
 
     const returnMessage = createEmbed(
-      "Tutor Leaderboard!",
+      "<:tutor:1151206705913417828> Tutor Leaderboard!",
       leaderboardString || "The leaderboard is empty!"
     ).setColor("Green");
     await interaction.editReply({ embeds: [returnMessage] });
