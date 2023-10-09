@@ -1161,9 +1161,9 @@ export const getTutorLeaderboard = async (
     const identifier = discord_snowflake ? `<@${discord_snowflake}>` : `${first_name} ${last_name}`;
     let icon = "";
 
-    if (i === 0) { icon = "🥇"; } 
-    else if (i === 1){ icon = "🥈"; }
-    else if (i === 2){ icon = "🥉";} 
+    if (arrayString.length === 0) { icon = "🥇"; } 
+    else if (arrayString.length === 1){ icon = "🥈"; }
+    else if (arrayString.length === 2){ icon = "🥉";} 
     else { icon = `${i + 1}.`; }
 
     const slot = `${icon} ${identifier}: **${tutorBalance}** hour(s)`;
