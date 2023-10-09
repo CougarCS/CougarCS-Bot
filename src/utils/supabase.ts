@@ -1166,7 +1166,7 @@ export const getTutorLeaderboard = async (
     else if (i === 2){ icon = "🥉";} 
     else { icon = `${i + 1}.`; }
 
-    const slot = `${icon} ${identifier}: **${tutorBalance}**`;
+    const slot = `${icon} ${identifier}: **${tutorBalance}** hour(s)`;
 
     arrayString.push(slot);
 
