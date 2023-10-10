@@ -1092,7 +1092,7 @@ export const getTutorHours = async (
   const hourResponses = await supabase.rpc("hour", { tutor_id })
 
   if (hourResponses.error) {
-    console.log(hourResponses.error);
+    console.error(hourResponses.error);
     return {
       error: true,
       message: "There was an error fetching tutor hour balance!",
