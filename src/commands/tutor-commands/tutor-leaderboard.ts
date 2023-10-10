@@ -4,10 +4,8 @@ import { createEmbed } from "../../utils/embeded";
 import { getTutorLeaderboard } from "../../utils/supabase";
 import { commandLog, sendError } from "../../utils/logs";
 
-const tutorleaderboardBody = (array: string[]): string => {
-  let body = "";
-  array.forEach((slot) => (body = `${body}${slot}\n`));
-  return body;
+const tutorleaderboardBody = (bodyContent: string[]): string => {
+  return bodyContent.join('\n');
 };
 
 export const tutorleaderboard: Command = {
