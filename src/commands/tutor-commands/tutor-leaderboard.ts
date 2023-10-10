@@ -32,7 +32,7 @@ export const tutorleaderboard: Command = {
       },
     ]);
 
-    const errorTitle = "❌ Leaderboard Canceled!";
+    const errorTitle = "❌ Tutor Leaderboard Canceled!";
 
     const maxSlots = (number?.value || 10) as number;
     const leaderboardResponse = await getTutorLeaderboard(maxSlots);
