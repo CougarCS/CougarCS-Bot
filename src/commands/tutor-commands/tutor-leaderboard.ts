@@ -4,8 +4,8 @@ import { createEmbed } from "../../utils/embeded";
 import { getTutorLeaderboard } from "../../utils/supabase";
 import { commandLog, sendError } from "../../utils/logs";
 
-const tutorleaderboardBody = (bodyContent: string[]): string => {
-  return bodyContent.join('\n');
+const buildEmbedBody = (bodyArray: string[]): string => {
+  return bodyArray.join('\n');
 };
 
 export const tutorleaderboard: Command = {
@@ -40,7 +40,7 @@ export const tutorleaderboard: Command = {
       return;
     }
 
-    const leaderboardString = tutorleaderboardBody(leaderboardResponse.data);
+    const leaderboardString = buildEmbedBody(leaderboardResponse.data);
 
     const returnMessage = createEmbed(
       "<:tutor:1151206705913417828> Tutor Leaderboard!",
