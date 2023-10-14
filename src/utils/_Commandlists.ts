@@ -24,6 +24,7 @@ import { tutorlog } from "../commands/tutor-commands/tutor-log";
 import { appointTutor } from "../commands/officer-commands/appoint-tutor";
 import { updateProfile } from "../commands/user-commands/update-profile";
 import { createProfile } from "../commands/user-commands/create-profile";
+import { tutorleaderboard } from "../commands/tutor-commands/tutor-leaderboard";
 
 export const CommandList: Command[] = [
   attendance,
@@ -51,4 +52,5 @@ export const CommandList: Command[] = [
   appointTutor,
   updateProfile,
   createProfile,
+  tutorleaderboard,
 ];
