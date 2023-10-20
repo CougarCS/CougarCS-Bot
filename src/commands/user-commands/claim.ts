@@ -18,7 +18,7 @@ export const claim: Command = {
       option
         .setName("psid")
         .setDescription("Your UH issued PSID number (7 digit id)!")
-        .setRequired(false)
+        .setRequired(true)
         .setMaxValue(9999999)
         .setMinValue(1000000)
     )
@@ -28,7 +28,7 @@ export const claim: Command = {
         .setDescription(
           "The email that you used to purchase a CougarCS membership!"
         )
-        .setRequired(false)
+        .setRequired(true)
     ),
 
   run: async (interaction) => {
