@@ -18,7 +18,7 @@ export const claim: Command = {
       option
         .setName("psid")
         .setDescription("Your UH issued PSID number (7 digit id)!")
-        .setRequired(false)
+        .setRequired(true)
         .setMaxValue(9999999)
         .setMinValue(1000000)
     )
@@ -28,7 +28,7 @@ export const claim: Command = {
         .setDescription(
           "The email that you used to purchase a CougarCS membership!"
         )
-        .setRequired(false)
+        .setRequired(true)
     ),
 
   run: async (interaction) => {
@@ -76,11 +76,7 @@ export const claim: Command = {
     const discord_snowflake = user.id;
     let contactResponse: SupabaseResponse<ContactSelect>;
 
-    if (uh_id && email) {
-      contactResponse = await getContact({ uh_id, email });
-    } else {
-      contactResponse = await getContact({ discord_snowflake });
-    }
+    contactResponse = await getContact({ uh_id, email });
 
     if (contactResponse.error) {
       await sendError(
