@@ -76,11 +76,7 @@ export const claim: Command = {
     const discord_snowflake = user.id;
     let contactResponse: SupabaseResponse<ContactSelect>;
 
-    if (uh_id && email) {
-      contactResponse = await getContact({ uh_id, email });
-    } else {
-      contactResponse = await getContact({ discord_snowflake });
-    }
+    contactResponse = await getContact({ uh_id, email });
 
     if (contactResponse.error) {
       await sendError(
