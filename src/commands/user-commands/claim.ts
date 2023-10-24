@@ -68,50 +68,51 @@ export const claim: Command = {
       const returnMessage = createEmbed(
         "✅ Membership Confirmed!",
         `You still have the ${memberRole} role!`
-      ).setColor("Green");
-      await interaction.editReply({ embeds: [returnMessage] });
-      return;
-    }
+        ).setColor("Green");
+        await interaction.editReply({ embeds: [returnMessage] });
+        return;
+      }
 
-    const discord_snowflake = user.id;
-    const contactResponse: SupabaseResponse<ContactSelect> = await getContact({ uh_id, email });;
-
+    const contactResponse = await getContact({ uh_id, email });
+  
     if (contactResponse.error) {
       await sendError(
         errorTitle,
         `${contactResponse.message}\n${reminderMsg}`,
         interaction
-      );
-      return;
-    }
-
+        );
+        return;
+      }
+      
     const contact = contactResponse.data;
     const { contact_id } = contact;
     const memberResponse = await isMember({ contact_id });
-
+    
     if (memberResponse.error) {
       await sendError(
         errorTitle,
         `${memberResponse.message}\n${reminderMsg}`,
         interaction
-      );
+        );
       return;
     }
-
+    
     const activeMember = memberResponse.data;
-
+    
     if (!activeMember) {
       await sendError(
         errorTitle,
         `You do not have an active membership!\n${reminderMsg}`,
         interaction
-      );
-      return;
-    }
-
-    let updateResponse = { error: false };
-
-    if (!contact.discord_snowflake) {
+        );
+        return;
+      }
+      
+      let updateResponse = { error: false };
+      
+      const discord_snowflake = user.id;
+      
+      if (!contact.discord_snowflake) {
       updateResponse = await updateContact({ discord_snowflake }, contact_id);
     }
 
