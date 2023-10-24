@@ -47,7 +47,7 @@ export const claim: Command = {
     const errorTitle = "❌ Claim Failed!";
 
     const reminderMsg =
-      "You must purchase a membership from https://cougarcs.com before claiming it!";
+      "You must purchase a membership from https://cougarcs.com/join before claiming it!";
     const reportMsg =
       "If you think this is an error, please use /report to notify an officer!";
 
