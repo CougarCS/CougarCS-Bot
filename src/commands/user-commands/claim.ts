@@ -73,7 +73,7 @@ export const claim: Command = {
         return;
       }
 
-    const contactResponse = await getContact({ uh_id, email });
+    const contactResponse: SupabaseResponse<ContactSelect> = await getContact({ uh_id, email });
   
     if (contactResponse.error) {
       await sendError(
