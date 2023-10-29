@@ -3,6 +3,7 @@ import { ping } from "../commands/officer-commands/ping";
 import { balance } from "../commands/user-commands/balance";
 import { supabaseping } from "../commands/officer-commands/supabase-ping";
 import { claim } from "../commands/user-commands/claim";
+import { claimPrize } from "../commands/user-commands/claim-prize"
 import { grant } from "../commands/officer-commands/grant";
 import { leaderboard } from "../commands/user-commands/leaderboard";
 import { whois } from "../commands/officer-commands/whois";
@@ -32,6 +33,7 @@ export const CommandList: Command[] = [
   cancelmembership,
   checkin,
   claim,
+  claimPrize,
   createcontact,
   find,
   grant,
