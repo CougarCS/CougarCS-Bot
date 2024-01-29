@@ -8,7 +8,7 @@ import { Command } from "../../interfaces/Command";
 import { createEmbed } from "../../utils/embeded";
 import { commandLog, sendError } from "../../utils/logs";
 import {
-    getContactId,
+  getContactId,
   getRole,
   getTutor,
   insertTutor,
