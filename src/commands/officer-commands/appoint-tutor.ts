@@ -8,7 +8,7 @@ import { Command } from "../../interfaces/Command";
 import { createEmbed } from "../../utils/embeded";
 import { commandLog, sendError } from "../../utils/logs";
 import {
-  getContactId,
+    getContactId,
   getRole,
   getTutor,
   insertTutor,
@@ -63,7 +63,7 @@ export const appointTutor: Command = {
 
     const tutorResponse = await getTutor({ contact_id });
 
-    if (!tutorResponse.error) {
+    if (tutorResponse.error) {
       sendError(
         errorTitle,
         `${appointedUser} is already a tutor!`,
