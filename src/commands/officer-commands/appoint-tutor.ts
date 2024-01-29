@@ -63,7 +63,7 @@ export const appointTutor: Command = {
 
     const tutorResponse = await getTutor({ contact_id });
 
-    if (tutorResponse.error) {
+    if (!tutorResponse.error) {
       sendError(
         errorTitle,
         `${appointedUser} is already a tutor!`,
