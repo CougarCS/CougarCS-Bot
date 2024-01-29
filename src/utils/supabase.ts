@@ -887,7 +887,7 @@ export const getTutor = async (
     return tutorResponse;
   }
 
-  const mostRecentTutor = tutorResponse.data[0];
+  const mostRecentTutor = tutorResponse.data[tutorResponse.data.length - 1];
 
   const now = new Date();
   const tutorStart = new Date(mostRecentTutor.start_date);
@@ -896,7 +896,7 @@ export const getTutor = async (
   if (now > tutorStart && now < tutorEnd) {
     return {
       ...tutorResponse,
-      data: tutorResponse.data[0],
+      data: mostRecentTutor,
     };
   }
 
