@@ -17,8 +17,12 @@ export const tutorlog: Command = {
     .setName("tutor-log")
     .setDescription("Log your tutor hours")
     .addStringOption((option) => {
-      tutoringTypeOptions().then((types) => option.setChoices(...types));
       return option
+        .setChoices([
+          { name: "In Person", value: "t-ip" },
+          { name: "Online Text Chat", value: "t-ot" },
+          { name: "Online Voice Chat", value: "t-ov" },
+        ])
         .setName("tutoring-type")
         .setDescription("Type of tutoring!")
         .setRequired(true);
@@ -27,7 +31,7 @@ export const tutorlog: Command = {
       option
         .setName("tutored-user")
         .setDescription("Name(s) of the student you tutored")
-        .setRequired(true)
+        .setRequired(true),
     )
     .addIntegerOption((option) =>
       option
@@ -35,13 +39,13 @@ export const tutorlog: Command = {
         .setDescription("How many hours did you tutor?")
         .setMinValue(1)
         .setMaxValue(6)
-        .setRequired(true)
+        .setRequired(true),
     )
     .addStringOption((option) =>
       option
         .setName("description")
         .setDescription("Description of the tutoring session")
-        .setRequired(false)
+        .setRequired(false),
     ),
   run: async (interaction) => {
     await interaction.deferReply({ ephemeral: false });
@@ -85,7 +89,7 @@ export const tutorlog: Command = {
       await sendError(
         errorTitle,
         "You do not have the tutor role. This command is available for tutors only!",
-        interaction
+        interaction,
       );
       return;
     }
@@ -96,7 +100,7 @@ export const tutorlog: Command = {
       await sendError(
         errorTitle,
         "Your contact could not be found!",
-        interaction
+        interaction,
       );
       return;
     }
@@ -109,7 +113,7 @@ export const tutorlog: Command = {
       await sendError(
         errorTitle,
         "Your current tutor data could not be found!",
-        interaction
+        interaction,
       );
       return;
     }
@@ -157,7 +161,7 @@ export const tutorlog: Command = {
           name: "Hours",
           value: `${hours}`,
           inline: true,
-        }
+        },
       );
 
     if (description) {
