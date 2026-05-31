@@ -88,7 +88,7 @@ export const setguildconfig: Command = {
         .setRequired(false)
     ),
   run: async (interaction) => {
-    await interaction.deferReply({ ephemeral: false });
+    await interaction.deferReply({});
 
     const update: GuildUpdate = {
       member_role_id: interaction.options.get("member-role", false)?.value as

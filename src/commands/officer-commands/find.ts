@@ -1,4 +1,10 @@
-import { Guild, PermissionFlagsBits, SlashCommandBuilder } from "discord.js";
+import {
+  EmbedBuilder,
+  Guild,
+  MessageFlags,
+  PermissionFlagsBits,
+  SlashCommandBuilder,
+} from "discord.js";
 import { Command } from "../../interfaces/Command";
 import { createEmbed, sendBulkEmbeds } from "../../utils/embeded";
 import { commandLog, sendError } from "../../utils/logs";
@@ -7,7 +13,6 @@ import {
   getRole,
   isMember,
 } from "../../utils/supabase";
-import { EmbedBuilder } from "discord.js";
 import { fullContactFields } from "../../utils/embedFields";
 import { ContactQuery, ContactSelect } from "../../utils/types";
 
@@ -106,7 +111,7 @@ export const find: Command = {
     const ephemeral = !interaction.options.get("reveal", false)?.value as
       | boolean;
 
-    await interaction.deferReply({ ephemeral });
+    await interaction.deferReply({ flags: ephemeral ? MessageFlags.Ephemeral : undefined });
     const { user } = interaction;
     const guild = interaction.guild as Guild;
 

@@ -2,6 +2,7 @@ import {
   PermissionFlagsBits,
   SlashCommandBuilder,
   TextChannel,
+  MessageFlags,
 } from "discord.js";
 import { Command } from "../../interfaces/Command";
 import { createEmbed } from "../../utils/embeded";
@@ -55,7 +56,7 @@ export const rolegiver: Command = {
     )
     .setDefaultMemberPermissions(PermissionFlagsBits.ManageChannels),
   run: async (interaction) => {
-    await interaction.deferReply({ ephemeral: true });
+    await interaction.deferReply({ flags: MessageFlags.Ephemeral });
 
     const type = interaction.options.get("roletype", true).value as string;
     const roleString = interaction.options.get("roles", true).value as string;

@@ -2,8 +2,8 @@ import {
   ButtonInteraction,
   ColorResolvable,
   CommandInteraction,
+  Guild,
 } from "discord.js";
-import { Guild } from "discord.js";
 import { createEmbed } from "./embeded";
 import { getChannel, getRole } from "./supabase";
 

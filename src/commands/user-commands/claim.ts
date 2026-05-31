@@ -1,4 +1,6 @@
-import { Guild, SlashCommandBuilder } from "discord.js";
+import { Guild, SlashCommandBuilder,
+  MessageFlags,
+} from "discord.js";
 import { Command } from "../../interfaces/Command";
 import { createEmbed } from "../../utils/embeded";
 import { commandLog, sendError } from "../../utils/logs";
@@ -32,7 +34,7 @@ export const claim: Command = {
     ),
 
   run: async (interaction) => {
-    await interaction.deferReply({ ephemeral: true });
+    await interaction.deferReply({ flags: MessageFlags.Ephemeral });
     const { user } = interaction;
     const guild = interaction.guild as Guild;
 

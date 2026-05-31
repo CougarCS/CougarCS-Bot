@@ -1,4 +1,6 @@
-import { CommandInteraction, EmbedBuilder } from "discord.js";
+import { CommandInteraction, EmbedBuilder,
+  MessageFlags,
+} from "discord.js";
 
 export function createEmbed (title: string, message: string): EmbedBuilder {
   return new EmbedBuilder()
@@ -25,6 +27,6 @@ export const sendBulkEmbeds = async (
   await interaction.editReply({ embeds: embedChunks[0] });
 
   for (let i = 1; i < embedChunks.length; i++) {
-    await interaction.followUp({ ephemeral, embeds: embedChunks[i] });
+    await interaction.followUp({ flags: ephemeral ? MessageFlags.Ephemeral : undefined, embeds: embedChunks[i] });
   }
 };

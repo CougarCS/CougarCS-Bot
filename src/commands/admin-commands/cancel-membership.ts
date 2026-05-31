@@ -21,7 +21,7 @@ export const cancelmembership: Command = {
         .setRequired(true)
     ),
   run: async (interaction) => {
-    await interaction.deferReply({ ephemeral: false });
+    await interaction.deferReply({});
     const guild = interaction.guild as Guild;
 
     const selectedUser = interaction.options.get("user", true).user as User;

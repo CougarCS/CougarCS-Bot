@@ -21,7 +21,7 @@ export const tutorleaderboard: Command = {
         .setRequired(false)
     ),
   run: async (interaction) => {
-    await interaction.deferReply({ ephemeral: false });
+    await interaction.deferReply({});
     const number = interaction.options.get("number", false);
     commandLog(interaction, "/tutor-leaderboard", "Green", [
       {

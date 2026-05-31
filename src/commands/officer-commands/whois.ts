@@ -3,6 +3,7 @@ import {
   PermissionFlagsBits,
   SlashCommandBuilder,
   User,
+  MessageFlags,
 } from "discord.js";
 import { Command } from "../../interfaces/Command";
 import { createEmbed } from "../../utils/embeded";
@@ -37,7 +38,7 @@ export const whois: Command = {
     const ephemeral = !interaction.options.get("reveal", false)?.value as
       | boolean;
 
-    await interaction.deferReply({ ephemeral });
+    await interaction.deferReply({ flags: ephemeral ? MessageFlags.Ephemeral : undefined });
     const { user } = interaction;
     const guild = interaction.guild as Guild;
 

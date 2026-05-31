@@ -56,7 +56,7 @@ export const prunemembers: Command = {
     )
     .setDefaultMemberPermissions(PermissionFlagsBits.ManageChannels),
   run: async (interaction) => {
-    await interaction.deferReply({ ephemeral: false });
+    await interaction.deferReply({});
     const guild = interaction.guild as Guild;
 
     commandLog(interaction, "/prunemembers", "Purple", []);

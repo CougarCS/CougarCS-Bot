@@ -26,7 +26,7 @@ export const appointTutor: Command = {
     )
     .setDefaultMemberPermissions(PermissionFlagsBits.ManageChannels),
   run: async (interaction) => {
-    await interaction.deferReply({ ephemeral: false });
+    await interaction.deferReply({});
     const guild = interaction.guild as Guild;
     const appointedUser = interaction.options.get("user", true).user as User;
 

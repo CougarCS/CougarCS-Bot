@@ -90,7 +90,7 @@ export const tutorstats: Command = {
         .setMaxValue(new Date().getFullYear())
     ),
   run: async (interaction) => {
-    await interaction.deferReply({ ephemeral: false });
+    await interaction.deferReply({});
     const { user } = interaction;
 
     const discord_snowflake =
