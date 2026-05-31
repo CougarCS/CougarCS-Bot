@@ -3,7 +3,6 @@ import { Command } from "../../interfaces/Command";
 import { createEmbed, sendBulkEmbeds } from "../../utils/embeded";
 import { commandLog, sendError } from "../../utils/logs";
 import {
-  getBalance,
   getContacts,
   getRole,
   isMember,
@@ -42,15 +41,8 @@ const createContactEmbeds = async (
       continue;
     }
 
-    const balanceResponse = await getBalance({ contact_id });
-    let balance = 0;
-
-    if (!balanceResponse.error) {
-      balance = balanceResponse.data;
-    }
-
     const embed = createEmbed(" ", " ").addFields(
-      ...fullContactFields(contact, balance, activeMember, isAdmin)
+      ...fullContactFields(contact, activeMember, isAdmin)
     );
     embeds.push(embed);
   }

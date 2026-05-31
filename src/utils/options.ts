@@ -1,7 +1,5 @@
 import { APIApplicationCommandOptionChoice } from "discord.js";
 import {
-  getEvents,
-  getMemberPointReasons,
   getMembershipCodes,
   getShirtSizes,
   getTutoringTypes,
@@ -55,50 +53,6 @@ export const shirtSizeOptions = async (): Promise<
   );
 
   return shirtSizes;
-};
-
-export const memberPointReasonOptions = async (): Promise<
-  APIApplicationCommandOptionChoice<string>[]
-> => {
-  const memberPointReasonResponse = await getMemberPointReasons();
-
-  if (memberPointReasonResponse.error) {
-    return [{ name: "General Grant", value: "mpt-general" }];
-  }
-
-  const pointReasonData = memberPointReasonResponse.data;
-  const pointReasons: APIApplicationCommandOptionChoice<string>[] = [];
-
-  pointReasonData.forEach((pr) =>
-    pointReasons.push({
-      name: pr.message,
-      value: pr.member_point_transaction_reason_id,
-    })
-  );
-
-  return pointReasons;
-};
-
-export const eventOptions = async (): Promise<
-  APIApplicationCommandOptionChoice<string>[]
-> => {
-  const eventResponse = await getEvents();
-
-  if (eventResponse.error) {
-    return [{ name: "Error: Try Again Later", value: "error" }];
-  }
-
-  const eventData = eventResponse.data;
-  const events: APIApplicationCommandOptionChoice<string>[] = [];
-
-  eventData.forEach((event) =>
-    events.push({
-      name: event.title,
-      value: event.event_id,
-    })
-  );
-
-  return events;
 };
 
 export const tutorStatsLengthOptions: APIApplicationCommandOptionChoice<string>[] =
