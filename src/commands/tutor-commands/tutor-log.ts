@@ -18,7 +18,7 @@ export const tutorlog: Command = {
     .setDescription("Log your tutor hours")
     .addStringOption((option) => {
       return option
-        .setChoices([
+        .setChoices(...[
           { name: "In Person", value: "t-ip" },
           { name: "Online Text Chat", value: "t-ot" },
           { name: "Online Voice Chat", value: "t-ov" },
