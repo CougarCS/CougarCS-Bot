@@ -3,7 +3,7 @@ import { commandLog, sendError } from "../../utils/logs";
 import { EmbedBuilder, SlashCommandBuilder } from "discord.js";
 import { getContactId, getTutorId, getTutorLogs } from "../../utils/supabase";
 import { createEmbed, sendBulkEmbeds } from "../../utils/embeded";
-import { TutorLogQuery, TutorLogSelect } from "src/utils/types";
+import { TutorLogQuery, TutorLogSelect } from "../../utils/types";
 import { tutorStatsLengthOptions } from "../../utils/options";
 import { tutorStatsFields } from "../../utils/embedFields";
 

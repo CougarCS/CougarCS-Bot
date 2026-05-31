@@ -5,7 +5,7 @@ import {
   PermissionFlagsBits,
   Role,
   SlashCommandBuilder,
-  TextBasedChannel,
+  TextChannel,
 } from "discord.js";
 import { Command } from "../../interfaces/Command";
 import { createEmbed } from "../../utils/embeded";
@@ -35,7 +35,7 @@ const getExpiredMembers = async (members: Collection<string, GuildMember>) => {
 const removeExpiredMembers = async (
   removedMembers: GuildMember[],
   memberRole: Role,
-  currentChannel: TextBasedChannel
+  currentChannel: TextChannel
 ) => {
   for (let i = 0; i < removedMembers.length; i++) {
     const member = removedMembers[i];
@@ -92,7 +92,7 @@ export const prunemembers: Command = {
 
     await interaction.editReply({ embeds: [returnMessage] });
 
-    const currentChannel = interaction.channel as TextBasedChannel;
+    const currentChannel = interaction.channel as TextChannel;
 
     await removeExpiredMembers(removedMembers, memberRole, currentChannel);
 

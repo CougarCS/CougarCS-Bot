@@ -8,7 +8,7 @@ import {
   isMember,
   updateContact,
 } from "../../utils/supabase";
-import { ContactSelect, SupabaseResponse } from "src/utils/types";
+import { ContactSelect, SupabaseResponse } from "../../utils/types";
 
 export const claim: Command = {
   data: new SlashCommandBuilder()

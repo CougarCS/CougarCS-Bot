@@ -7,9 +7,9 @@ import {
   getRole,
   isMember,
 } from "../../utils/supabase";
-import { EmbedBuilder } from "@discordjs/builders";
+import { EmbedBuilder } from "discord.js";
 import { fullContactFields } from "../../utils/embedFields";
-import { ContactQuery, ContactSelect } from "src/utils/types";
+import { ContactQuery, ContactSelect } from "../../utils/types";
 
 const createContactEmbeds = async (
   contacts: ContactSelect[],
