@@ -6,6 +6,9 @@
     "outDir": "./dist/",
     "strict": true,
     "moduleResolution": "node",
+    "ignoreDeprecations": "6.0",
+    // if we ever want to upgrade to typescript 7,
+    // the above must be removed and we must refactor.
     "importHelpers": true,
     "experimentalDecorators": true,
     "esModuleInterop": true,
@@ -14,11 +17,19 @@
     "resolveJsonModule": true,
     "forceConsistentCasingInFileNames": true,
     "removeComments": true,
-    "typeRoots": ["node_modules/@types"],
-    "sourceMap": false,
-    "baseUrl": "./"
+    "typeRoots": [
+      "node_modules/@types"
+    ],
+    "sourceMap": false
   },
-  "files": ["src/index.ts"],
-  "include": ["./**/*.ts"],
-  "exclude": ["node_modules", "dist"]
+  "files": [
+    "src/index.ts"
+  ],
+  "include": [
+    "./**/*.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist"
+  ]
 }

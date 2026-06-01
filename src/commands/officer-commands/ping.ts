@@ -9,7 +9,7 @@ export const ping: Command = {
     .setDescription("Ping the CougarCS Bot!")
     .setDefaultMemberPermissions(PermissionFlagsBits.ManageChannels),
   run: async (interaction) => {
-    await interaction.deferReply({ ephemeral: false });
+    await interaction.deferReply({});
 
     commandLog(interaction, "/ping", "Green", []);
 

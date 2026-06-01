@@ -72,27 +72,6 @@ export type ContactSelect = {
   uh_id: number | null;
 };
 
-export type TransactionInsert = {
-  queryData: UniqueContactQuery;
-  point_value: number;
-  reason_id: string;
-};
-
-export type TransactionSelect = {
-  contact_id: string;
-  member_point_transaction_id: string;
-  member_point_transaction_reason_id: string;
-  point_value: number;
-  timestamp: string;
-};
-
-export type EventAttendanceInsert = {
-  contact_id: string;
-  event_attendance_id?: string;
-  event_id: string;
-  swag?: boolean;
-  timestamp: string;
-};
 
 export type GuildInsert = {
   admin_role_id?: string | null;
@@ -142,40 +121,12 @@ export type MembershipCodeSelect = {
   message: string;
 };
 
-export type AttendanceSelect = {
-  contact_id: string;
-  event_attendance_id: string;
-  event_id: string;
-  swag: boolean;
-  timestamp: string;
-};
 
 export type ShirtSizeSelect = {
   message: string;
   shirt_size_id: string;
 };
 
-export type MemberPointReasonSelect = {
-  member_point_transaction_reason_id: string;
-  message: string;
-};
-
-export type EventSelect = {
-  date: string;
-  description: string | null;
-  duration: number | null;
-  event_id: string;
-  point_value: number;
-  title: string;
-};
-
-export type EventAttendanceSelect = {
-  contact_id: string;
-  event_attendance_id: string;
-  event_id: string;
-  swag: boolean;
-  timestamp: string;
-};
 
 export type TutorSelect = {
   contact_id: string;

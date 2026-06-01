@@ -3,7 +3,7 @@ import { commandLog, sendError } from "../../utils/logs";
 import { EmbedBuilder, SlashCommandBuilder } from "discord.js";
 import { getContactId, getTutorId, getTutorLogs } from "../../utils/supabase";
 import { createEmbed, sendBulkEmbeds } from "../../utils/embeded";
-import { TutorLogQuery, TutorLogSelect } from "src/utils/types";
+import { TutorLogQuery, TutorLogSelect } from "../../utils/types";
 import { tutorStatsLengthOptions } from "../../utils/options";
 import { tutorStatsFields } from "../../utils/embedFields";
 
@@ -90,7 +90,7 @@ export const tutorstats: Command = {
         .setMaxValue(new Date().getFullYear())
     ),
   run: async (interaction) => {
-    await interaction.deferReply({ ephemeral: false });
+    await interaction.deferReply({});
     const { user } = interaction;
 
     const discord_snowflake =

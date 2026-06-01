@@ -6,18 +6,12 @@ import {
   ContactQuery,
   ContactSelect,
   ContactUpdate,
-  EventAttendanceInsert,
-  EventAttendanceSelect,
-  EventSelect,
   GuildSelect,
   GuildUpdate,
-  MemberPointReasonSelect,
   MembershipCodeSelect,
   MembershipSelect,
   ShirtSizeSelect,
   SupabaseResponse,
-  TransactionInsert,
-  TransactionSelect,
   TutoringTypeSelect,
   UniqueContactQuery,
   UniqueTutorQuery,
@@ -196,94 +190,6 @@ export const isMember = async (
   };
 };
 
-export const getBalance = async (
-  queryData: UniqueContactQuery
-): Promise<SupabaseResponse<number>> => {
-  const contactIdResponse = await getContactId(queryData);
-
-  if (contactIdResponse.error) {
-    return contactIdResponse;
-  }
-
-  const contact_id = contactIdResponse.data;
-  const balanceResponse = await supabase.rpc("balance", { contact_id });
-
-  if (balanceResponse.error) {
-    console.log(balanceResponse.error);
-    return {
-      error: true,
-      message: "There was an error fetching CougarCoin balance!",
-    };
-  }
-
-  const balance = balanceResponse.data || 0;
-
-  return {
-    data: balance,
-    error: false,
-    message: "Successfully fetched balance!",
-  };
-};
-
-export const getLeaderboard = async (
-  maxSlots: number
-): Promise<SupabaseResponse<string[]>> => {
-  const transactionsResponse = await supabase
-    .from("member_point_transaction")
-    .select("contact_id");
-
-  if (transactionsResponse.error) {
-    return {
-      error: true,
-      message: "There was an error fetching transactions!",
-    };
-  }
-
-  const uniqueBalancePairs: { contact_id: string; balance: number }[] = [];
-
-  for (let i = 0; i < transactionsResponse.data.length; i++) {
-    const { contact_id } = transactionsResponse.data[i];
-    if (uniqueBalancePairs.find((uci) => uci.contact_id === contact_id)) {
-      continue;
-    }
-    const balanceResponse = await getBalance({ contact_id });
-
-    if (balanceResponse.error) {
-      return balanceResponse;
-    }
-
-    const balance = balanceResponse.data;
-    uniqueBalancePairs.push({ contact_id, balance });
-  }
-
-  uniqueBalancePairs.sort((a, b) => b.balance - a.balance);
-  const arrayString: string[] = [];
-
-  for (let i = 0; i < uniqueBalancePairs.length && i < maxSlots; i++) {
-    const { contact_id, balance } = uniqueBalancePairs[i];
-    const identifierResponse = await getContact({ contact_id });
-
-    if (identifierResponse.error) {
-      return identifierResponse;
-    }
-
-    const { discord_snowflake, first_name, last_name } =
-      identifierResponse.data;
-    const identifier = discord_snowflake
-      ? `<@${discord_snowflake}>`
-      : `${first_name} ${last_name}`;
-    const slot = `${i + 1}. ${identifier}: **${balance}**`;
-
-    arrayString.push(slot);
-  }
-
-  return {
-    data: arrayString,
-    error: false,
-    message: "Successfully fetched leaderboard!",
-  };
-};
-
 export const updateDiscordSnowflake = async (
   queryData: UniqueContactQuery,
   discord_snowflake: string
@@ -312,42 +218,6 @@ export const updateDiscordSnowflake = async (
     data: updateResponse.data[0],
     error: false,
     message: "Successfully updated contact!",
-  };
-};
-
-export const insertTransaction = async (
-  transactionInfo: TransactionInsert
-): Promise<SupabaseResponse<TransactionSelect>> => {
-  const { queryData, point_value, reason_id } = transactionInfo;
-
-  const contactIdResponse = await getContactId(queryData);
-
-  if (contactIdResponse.error) {
-    return contactIdResponse;
-  }
-
-  const contact_id = contactIdResponse.data;
-
-  const insertResponse = await supabase
-    .from("member_point_transaction")
-    .insert({
-      contact_id,
-      point_value,
-      member_point_transaction_reason_id: reason_id,
-    })
-    .select();
-
-  if (insertResponse.error) {
-    return {
-      error: true,
-      message: "There was an error inserting the transaction!",
-    };
-  }
-
-  return {
-    data: insertResponse.data[0],
-    error: false,
-    message: "Successfully inserted transaction!",
   };
 };
 
@@ -527,148 +397,6 @@ export const getShirtSizes = async (): Promise<
     data: shirtSizeResponse.data,
     error: false,
     message: "Successfully fetched shirt sizes!",
-  };
-};
-
-export const getMemberPointReasons = async (): Promise<
-  SupabaseResponse<MemberPointReasonSelect[]>
-> => {
-  const pointReasonResponse = await supabase
-    .from("member_point_transaction_reason")
-    .select();
-
-  if (pointReasonResponse.error) {
-    return {
-      error: true,
-      message:
-        "There was an error fetching the member point transaction reasons!",
-    };
-  }
-
-  if (pointReasonResponse.data.length === 0) {
-    return {
-      error: true,
-      message: "No member point transaction reasons were found!",
-    };
-  }
-
-  return {
-    data: pointReasonResponse.data,
-    error: false,
-    message: "Successfully fetched the member point transaction reasons!",
-  };
-};
-
-export const getEvents = async (): Promise<SupabaseResponse<EventSelect[]>> => {
-  const eventResponse = await supabase.from("event").select("*");
-
-  if (eventResponse.error) {
-    return {
-      error: true,
-      message: "There was an error fetching the events!",
-    };
-  }
-
-  if (eventResponse.data.length === 0) {
-    return {
-      error: true,
-      message: "No events were found!",
-    };
-  }
-
-  return {
-    data: eventResponse.data,
-    error: false,
-    message: "Successfully fetched the events!",
-  };
-};
-
-export const insertEventAttendance = async (
-  attendance: EventAttendanceInsert
-): Promise<SupabaseResponse<EventAttendanceSelect>> => {
-  const attendanceResponse = await supabase
-    .from("event_attendance")
-    .insert(attendance)
-    .select();
-
-  if (attendanceResponse.error) {
-    return {
-      error: true,
-      message: "There was an error inserting the event attendance data!",
-    };
-  }
-
-  return {
-    data: attendanceResponse.data[0],
-    error: false,
-    message: "Successfully inserted the event attendance data!",
-  };
-};
-
-export const getEventAttendance = async (
-  queryData: UniqueContactQuery
-): Promise<SupabaseResponse<EventAttendanceSelect[]>> => {
-  const contactIdResponse = await getContactId(queryData);
-
-  if (contactIdResponse.error) {
-    return contactIdResponse;
-  }
-
-  const contact_id = contactIdResponse.data;
-
-  const attendanceResponse = await supabase
-    .from("event_attendance")
-    .select("*")
-    .eq("contact_id", contact_id)
-    .order("timestamp", { ascending: false });
-
-  if (attendanceResponse.error) {
-    return {
-      error: true,
-      message: "There was an error fetching event attendance data!",
-    };
-  }
-
-  if (attendanceResponse.data.length === 0) {
-    return {
-      error: true,
-      message: "No event attendance data was found!",
-    };
-  }
-
-  return {
-    data: attendanceResponse.data,
-    error: false,
-    message: "Successfully fetched event attendance data!",
-  };
-};
-
-export const getEvent = async (
-  event_id: string
-): Promise<SupabaseResponse<EventSelect>> => {
-  const eventResponse = await supabase
-    .from("event")
-    .select()
-    .eq("event_id", event_id);
-
-  if (eventResponse.error) {
-    return {
-      error: true,
-      message: "There was an error fetching this event!",
-    };
-  }
-
-  if (eventResponse.data.length === 0) {
-    return {
-      error: true,
-      message: "No event could be found!",
-    };
-  }
-
-  return {
-    data: eventResponse.data[0],
-    error: false,
-    message: "Successfully fetched this event!",
   };
 };
 
@@ -1146,7 +874,7 @@ export const getTutorLeaderboard = async (
   for (let i = 0; i < tutorUniqueBalancePairs.length; i++) {
     const { tutor_id, tutorBalance } = tutorUniqueBalancePairs[i];
     const tutorIdentifierResponse = await getTutor({ tutor_id });
-    
+
     if (tutorIdentifierResponse.error) {
       continue;
     }
@@ -1161,9 +889,9 @@ export const getTutorLeaderboard = async (
     const identifier = discord_snowflake ? `<@${discord_snowflake}>` : `${first_name} ${last_name}`;
     let icon = "";
 
-    if (arrayString.length === 0) { icon = "🥇"; } 
+    if (arrayString.length === 0) { icon = "🥇"; }
     else if (arrayString.length === 1){ icon = "🥈"; }
-    else if (arrayString.length === 2){ icon = "🥉";} 
+    else if (arrayString.length === 2){ icon = "🥉";}
     else { icon = `${arrayString.length + 1}.`; }
 
     const slot = `${icon} ${identifier}: **${tutorBalance}** hour(s)`;
@@ -1174,7 +902,7 @@ export const getTutorLeaderboard = async (
   }
 
   return {
-    data: arrayString,  
+    data: arrayString,
     error: false,
     message: "Successfully fetched tutor leaderboard!",
   };

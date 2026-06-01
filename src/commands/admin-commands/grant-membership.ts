@@ -44,7 +44,7 @@ export const grantmembership: Command = {
         .setRequired(true);
     }),
   run: async (interaction) => {
-    await interaction.deferReply({ ephemeral: false });
+    await interaction.deferReply({});
 
     const discord_snowflake = interaction.options.get("user", true).user
       ?.id as string;

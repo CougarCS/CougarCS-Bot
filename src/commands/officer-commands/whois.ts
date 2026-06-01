@@ -3,11 +3,11 @@ import {
   PermissionFlagsBits,
   SlashCommandBuilder,
   User,
+  MessageFlags,
 } from "discord.js";
 import { Command } from "../../interfaces/Command";
 import { createEmbed } from "../../utils/embeded";
 import {
-  getBalance,
   getContact,
   getRole,
   isMember,
@@ -38,7 +38,7 @@ export const whois: Command = {
     const ephemeral = !interaction.options.get("reveal", false)?.value as
       | boolean;
 
-    await interaction.deferReply({ ephemeral });
+    await interaction.deferReply({ flags: ephemeral ? MessageFlags.Ephemeral : undefined });
     const { user } = interaction;
     const guild = interaction.guild as Guild;
 
@@ -64,14 +64,6 @@ export const whois: Command = {
     const memberResponse = await isMember({ contact_id });
 
     const activeMember = !memberResponse.error && memberResponse.data;
-    const balanceResponse = await getBalance({ contact_id });
-
-    if (balanceResponse.error) {
-      await sendError(errorTitle, balanceResponse.message, interaction);
-      return;
-    }
-
-    const balance = balanceResponse.data;
 
     const member = await guild.members.fetch({ user });
     const adminRoleResponse = await getRole("admin", guild);
@@ -85,7 +77,7 @@ export const whois: Command = {
 
     const returnMessage = createEmbed("👤 Contact Found!", " ")
       .setColor("Blue")
-      .addFields(...fullContactFields(contact, balance, activeMember, isAdmin))
+      .addFields(...fullContactFields(contact, activeMember, isAdmin))
       .setThumbnail(whoUser.displayAvatarURL());
 
     await interaction.editReply({ embeds: [returnMessage] });

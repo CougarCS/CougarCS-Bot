@@ -74,7 +74,7 @@ export const memberships: Command = {
         .setRequired(false)
     ),
   run: async (interaction) => {
-    await interaction.deferReply({ ephemeral: false });
+    await interaction.deferReply({});
 
     const query: UniqueContactQuery = {
       uh_id: interaction.options.get("psid", false)?.value as

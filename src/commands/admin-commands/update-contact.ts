@@ -1,4 +1,6 @@
-import { PermissionFlagsBits, SlashCommandBuilder } from "discord.js";
+import { PermissionFlagsBits, SlashCommandBuilder,
+  MessageFlags,
+} from "discord.js";
 import { Command } from "../../interfaces/Command";
 import { createEmbed } from "../../utils/embeded";
 import { commandLog, sendError } from "../../utils/logs";
@@ -97,7 +99,7 @@ export const updatecontact: Command = {
     const ephemeral = !interaction.options.get("reveal", false)?.value as
       | boolean;
 
-    await interaction.deferReply({ ephemeral });
+    await interaction.deferReply({ flags: ephemeral ? MessageFlags.Ephemeral : undefined });
 
     const update: ContactUpdate = {
       uh_id: interaction.options.get("psid", true).value as number,

@@ -81,122 +81,6 @@ export interface Database {
         }
         Relationships: []
       }
-      event: {
-        Row: {
-          date: string
-          description: string | null
-          duration: number | null
-          event_id: string
-          point_value: number
-          title: string
-        }
-        Insert: {
-          date: string
-          description?: string | null
-          duration?: number | null
-          event_id?: string
-          point_value?: number
-          title: string
-        }
-        Update: {
-          date?: string
-          description?: string | null
-          duration?: number | null
-          event_id?: string
-          point_value?: number
-          title?: string
-        }
-        Relationships: []
-      }
-      event_attendance: {
-        Row: {
-          contact_id: string
-          event_attendance_id: string
-          event_id: string
-          swag: boolean
-          timestamp: string
-        }
-        Insert: {
-          contact_id: string
-          event_attendance_id?: string
-          event_id: string
-          swag?: boolean
-          timestamp?: string
-        }
-        Update: {
-          contact_id?: string
-          event_attendance_id?: string
-          event_id?: string
-          swag?: boolean
-          timestamp?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "event_attendance_contact_id_fkey"
-            columns: ["contact_id"]
-            referencedRelation: "contacts"
-            referencedColumns: ["contact_id"]
-          },
-          {
-            foreignKeyName: "event_attendance_event_id_fkey"
-            columns: ["event_id"]
-            referencedRelation: "event"
-            referencedColumns: ["event_id"]
-          }
-        ]
-      }
-      member_point_transaction: {
-        Row: {
-          contact_id: string
-          member_point_transaction_id: string
-          member_point_transaction_reason_id: string
-          point_value: number
-          timestamp: string
-        }
-        Insert: {
-          contact_id: string
-          member_point_transaction_id?: string
-          member_point_transaction_reason_id: string
-          point_value: number
-          timestamp?: string
-        }
-        Update: {
-          contact_id?: string
-          member_point_transaction_id?: string
-          member_point_transaction_reason_id?: string
-          point_value?: number
-          timestamp?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "member_point_transaction_contact_id_fkey"
-            columns: ["contact_id"]
-            referencedRelation: "contacts"
-            referencedColumns: ["contact_id"]
-          },
-          {
-            foreignKeyName: "member_point_transaction_member_point_transaction_reason_id_fke"
-            columns: ["member_point_transaction_reason_id"]
-            referencedRelation: "member_point_transaction_reason"
-            referencedColumns: ["member_point_transaction_reason_id"]
-          }
-        ]
-      }
-      member_point_transaction_reason: {
-        Row: {
-          member_point_transaction_reason_id: string
-          message: string
-        }
-        Insert: {
-          member_point_transaction_reason_id: string
-          message: string
-        }
-        Update: {
-          member_point_transaction_reason_id?: string
-          message?: string
-        }
-        Relationships: []
-      }
       membership: {
         Row: {
           contact_id: string
@@ -383,12 +267,6 @@ export interface Database {
       [_ in never]: never
     }
     Functions: {
-      balance: {
-        Args: {
-          contact_id: string
-        }
-        Returns: number
-      },
       hour: {
         Args: {
           tutor_id: string

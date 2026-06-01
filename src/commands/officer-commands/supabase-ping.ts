@@ -12,7 +12,7 @@ export const supabaseping: Command = {
   run: async (interaction) => {
     const startTime = new Date().getTime();
 
-    await interaction.deferReply({ ephemeral: false });
+    await interaction.deferReply({});
 
     commandLog(interaction, "/supabaseping", "#3ECF8E", []);
 

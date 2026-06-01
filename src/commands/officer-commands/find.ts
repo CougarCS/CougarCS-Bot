@@ -1,16 +1,20 @@
-import { Guild, PermissionFlagsBits, SlashCommandBuilder } from "discord.js";
+import {
+  EmbedBuilder,
+  Guild,
+  MessageFlags,
+  PermissionFlagsBits,
+  SlashCommandBuilder,
+} from "discord.js";
 import { Command } from "../../interfaces/Command";
 import { createEmbed, sendBulkEmbeds } from "../../utils/embeded";
 import { commandLog, sendError } from "../../utils/logs";
 import {
-  getBalance,
   getContacts,
   getRole,
   isMember,
 } from "../../utils/supabase";
-import { EmbedBuilder } from "@discordjs/builders";
 import { fullContactFields } from "../../utils/embedFields";
-import { ContactQuery, ContactSelect } from "src/utils/types";
+import { ContactQuery, ContactSelect } from "../../utils/types";
 
 const createContactEmbeds = async (
   contacts: ContactSelect[],
@@ -42,15 +46,8 @@ const createContactEmbeds = async (
       continue;
     }
 
-    const balanceResponse = await getBalance({ contact_id });
-    let balance = 0;
-
-    if (!balanceResponse.error) {
-      balance = balanceResponse.data;
-    }
-
     const embed = createEmbed(" ", " ").addFields(
-      ...fullContactFields(contact, balance, activeMember, isAdmin)
+      ...fullContactFields(contact, activeMember, isAdmin)
     );
     embeds.push(embed);
   }
@@ -114,7 +111,7 @@ export const find: Command = {
     const ephemeral = !interaction.options.get("reveal", false)?.value as
       | boolean;
 
-    await interaction.deferReply({ ephemeral });
+    await interaction.deferReply({ flags: ephemeral ? MessageFlags.Ephemeral : undefined });
     const { user } = interaction;
     const guild = interaction.guild as Guild;
 

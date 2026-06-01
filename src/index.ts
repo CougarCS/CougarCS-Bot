@@ -9,7 +9,7 @@ import "dotenv/config";
   if (!validateEnv()) return;
   const client = new Client({ intents: IntentOptions });
 
-  client.on("ready", async () => await onReady(client));
+  client.on("clientReady", async () => await onReady(client));
 
   client.on(
     "interactionCreate",

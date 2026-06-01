@@ -130,7 +130,6 @@ export const tutorStatsFields = (
 
 export const fullContactFields = (
   contact: ContactSelect,
-  balance: number,
   activeMember: boolean,
   isAdmin?: boolean
 ): RestOrArray<APIEmbedField> => {
@@ -157,11 +156,6 @@ export const fullContactFields = (
     {
       name: "Member",
       value: activeMember ? "✅" : "❌",
-      inline: true,
-    },
-    {
-      name: "CougarCoin",
-      value: `${balance}`,
       inline: true,
     },
     {

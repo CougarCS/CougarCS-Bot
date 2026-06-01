@@ -1,4 +1,6 @@
-import { SlashCommandBuilder } from "discord.js";
+import { SlashCommandBuilder,
+  MessageFlags,
+} from "discord.js";
 import { Command } from "../../interfaces/Command";
 import { createEmbed } from "../../utils/embeded";
 import { commandLog, sendError } from "../../utils/logs";
@@ -45,7 +47,7 @@ export const updateProfile: Command = {
         .setRequired(false);
     }),
   run: async (interaction) => {
-    await interaction.deferReply({ ephemeral: true });
+    await interaction.deferReply({ flags: MessageFlags.Ephemeral });
     const { user } = interaction;
 
     const update: ContactUpdate = {

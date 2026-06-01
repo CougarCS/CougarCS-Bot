@@ -18,7 +18,7 @@ export const tutorlog: Command = {
     .setDescription("Log your tutor hours")
     .addStringOption((option) => {
       return option
-        .setChoices([
+        .setChoices(...[
           { name: "In Person", value: "t-ip" },
           { name: "Online Text Chat", value: "t-ot" },
           { name: "Online Voice Chat", value: "t-ov" },
@@ -48,7 +48,7 @@ export const tutorlog: Command = {
         .setRequired(false),
     ),
   run: async (interaction) => {
-    await interaction.deferReply({ ephemeral: false });
+    await interaction.deferReply({});
     const { user } = interaction;
     const guild = interaction.guild as Guild;
 

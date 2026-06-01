@@ -1,4 +1,6 @@
-import { SlashCommandBuilder } from "discord.js";
+import { SlashCommandBuilder,
+  MessageFlags,
+} from "discord.js";
 import { Command } from "../../interfaces/Command";
 import { createEmbed } from "../../utils/embeded";
 import * as Logger from "../../utils/logs";
@@ -22,7 +24,7 @@ export const report: Command = {
         .setRequired(true)
     ),
   run: async (interaction) => {
-    await interaction.deferReply({ ephemeral: true });
+    await interaction.deferReply({ flags: MessageFlags.Ephemeral });
 
     const type = interaction.options.get("type", true).value as string;
     const message = interaction.options.get("message", true).value as string;
